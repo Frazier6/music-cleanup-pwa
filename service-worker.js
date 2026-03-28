@@ -1,5 +1,5 @@
 // service-worker.js — Music Library Cleanup PWA
-const CACHE = 'music-cleanup-v2';
+const CACHE = 'music-cleanup-v4';
 const ASSETS = [
   './',
   './index.html',

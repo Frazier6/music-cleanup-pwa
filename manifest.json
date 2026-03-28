@@ -4,8 +4,8 @@
   "description": "Find and remove duplicate music files from your library — 100% private, runs in your browser",
   "start_url": "./",
   "display": "standalone",
-  "background_color": "#0f0e0c",
-  "theme_color": "#0f0e0c",
+  "background_color": "#080c14",
+  "theme_color": "#080c14",
   "orientation": "any",
   "icons": [
     { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
