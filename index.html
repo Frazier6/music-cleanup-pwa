@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MusicCleanup — Find & Remove Duplicate Tracks</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0f0e0c">
+<meta name="description" content="Find and remove duplicate music files from your library — 100% private, runs in your browser">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink:  #0f0e0c; --ink1: #161410; --ink2: #1e1b16; --ink3: #26221c; --ink4: #302b23;
+  --line: #2e2a22; --line2: #3d3830;
+  --dust: #8a8070; --ash: #5c5448; --fog: #3a342c;
+  --paper: #e8e0d4; --paper2: #c8bfb0; --paper3: #a09080;
+  --amber: #e8a030; --amber2: #f0b848;
+  --amber-dim: rgba(232,160,48,.12); --amber-glow: rgba(232,160,48,.05);
+  --red: #e05252; --orange: #d4783a; --yellow: #c8a828;
+  --green: #5a9e6a; --teal: #4a8e8a; --violet: #7a6ab0;
+  --f-disp: 'Syne', sans-serif; --f-mono: 'DM Mono', monospace;
+  --r: 5px; --r2: 10px; --tr: 160ms ease; --tr2: 260ms cubic-bezier(.25,.46,.45,.94);
+}
+*,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
+html,body { height:100%; overflow:hidden; background:var(--ink); color:var(--paper); font-family:var(--f-disp); font-size:14px; line-height:1.5; }
+
+/* Noise grain overlay */
+body::before {
+  content:''; position:fixed; inset:0; pointer-events:none; z-index:0; opacity:.022;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size:160px;
+}
+
+/* App shell */
+.app { display:grid; grid-template-rows:56px 1fr; height:100vh; position:relative; z-index:1; }
+
+/* Header */
+.header {
+  display:flex; align-items:center; gap:16px; padding:0 24px;
+  background:var(--ink1); border-bottom:1px solid var(--line); z-index:100; position:relative;
+}
+.logo { display:flex; align-items:center; gap:12px; }
+.vinyl-badge {
+  width:32px; height:32px; border-radius:50%; flex-shrink:0; position:relative;
+  background: conic-gradient(var(--ink3) 0deg,var(--ink4) 18deg,var(--ink3) 36deg,var(--ink4) 54deg,var(--ink3) 72deg,var(--ink4) 90deg,var(--ink3) 108deg,var(--ink4) 126deg,var(--ink3) 144deg,var(--ink4) 162deg,var(--ink3) 180deg,var(--ink4) 198deg,var(--ink3) 216deg,var(--ink4) 234deg,var(--ink3) 252deg,var(--ink4) 270deg,var(--ink3) 288deg,var(--ink4) 306deg,var(--ink3) 324deg,var(--ink4) 342deg,var(--ink3) 360deg);
+  border:2px solid var(--amber); overflow:hidden;
+}
+.vinyl-badge::after {
+  content:''; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+  width:10px; height:10px; border-radius:50%; background:var(--amber);
+  box-shadow: 0 0 0 3px var(--ink2);
+}
+.logo-words { display:flex; flex-direction:column; line-height:1; }
+.logo-name  { font-size:15px; font-weight:800; letter-spacing:.06em; color:var(--paper); text-transform:uppercase; }
+.logo-name em { color:var(--amber); font-style:normal; }
+.logo-tag   { font-family:var(--f-mono); font-size:9px; letter-spacing:.16em; color:var(--ash); text-transform:uppercase; margin-top:2px; }
+.h-div  { width:1px; height:22px; background:var(--line2); }
+.h-pill { display:flex; align-items:center; gap:6px; font-family:var(--f-mono); font-size:10px; letter-spacing:.07em; color:var(--ash); padding:3px 8px; background:var(--ink2); border:1px solid var(--line); border-radius:3px; }
+.h-dot  { width:5px; height:5px; border-radius:50%; background:var(--green); }
+.h-sep  { flex:1; }
+.h-count { font-family:var(--f-mono); font-size:11px; color:var(--dust); padding:3px 10px; background:var(--ink2); border:1px solid var(--line); border-radius:3px; display:none; }
+.h-count.on { display:block; }
+
+/* Body split */
+.body { display:grid; grid-template-columns:284px 1fr; overflow:hidden; }
+
+/* ── Sidebar ── */
+.sidebar { background:var(--ink1); border-right:1px solid var(--line); display:flex; flex-direction:column; overflow-y:auto; overflow-x:hidden; }
+.sidebar::-webkit-scrollbar { width:4px; }
+.sidebar::-webkit-scrollbar-thumb { background:var(--line2); border-radius:2px; }
+
+.s-blk { padding:18px 20px; border-bottom:1px solid var(--line); }
+.s-blk:last-child { border-bottom:none; }
+.s-eye {
+  font-family:var(--f-mono); font-size:9px; font-weight:500; letter-spacing:.18em; text-transform:uppercase;
+  color:var(--ash); margin-bottom:12px; display:flex; align-items:center; gap:8px;
+}
+.s-eye::after { content:''; flex:1; height:1px; background:var(--line); }
+
+/* Drop zone */
+.drop {
+  position:relative; border-radius:var(--r2); border:1.5px dashed var(--line2);
+  background:var(--ink2); padding:22px 16px; text-align:center; cursor:pointer;
+  transition:border-color var(--tr), background var(--tr); overflow:hidden;
+}
+.drop::before {
+  content:''; position:absolute; inset:0;
+  background:radial-gradient(ellipse at 50% 0%,var(--amber-dim) 0%,transparent 70%);
+  opacity:0; transition:opacity var(--tr2);
+}
+.drop:hover,  .drop.drag  { border-color:var(--amber); }
+.drop:hover::before, .drop.drag::before { opacity:1; }
+
+.drop-disc {
+  width:52px; height:52px; border-radius:50%; margin:0 auto 12px; position:relative;
+  background: conic-gradient(var(--ink3) 0deg,var(--ink4) 13deg,var(--ink3) 26deg,var(--ink4) 39deg,var(--ink3) 52deg,var(--ink4) 65deg,var(--ink3) 78deg,var(--ink4) 91deg,var(--ink3) 104deg,var(--ink4) 117deg,var(--ink3) 130deg,var(--ink4) 143deg,var(--ink3) 156deg,var(--ink4) 169deg,var(--ink3) 182deg,var(--ink4) 195deg,var(--ink3) 208deg,var(--ink4) 221deg,var(--ink3) 234deg,var(--ink4) 247deg,var(--ink3) 260deg,var(--ink4) 273deg,var(--ink3) 286deg,var(--ink4) 299deg,var(--ink3) 312deg,var(--ink4) 325deg,var(--ink3) 338deg,var(--ink4) 351deg,var(--ink3) 360deg);
+  border:2px solid var(--line2); transition:border-color var(--tr);
+  animation:disc-spin 14s linear infinite paused;
+}
+.drop:hover .drop-disc, .drop.drag .drop-disc { border-color:var(--amber); animation-play-state:running; }
+.drop-disc::after { content:''; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:14px; height:14px; border-radius:50%; background:var(--amber); box-shadow:0 0 0 4px var(--ink2); }
+@keyframes disc-spin { to { transform:rotate(360deg); } }
+
+.drop-title { font-size:13px; font-weight:700; color:var(--paper); margin-bottom:4px; position:relative; z-index:1; }
+.drop-sub   { font-size:11px; color:var(--dust); line-height:1.55; position:relative; z-index:1; }
+.drop-sub strong { color:var(--amber); font-weight:500; }
+
+.folder-chip {
+  display:none; margin-top:10px; padding:6px 10px;
+  background:var(--ink3); border:1px solid var(--amber); border-radius:var(--r);
+  font-family:var(--f-mono); font-size:11px; color:var(--amber); text-align:center; word-break:break-all;
+}
+.folder-chip.on { display:block; }
+
+/* Toggle */
+.tog { position:relative; width:38px; height:22px; flex-shrink:0; cursor:pointer; }
+.tog input { opacity:0; width:0; height:0; }
+.tog-bg { position:absolute; inset:0; border-radius:11px; background:var(--ink3); border:1px solid var(--line2); transition:all var(--tr); }
+.tog input:checked ~ .tog-bg { background:var(--amber); border-color:var(--amber); }
+.tog-dot { position:absolute; top:3px; left:3px; width:14px; height:14px; border-radius:50%; background:var(--ash); transition:all var(--tr); }
+.tog input:checked ~ .tog-dot { transform:translateX(16px); background:var(--ink); }
+.opt-row { display:flex; align-items:center; justify-content:space-between; gap:10px; padding:8px 0; }
+.opt-row+.opt-row { border-top:1px solid var(--line); }
+.opt-lbl { font-size:13px; font-weight:500; color:var(--paper2); }
+.opt-dsc { font-family:var(--f-mono); font-size:10px; color:var(--ash); margin-top:2px; }
+
+/* Scan button */
+.scan-btn {
+  width:100%; padding:12px; background:var(--amber); border:none; border-radius:var(--r);
+  color:var(--ink); font-family:var(--f-disp); font-size:14px; font-weight:800;
+  letter-spacing:.05em; text-transform:uppercase; cursor:pointer;
+  display:flex; align-items:center; justify-content:center; gap:8px;
+  position:relative; overflow:hidden; transition:transform var(--tr), opacity var(--tr);
+}
+.scan-btn::before {
+  content:''; position:absolute; inset:0;
+  background:linear-gradient(to right,transparent,rgba(255,255,255,.15),transparent);
+  transform:translateX(-100%); transition:transform .55s ease;
+}
+.scan-btn:hover:not(:disabled)::before { transform:translateX(100%); }
+.scan-btn:hover:not(:disabled) { transform:translateY(-1px); }
+.scan-btn:disabled { opacity:.28; cursor:not-allowed; transform:none; }
+.scan-btn.cancelling { background:var(--red); color:#fff; }
+
+/* Pipeline */
+.pipeline { display:none; margin-top:14px; }
+.pipeline.on { display:block; }
+.pb-wrap { height:3px; background:var(--ink3); border-radius:2px; overflow:hidden; margin-bottom:8px; }
+.pb-fill { height:100%; background:var(--amber); border-radius:2px; transition:width .3s ease; width:0; }
+.pb-fill.ind { width:35%; animation:pb-ind 1.3s ease-in-out infinite; }
+@keyframes pb-ind { 0%{margin-left:-35%} 100%{margin-left:135%} }
+
+.ps-row { display:grid; grid-template-columns:repeat(4,1fr); gap:4px; margin-bottom:8px; }
+.ps {
+  display:flex; flex-direction:column; align-items:center; gap:3px; padding:6px 3px;
+  border-radius:4px; border:1px solid var(--line); background:var(--ink2);
+  transition:border-color var(--tr), background var(--tr);
+}
+.ps.act { border-color:var(--amber); background:rgba(232,160,48,.1); }
+.ps.done { border-color:var(--green); background:rgba(90,158,106,.07); }
+.ps-ic { font-size:13px; }
+.ps-lb { font-family:var(--f-mono); font-size:8px; color:var(--ash); letter-spacing:.07em; text-transform:uppercase; text-align:center; }
+.ps.act .ps-lb { color:var(--amber); }
+.ps.done .ps-lb { color:var(--green); }
+.pb-msg { font-family:var(--f-mono); font-size:10px; color:var(--ash); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+
+/* Stats */
+.stat-grid { display:grid; grid-template-columns:1fr 1fr; gap:6px; }
+.stat-card { background:var(--ink2); border:1px solid var(--line); border-radius:var(--r); padding:10px 12px; transition:border-color var(--tr); }
+.stat-card:hover { border-color:var(--line2); }
+.stat-n { font-size:22px; font-weight:800; line-height:1; letter-spacing:-.01em; color:var(--paper); }
+.stat-n.a{color:var(--amber)} .stat-n.r{color:var(--red)} .stat-n.g{color:var(--green)}
+.stat-l { font-family:var(--f-mono); font-size:9px; letter-spacing:.1em; text-transform:uppercase; color:var(--ash); margin-top:4px; }
+
+/* Filter pills */
+.fstrip { display:flex; gap:4px; flex-wrap:wrap; }
+.fp {
+  font-family:var(--f-mono); font-size:10px; letter-spacing:.05em; padding:4px 9px;
+  border-radius:3px; cursor:pointer; border:1px solid var(--line2); background:var(--ink2);
+  color:var(--dust); transition:all var(--tr); white-space:nowrap;
+}
+.fp:hover { color:var(--paper2); border-color:var(--dust); }
+.fp.on { background:var(--amber-dim); border-color:var(--amber); color:var(--amber); }
+
+/* Sort */
+.s-sel {
+  width:100%; padding:7px 10px; appearance:none; background:var(--ink2); border:1px solid var(--line2);
+  border-radius:var(--r); color:var(--dust); font-family:var(--f-mono); font-size:11px; outline:none; cursor:pointer; transition:border-color var(--tr);
+}
+.s-sel:hover,.s-sel:focus { border-color:var(--amber); color:var(--paper2); }
+
+/* Privacy note */
+.priv-note { margin-top:auto; padding:16px 20px; border-top:1px solid var(--line); font-family:var(--f-mono); font-size:10px; color:var(--ash); line-height:1.7; }
+.priv-note strong { color:var(--paper3); font-weight:500; }
+
+/* ── Main panel ── */
+.main { display:flex; flex-direction:column; overflow:hidden; background:var(--ink); }
+
+/* Tab bar */
+.tab-bar { display:flex; align-items:stretch; padding:0 24px; background:var(--ink1); border-bottom:1px solid var(--line); flex-shrink:0; }
+.tab {
+  padding:0 15px; height:48px; display:flex; align-items:center; gap:7px;
+  font-size:13px; font-weight:600; letter-spacing:.01em; color:var(--ash);
+  cursor:pointer; border-bottom:2px solid transparent; transition:all var(--tr);
+  white-space:nowrap; margin-bottom:-1px;
+}
+.tab:hover { color:var(--paper2); }
+.tab.on { color:var(--paper); border-bottom-color:var(--amber); }
+.tbadge {
+  font-family:var(--f-mono); font-size:9px; letter-spacing:.06em; padding:2px 6px;
+  border-radius:20px; background:var(--ink3); border:1px solid var(--line2); color:var(--ash);
+  min-width:22px; text-align:center;
+}
+.tab.on .tbadge { background:var(--amber-dim); border-color:var(--amber); color:var(--amber); }
+
+/* Content */
+.content { flex:1; overflow-y:auto; padding:22px 24px; }
+.content::-webkit-scrollbar { width:5px; }
+.content::-webkit-scrollbar-thumb { background:var(--line2); border-radius:3px; }
+
+/* Results header strip */
+.rh { display:none; background:var(--ink1); border:1px solid var(--line); border-radius:var(--r2); margin-bottom:20px; overflow:hidden; }
+.rh.on { display:flex; }
+.rh-cell { flex:1; padding:14px 18px; border-right:1px solid var(--line); position:relative; }
+.rh-cell:last-child { border-right:none; }
+.rh-cell::before { content:''; position:absolute; left:0; top:0; bottom:0; width:3px; }
+.rh-cell.a::before{background:var(--amber)} .rh-cell.r::before{background:var(--red)} .rh-cell.g::before{background:var(--green)}
+.rh-val { font-size:26px; font-weight:800; letter-spacing:-.02em; line-height:1; }
+.rh-val.a{color:var(--amber)} .rh-val.r{color:var(--red)} .rh-val.g{color:var(--green)}
+.rh-lbl { font-family:var(--f-mono); font-size:9px; letter-spacing:.12em; text-transform:uppercase; color:var(--ash); margin-top:5px; }
+
+/* Action bar */
+.act-bar {
+  display:none; align-items:center; gap:10px; padding:10px 14px; margin-bottom:16px;
+  background:rgba(224,82,82,.06); border:1px solid rgba(224,82,82,.2); border-radius:var(--r);
+}
+.act-bar.on { display:flex; }
+.ab-cnt { font-family:var(--f-mono); font-size:12px; color:var(--red); flex:1; letter-spacing:.03em; }
+.ab-clr {
+  padding:5px 12px; font-family:var(--f-mono); font-size:11px;
+  background:var(--ink3); border:1px solid var(--line2); border-radius:var(--r); color:var(--dust); cursor:pointer; transition:all var(--tr);
+}
+.ab-clr:hover { color:var(--paper2); }
+.ab-go {
+  padding:5px 14px; font-family:var(--f-disp); font-size:12px; font-weight:700; letter-spacing:.04em; text-transform:uppercase;
+  background:var(--red); border:none; border-radius:var(--r); color:#fff; cursor:pointer; transition:opacity var(--tr);
+}
+.ab-go:hover { opacity:.84; }
+
+/* Group cards */
+.gcard {
+  background:var(--ink1); border:1px solid var(--line); border-radius:var(--r2); margin-bottom:10px; overflow:hidden;
+  transition:border-color var(--tr), box-shadow var(--tr);
+}
+.gcard:hover { border-color:var(--line2); box-shadow:0 2px 14px rgba(0,0,0,.3); }
+
+.ghdr {
+  display:flex; align-items:center; gap:10px; padding:12px 16px;
+  cursor:pointer; user-select:none; background:var(--ink2);
+  transition:background var(--tr); position:relative;
+}
+.ghdr:hover { background:var(--ink3); }
+.ghdr::before { content:''; position:absolute; left:0; top:0; bottom:0; width:3px; border-radius:0 2px 2px 0; background:var(--line2); transition:background var(--tr); }
+.gcard[data-t="exact_file"]      .ghdr::before { background:var(--red); }
+.gcard[data-t="exact_audio"]     .ghdr::before { background:var(--orange); }
+.gcard[data-t="metadata_match"]  .ghdr::before { background:var(--yellow); }
+
+.g-type-pill {
+  font-family:var(--f-mono); font-size:9px; letter-spacing:.1em; text-transform:uppercase;
+  padding:3px 8px; border-radius:3px; border:1px solid currentColor; white-space:nowrap; font-weight:500;
+}
+.g-info { flex:1; min-width:0; }
+.g-song   { font-size:13px; font-weight:600; color:var(--paper); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.g-artist { font-family:var(--f-mono); font-size:10px; color:var(--dust); margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.g-cnt {
+  font-family:var(--f-mono); font-size:10px; color:var(--ash); padding:2px 7px;
+  background:var(--ink3); border:1px solid var(--line2); border-radius:3px; white-space:nowrap; flex-shrink:0;
+}
+.g-waste { font-family:var(--f-mono); font-size:11px; color:var(--ash); text-align:right; flex-shrink:0; line-height:1.3; }
+.g-waste strong { color:var(--paper3); display:block; font-size:13px; }
+.gchev { color:var(--ash); flex-shrink:0; transition:transform var(--tr2); }
+.gcard.open .gchev { transform:rotate(90deg); }
+.gbody { display:none; }
+.gcard.open .gbody { display:block; }
+
+/* File rows */
+.frow {
+  display:grid; grid-template-columns:17px 1fr auto; gap:12px; align-items:center;
+  padding:10px 16px 10px 20px; border-top:1px solid var(--line);
+  transition:background var(--tr); position:relative;
+}
+.frow:hover { background:var(--ink2); }
+.frow.kr { background:rgba(90,158,106,.04); }
+.frow.mr { background:rgba(224,82,82,.05); }
+.frow::before { content:''; position:absolute; left:0; top:6px; bottom:6px; width:2px; border-radius:2px; opacity:0; }
+.frow.kr::before { background:var(--green); opacity:1; }
+.frow.mr::before { background:var(--red); opacity:.6; }
+.fchk { cursor:pointer; accent-color:var(--red); width:14px; height:14px; flex-shrink:0; }
+.fd { min-width:0; }
+.f-nm { font-family:var(--f-mono); font-size:11.5px; color:var(--paper); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.f-dt { font-family:var(--f-mono); font-size:10px; color:var(--dust); margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.f-pills { display:flex; gap:4px; flex-wrap:wrap; margin-top:5px; }
+.fpsm {
+  font-family:var(--f-mono); font-size:9px; letter-spacing:.05em; padding:1px 5px;
+  border-radius:2px; border:1px solid var(--line2); color:var(--ash); background:var(--ink3);
+}
+.fpsm.kp { border-color:var(--green); color:var(--green); background:rgba(90,158,106,.1); }
+.fpsm.fm { border-color:var(--teal); color:var(--teal); }
+.f-side { display:flex; flex-direction:column; align-items:flex-end; gap:5px; }
+.f-sz { font-family:var(--f-mono); font-size:10px; color:var(--ash); white-space:nowrap; }
+.f-cp {
+  font-family:var(--f-mono); font-size:9px; letter-spacing:.05em; text-transform:uppercase;
+  padding:3px 7px; border-radius:3px; cursor:pointer; border:1px solid var(--line2);
+  background:var(--ink3); color:var(--ash); transition:all var(--tr);
+}
+.f-cp:hover { color:var(--paper2); border-color:var(--dust); }
+
+/* Pager */
+.pager { display:flex; align-items:center; justify-content:center; gap:4px; padding:16px 0 2px; }
+.pbn {
+  height:30px; min-width:30px; padding:0 8px; display:flex; align-items:center; justify-content:center;
+  font-family:var(--f-mono); font-size:11px; border:1px solid var(--line2);
+  background:var(--ink2); color:var(--dust); border-radius:var(--r); cursor:pointer; transition:all var(--tr);
+}
+.pbn:hover:not(:disabled) { color:var(--paper2); border-color:var(--dust); }
+.pbn.on { background:var(--amber-dim); border-color:var(--amber); color:var(--amber); }
+.pbn:disabled { opacity:.3; cursor:not-allowed; }
+.pdot { font-family:var(--f-mono); font-size:11px; color:var(--ash); padding:0 2px; }
+
+/* Empty states */
+.empty { display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:300px; text-align:center; gap:12px; padding:20px; }
+.e-disc {
+  width:72px; height:72px; border-radius:50%; margin-bottom:4px; position:relative; opacity:.45;
+  background: conic-gradient(var(--ink2) 0deg,var(--ink3) 18deg,var(--ink2) 36deg,var(--ink3) 54deg,var(--ink2) 72deg,var(--ink3) 90deg,var(--ink2) 108deg,var(--ink3) 126deg,var(--ink2) 144deg,var(--ink3) 162deg,var(--ink2) 180deg,var(--ink3) 198deg,var(--ink2) 216deg,var(--ink3) 234deg,var(--ink2) 252deg,var(--ink3) 270deg,var(--ink2) 288deg,var(--ink3) 306deg,var(--ink2) 324deg,var(--ink3) 342deg,var(--ink2) 360deg);
+  border:2px solid var(--line2);
+}
+.e-disc::after { content:''; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:18px; height:18px; border-radius:50%; background:var(--ink3); border:2px solid var(--line2); }
+.e-title { font-size:18px; font-weight:700; color:var(--paper2); letter-spacing:-.01em; }
+.e-sub   { font-size:13px; color:var(--dust); max-width:300px; line-height:1.65; }
+
+/* List rows (all files / corrupt) */
+.lrow {
+  display:flex; align-items:flex-start; gap:12px; padding:10px 14px;
+  border-bottom:1px solid var(--line); transition:background var(--tr);
+}
+.lrow:first-child { border-top:1px solid var(--line); }
+.lrow:hover { background:var(--ink1); }
+.lrow-ic { font-size:16px; flex-shrink:0; margin-top:1px; }
+.lrow-inf { flex:1; min-width:0; }
+.li-nm  { font-family:var(--f-mono); font-size:11.5px; color:var(--paper2); word-break:break-all; }
+.li-sub { font-family:var(--f-mono); font-size:10px; color:var(--dust); margin-top:3px; }
+.li-err { font-size:11px; color:var(--red); margin-top:2px; }
+.lrow-sz { font-family:var(--f-mono); font-size:10px; color:var(--ash); white-space:nowrap; flex-shrink:0; margin-top:2px; }
+
+/* Trash tab */
+.th-strip {
+  display:flex; align-items:center; gap:12px; padding:12px 16px;
+  background:var(--ink1); border:1px solid var(--line); border-radius:var(--r2); margin-bottom:14px;
+}
+.th-info { flex:1; font-family:var(--f-mono); font-size:11px; color:var(--dust); }
+.th-info strong { color:var(--paper2); }
+.th-dl {
+  padding:7px 14px; font-family:var(--f-disp); font-size:12px; font-weight:700;
+  letter-spacing:.05em; text-transform:uppercase; background:var(--amber);
+  border:none; border-radius:var(--r); color:var(--ink); cursor:pointer; transition:opacity var(--tr);
+}
+.th-dl:hover { opacity:.88; }
+.warn-note {
+  padding:10px 14px; background:rgba(200,168,40,.06); border:1px solid rgba(200,168,40,.2);
+  border-radius:var(--r); margin-bottom:14px; font-size:12px; color:var(--dust); line-height:1.6;
+}
+.warn-note strong { color:var(--yellow); }
+
+/* Toasts */
+.toasts { position:fixed; bottom:20px; right:20px; z-index:9999; display:flex; flex-direction:column; gap:6px; }
+.toast {
+  padding:10px 16px; border-radius:var(--r); font-size:13px; font-weight:500;
+  background:var(--ink2); border:1px solid var(--line2); color:var(--paper);
+  box-shadow:0 6px 24px rgba(0,0,0,.5); animation:t-in 170ms ease forwards; max-width:320px;
+}
+.toast.ok  { border-left:3px solid var(--green); }
+.toast.err { border-left:3px solid var(--red);   }
+.toast.info{ border-left:3px solid var(--amber);  }
+@keyframes t-in { from{transform:translateX(12px);opacity:0} to{transform:none;opacity:1} }
+
+/* Install banner */
+.ib { display:none; align-items:center; gap:10px; padding:8px 20px; background:var(--amber-glow); border-bottom:1px solid rgba(232,160,48,.22); font-size:12px; color:var(--paper2); }
+.ib.on { display:flex; }
+.ib-inst { padding:4px 12px; background:var(--amber); border:none; border-radius:3px; color:var(--ink); font-size:12px; font-weight:700; cursor:pointer; margin-left:auto; transition:opacity var(--tr); }
+.ib-inst:hover { opacity:.88; }
+.ib-x { background:none; border:none; color:var(--ash); cursor:pointer; font-size:14px; padding:2px 6px; }
+
+/* Compat overlay */
+.co { display:none; position:fixed; inset:0; background:rgba(0,0,0,.85); backdrop-filter:blur(4px); align-items:center; justify-content:center; z-index:9999; padding:20px; }
+.co.on { display:flex; }
+.co-box { background:var(--ink1); border:1px solid var(--line2); border-radius:12px; max-width:480px; width:100%; padding:32px; text-align:center; }
+.co-box h2 { font-size:22px; font-weight:800; margin-bottom:12px; }
+.co-box p  { color:var(--dust); font-size:14px; line-height:1.8; margin-bottom:14px; }
+.co-box code { font-family:var(--f-mono); font-size:12px; background:var(--ink3); padding:2px 7px; border-radius:3px; color:var(--amber); }
+
+@keyframes spin { to { transform:rotate(360deg); } }
+.spin { display:inline-block; animation:spin 1s linear infinite; }
+@keyframes fi { from{opacity:0;transform:translateY(4px)} to{opacity:1;transform:none} }
+.fi { animation:fi .25s ease forwards; }
+</style>
+</head>
+<body>
+
+<div class="co" id="co"><div class="co-box">
+  <h2>⚠️ Browser Not Supported</h2>
+  <p>MusicCleanup requires the <strong>File System Access API</strong>, available in <strong>Chrome 86+</strong> and <strong>Edge 86+</strong>.<br><br>Firefox and Safari don't support folder access in the browser yet.<br><br>Open this page in <code>Chrome</code> or <code>Edge</code> on desktop.</p>
+</div></div>
+
+<div class="ib" id="ib">
+  <span>📲</span>
+  <span>Install <strong>MusicCleanup</strong> as a desktop app for offline use</span>
+  <button class="ib-inst" id="ib-btn">Install</button>
+  <button class="ib-x" onclick="document.getElementById('ib').classList.remove('on')">✕</button>
+</div>
+
+<div class="app">
+  <header class="header">
+    <div class="logo">
+      <div class="vinyl-badge"></div>
+      <div class="logo-words">
+        <div class="logo-name">Music<em>Cleanup</em></div>
+        <div class="logo-tag">Duplicate Detector · PWA</div>
+      </div>
+    </div>
+    <div class="h-div"></div>
+    <div class="h-pill"><div class="h-dot"></div>Client-Only · 100% Private</div>
+    <div class="h-sep"></div>
+    <div class="h-count" id="hc"></div>
+  </header>
+
+  <div class="body">
+    <aside class="sidebar">
+
+      <div class="s-blk">
+        <div class="s-eye">Music Folder</div>
+        <div class="drop" id="dz">
+          <div class="drop-disc" id="dd"></div>
+          <div class="drop-title">Select Your Music Folder</div>
+          <div class="drop-sub">Click to browse, or drag &amp; drop a folder<br><strong>Everything stays on your device</strong></div>
+        </div>
+        <div class="folder-chip" id="fc"></div>
+      </div>
+
+      <div class="s-blk">
+        <div class="s-eye">Options</div>
+        <div class="opt-row">
+          <div><div class="opt-lbl">Auto-select duplicates</div><div class="opt-dsc">Pre-check non-recommended copies</div></div>
+          <label class="tog"><input type="checkbox" id="autosel" checked><span class="tog-bg"></span><span class="tog-dot"></span></label>
+        </div>
+      </div>
+
+      <div class="s-blk">
+        <button class="scan-btn" id="scan-btn" disabled>
+          <svg width="13" height="13" viewBox="0 0 16 16" fill="currentColor"><path d="M11.742 10.344a6.5 6.5 0 10-1.397 1.398h.001l3.85 3.85a1 1 0 001.414-1.414l-3.85-3.85a6.5 6.5 0 00-1.398-1.397zm-5.242.656a5.5 5.5 0 100-11 5.5 5.5 0 000 11z"/></svg>
+          Scan Library
+        </button>
+        <div class="pipeline" id="pl">
+          <div class="pb-wrap"><div class="pb-fill" id="pbf"></div></div>
+          <div class="ps-row">
+            <div class="ps" id="ps0"><div class="ps-ic">📂</div><div class="ps-lb">Index</div></div>
+            <div class="ps" id="ps1"><div class="ps-ic">🏷</div><div class="ps-lb">Meta</div></div>
+            <div class="ps" id="ps2"><div class="ps-ic">🔢</div><div class="ps-lb">Hash</div></div>
+            <div class="ps" id="ps3"><div class="ps-ic">🔍</div><div class="ps-lb">Dedup</div></div>
+          </div>
+          <div class="pb-msg" id="pbm">Initializing…</div>
+        </div>
+      </div>
+
+      <div class="s-blk" id="stats" style="display:none">
+        <div class="s-eye">Results</div>
+        <div class="stat-grid">
+          <div class="stat-card"><div class="stat-n" id="st0">—</div><div class="stat-l">Audio Files</div></div>
+          <div class="stat-card"><div class="stat-n r" id="st1">—</div><div class="stat-l">Dup Groups</div></div>
+          <div class="stat-card"><div class="stat-n g" id="st2">—</div><div class="stat-l">Reclaimable</div></div>
+          <div class="stat-card"><div class="stat-n a" id="st3">—</div><div class="stat-l">Removable</div></div>
+        </div>
+      </div>
+
+      <div class="s-blk" id="filters" style="display:none">
+        <div class="s-eye">Filter</div>
+        <div class="fstrip" id="fps">
+          <div class="fp on" data-t="all">All</div>
+          <div class="fp" data-t="exact_file"      style="color:var(--red)">Exact Copy</div>
+          <div class="fp" data-t="exact_audio"     style="color:var(--orange)">Same Audio</div>
+          <div class="fp" data-t="metadata_match"  style="color:var(--yellow)">Metadata</div>
+        </div>
+        <div style="margin-top:12px">
+          <div class="s-eye">Sort</div>
+          <select class="s-sel" id="sort">
+            <option value="wasted">Wasted Space ↓</option>
+            <option value="type">Type</option>
+            <option value="count">File Count ↓</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="priv-note">
+        <strong>🔒 Zero network access.</strong><br>
+        Files never leave your device. All scanning, hashing, and matching runs locally in your browser via the File System Access API.
+      </div>
+    </aside>
+
+    <main class="main">
+      <div class="tab-bar">
+        <div class="tab on" data-tab="dup">Duplicates <span class="tbadge" id="bd">0</span></div>
+        <div class="tab" data-tab="all">All Files <span class="tbadge" id="ba">0</span></div>
+        <div class="tab" data-tab="corrupt">Corrupted <span class="tbadge" id="bc">0</span></div>
+        <div class="tab" data-tab="trash">Trash Review <span class="tbadge" id="bt">0</span></div>
+      </div>
+
+      <!-- Duplicates -->
+      <div class="content" id="tab-dup">
+        <div class="rh" id="rh">
+          <div class="rh-cell a"><div class="rh-val a" id="rh0">—</div><div class="rh-lbl">Recoverable Space</div></div>
+          <div class="rh-cell r"><div class="rh-val r" id="rh1">—</div><div class="rh-lbl">Duplicate Files</div></div>
+          <div class="rh-cell g"><div class="rh-val g" id="rh2">—</div><div class="rh-lbl">Groups Found</div></div>
+        </div>
+        <div class="act-bar" id="ab">
+          <span class="ab-cnt" id="abc">0 files selected</span>
+          <button class="ab-clr" onclick="clearSel()">Clear</button>
+          <button class="ab-go"  onclick="moveToTrash()">Move to Trash Review</button>
+        </div>
+        <div id="gc"></div>
+        <div class="pager" id="pg"></div>
+        <div class="empty" id="de">
+          <div class="e-disc"></div>
+          <div class="e-title">Ready to Scan</div>
+          <div class="e-sub">Select your music folder in the sidebar, then click <strong>Scan Library</strong> to detect duplicate tracks.</div>
+        </div>
+      </div>
+
+      <!-- All files -->
+      <div class="content" id="tab-all" style="display:none">
+        <div id="ac"></div>
+        <div class="empty" id="ae"><div class="e-disc"></div><div class="e-title">No Files Yet</div><div class="e-sub">Run a scan to see all discovered audio files.</div></div>
+      </div>
+
+      <!-- Corrupt -->
+      <div class="content" id="tab-corrupt" style="display:none">
+        <div id="cc"></div>
+        <div class="empty" id="ce"><div class="e-disc"></div><div class="e-title">No Issues Found</div><div class="e-sub">All scanned files are readable.</div></div>
+      </div>
+
+      <!-- Trash -->
+      <div class="content" id="tab-trash" style="display:none">
+        <div id="tc">
+          <div class="empty"><div class="e-disc"></div><div class="e-title">Trash is Empty</div><div class="e-sub">Files you mark for removal appear here for review.<br><strong>Nothing is deleted automatically.</strong></div></div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+<div class="toasts" id="toasts"></div>
+
+<script>
+const S={worker:null,scanning:false,folder:null,files:[],groups:[],corrupt:[],trash:[],sel:new Set(),filter:'all',sort:'wasted',page:1,pp:12,deferInstall:null};
+
+document.addEventListener('DOMContentLoaded',()=>{
+  if(!('showDirectoryPicker' in window)){document.getElementById('co').classList.add('on');return;}
+  initW(); setupDZ(); setupTabs(); setupFPs(); setupPWA();
+  document.getElementById('sort').addEventListener('change',e=>{S.sort=e.target.value;S.page=1;renderGroups();});
+});
+
+function initW(){
+  S.worker=new Worker('worker.js');
+  S.worker.onmessage=({data})=>{
+    if(data.type==='progress') onProg(data.payload);
+    else if(data.type==='stats') onStats(data.payload);
+    else if(data.type==='done')  onDone(data.payload);
+    else if(data.type==='error') onErr(data.payload);
+  };
+}
+
+function setupDZ(){
+  const dz=document.getElementById('dz');
+  dz.addEventListener('click',pickDir);
+  dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('drag');});
+  dz.addEventListener('dragleave',()=>dz.classList.remove('drag'));
+  dz.addEventListener('drop',async e=>{
+    e.preventDefault();dz.classList.remove('drag');
+    for(const item of[...e.dataTransfer.items]){
+      if(item.kind==='file'){try{const h=await item.getAsFileSystemHandle();if(h.kind==='directory'){setDir(h);return;}}catch{}}
+    }
+    toast('Drop a folder, not individual files','err');
+  });
+}
+async function pickDir(){try{setDir(await window.showDirectoryPicker({mode:'read'}));}catch(e){if(e.name!=='AbortError')toast('Could not open folder: '+e.message,'err');}}
+function setDir(h){
+  S.folder=h;
+  const fc=document.getElementById('fc');fc.textContent='📂 '+h.name;fc.classList.add('on');
+  document.getElementById('scan-btn').disabled=false;
+  document.querySelector('.drop-title').textContent=h.name;
+  document.querySelector('.drop-sub').innerHTML=`<strong>${esc(h.name)}</strong> — click Scan Library to begin`;
+  toast('Folder: '+h.name,'info');
+}
+
+document.getElementById('scan-btn').addEventListener('click',async()=>{
+  if(S.scanning){cancelScan();return;}
+  if(!S.folder){toast('Select a folder first','err');return;}
+  await doScan();
+});
+async function doScan(){
+  S.scanning=true;S.sel.clear();S.trash=[];S.groups=[];S.files=[];S.corrupt=[];S.page=1;
+  setSBtn(true);showPL(true);setStage(0);resetUI();
+  try{
+    const handles=await collect(S.folder);
+    const hc=document.getElementById('hc');hc.textContent=handles.length.toLocaleString()+' files found';hc.classList.add('on');
+    S.worker.postMessage({type:'scan',payload:{fileHandles:handles}});
+  }catch(e){onErr({message:e.message});}
+}
+function cancelScan(){S.worker.terminate();initW();S.scanning=false;setSBtn(false);showPL(false);toast('Cancelled','info');}
+
+async function collect(dir,arr=[],d=0){
+  if(d>10)return arr;
+  for await(const e of dir.values()){
+    if(e.kind==='file')arr.push(e);
+    else if(!e.name.startsWith('.'))await collect(e,arr,d+1);
+  }
+  return arr;
+}
+
+const SM={building:0,metadata_extract:1,hashing:2,audio_hash:2,detecting:3,done:3};
+function onProg({stage,current,total,pct,message}){
+  const b=document.getElementById('pbf');b.classList.remove('ind');b.style.width=pct+'%';
+  document.getElementById('pbm').textContent=message;
+  if(SM[stage]!==undefined)setStage(SM[stage]);
+}
+function onStats({totalAudio}){document.getElementById('hc').textContent=totalAudio.toLocaleString()+' audio files';setStage(1);}
+function onDone(d){
+  S.scanning=false;S.groups=d.groups;S.files=d.allFiles;S.corrupt=d.corrupt;
+  setSBtn(false);document.getElementById('pbf').style.width='100%';allDone();
+  document.getElementById('pbm').textContent='Complete — '+d.groups.length.toLocaleString()+' duplicate groups';
+  ['bd','ba','bc'].forEach((id,i)=>document.getElementById(id).textContent=[d.groups.length,d.totalFiles,d.corrupt.length][i]);
+  document.getElementById('st0').textContent=fmt(d.totalFiles);
+  document.getElementById('st1').textContent=fmt(d.groups.length);
+  document.getElementById('st2').textContent=fmtMB(parseFloat(d.totalWastedMB));
+  document.getElementById('st3').textContent=fmt(d.removableCount);
+  document.getElementById('stats').style.display='block';
+  document.getElementById('rh0').textContent=fmtMB(parseFloat(d.totalWastedMB));
+  document.getElementById('rh1').textContent=fmt(d.removableCount);
+  document.getElementById('rh2').textContent=fmt(d.groups.length);
+  if(d.groups.length>0){
+    document.getElementById('rh').classList.add('on');
+    document.getElementById('filters').style.display='block';
+    if(document.getElementById('autosel').checked)autoSel();
+  }
+  renderGroups();renderCorrupt();renderAllFiles();
+  toast('Scan complete — '+d.groups.length+' duplicate groups','ok');
+}
+function onErr({message}){S.scanning=false;setSBtn(false);showPL(false);toast('Error: '+message,'err');}
+
+let _stage=-1;
+function setStage(n){
+  if(n===_stage)return;_stage=n;
+  [0,1,2,3].forEach(i=>{
+    const el=document.getElementById('ps'+i);
+    el.className='ps'+(i<n?' done':i===n?' act':'');
+  });
+}
+function allDone(){[0,1,2,3].forEach(i=>document.getElementById('ps'+i).className='ps done');}
+function showPL(on){
+  const p=document.getElementById('pl');p.classList.toggle('on',on);
+  if(!on){document.getElementById('pbf').style.width='0';_stage=-1;}
+  else document.getElementById('pbf').classList.add('ind');
+}
+
+function autoSel(){
+  S.sel.clear();
+  for(const g of S.groups)for(const f of g.files)if(f.name!==g.keep)S.sel.add(f.id);
+  updateAB();
+}
+
+/* ── Render ── */
+function getFS(){
+  let g=S.groups;
+  if(S.filter!=='all')g=g.filter(x=>x.type===S.filter);
+  if(S.sort==='wasted')g=[...g].sort((a,b)=>b.wastedBytes-a.wastedBytes);
+  else if(S.sort==='type')g=[...g].sort((a,b)=>a.type.localeCompare(b.type));
+  else g=[...g].sort((a,b)=>b.files.length-a.files.length);
+  return g;
+}
+function renderGroups(){
+  const ctr=document.getElementById('gc'),em=document.getElementById('de'),pg=document.getElementById('pg');
+  const gs=getFS(),tp=Math.max(1,Math.ceil(gs.length/S.pp));
+  if(S.page>tp)S.page=tp;
+  const sl=gs.slice((S.page-1)*S.pp,S.page*S.pp);
+  if(!sl.length){ctr.innerHTML='';pg.innerHTML='';em.style.display='flex';em.querySelector('.e-title').textContent=S.groups.length?'No Matches':'No Duplicates Found!';return;}
+  em.style.display='none';
+  ctr.innerHTML=sl.map(g=>buildCard(g)).join('');
+  renderPager(S.page,tp);
+}
+const TC={exact_file:'var(--red)',exact_audio:'var(--orange)',metadata_match:'var(--yellow)'};
+function buildCard(g){
+  const song=g.files[0].title||g.files[0].name,artist=g.files[0].artist||'';
+  const w=(g.wastedBytes/1048576).toFixed(1),col=TC[g.type]||'var(--dust)';
+  return `<div class="gcard fi" id="gc-${g.id}" data-t="${g.type}">
+    <div class="ghdr" onclick="toggleCard('${g.id}')">
+      <span class="g-type-pill" style="color:${col};border-color:${col}">${g.typeLabel}</span>
+      <div class="g-info">
+        <div class="g-song">${esc(song)}</div>
+        ${artist?`<div class="g-artist">${esc(artist)}</div>`:''}
+      </div>
+      <span class="g-cnt">${g.files.length} files</span>
+      <div class="g-waste"><strong>${w} MB</strong>wasted</div>
+      <svg class="gchev" width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+    <div class="gbody">${g.files.map(f=>buildFRow(f,g.keep)).join('')}</div>
+  </div>`;
+}
+function buildFRow(f,keep){
+  const ik=f.name===keep,im=S.sel.has(f.id);
+  const pills=[
+    ik?`<span class="fpsm kp">KEEP</span>`:'',
+    `<span class="fpsm fm">${f.ext.toUpperCase()}</span>`,
+    f.bitrate?`<span class="fpsm">${f.bitrate}k</span>`:'',
+    f.durationStr?`<span class="fpsm">${f.durationStr}</span>`:'',
+    f.sampleRate?`<span class="fpsm">${(f.sampleRate/1000).toFixed(1)}kHz</span>`:'',
+  ].filter(Boolean).join('');
+  const det=[f.artist&&f.title?`${f.artist} — ${f.title}`:'',f.album||''].filter(Boolean).join(' · ');
+  return `<div class="frow ${ik?'kr':''} ${im&&!ik?'mr':''}" id="fr-${f.id}">
+    <input class="fchk" type="checkbox" ${ik?'disabled':''} ${im&&!ik?'checked':''} onchange="togSel(${f.id},this.checked,${ik})">
+    <div class="fd">
+      <div class="f-nm" title="${esc(f.name)}">${esc(f.name)}</div>
+      ${det?`<div class="f-dt">${esc(det)}</div>`:''}
+      <div class="f-pills">${pills}</div>
+    </div>
+    <div class="f-side">
+      <div class="f-sz">${f.sizeMB} MB</div>
+      <button class="f-cp" onclick="cp('${esc(f.name)}')">Copy</button>
+    </div>
+  </div>`;
+}
+function toggleCard(id){document.getElementById('gc-'+id)?.classList.toggle('open');}
+
+/* Selection */
+function togSel(id,checked,isKeep){
+  if(isKeep)return;
+  if(checked)S.sel.add(id);else S.sel.delete(id);
+  document.getElementById('fr-'+id)?.classList.toggle('mr',checked);
+  updateAB();
+}
+function clearSel(){S.sel.clear();updateAB();renderGroups();}
+function updateAB(){
+  const b=document.getElementById('ab'),c=document.getElementById('abc');
+  if(S.sel.size>0){b.classList.add('on');c.textContent=S.sel.size.toLocaleString()+' file'+(S.sel.size>1?'s':'')+' selected for removal';}
+  else b.classList.remove('on');
+}
+
+/* Trash */
+function moveToTrash(){
+  if(!S.sel.size)return;
+  const ids=new Set(S.sel),add=S.files.filter(f=>ids.has(f.id)&&!S.trash.some(t=>t.id===f.id));
+  S.trash.push(...add);S.sel.clear();updateAB();
+  document.getElementById('bt').textContent=S.trash.length;
+  renderGroups();renderTrash();
+  toast(add.length+' file'+(add.length>1?'s':'')+' moved to Trash Review','ok');
+}
+function undoTrash(id){S.trash=S.trash.filter(f=>f.id!==id);document.getElementById('bt').textContent=S.trash.length;renderTrash();}
+function renderTrash(){
+  const el=document.getElementById('tc');
+  if(!S.trash.length){
+    el.innerHTML=`<div class="empty"><div class="e-disc"></div><div class="e-title">Trash is Empty</div><div class="e-sub">Files you mark for removal appear here for review.<br><strong>Nothing is deleted automatically.</strong></div></div>`;return;
+  }
+  const total=S.trash.reduce((s,f)=>s+parseFloat(f.sizeMB),0).toFixed(1);
+  el.innerHTML=`
+    <div class="th-strip">
+      <div class="th-info"><strong>${S.trash.length}</strong> file${S.trash.length>1?'s':''} · ${fmtMB(parseFloat(total))} marked</div>
+      <button class="th-dl" onclick="dlList()">⬇ Download Delete List</button>
+    </div>
+    <div class="warn-note"><strong>⚠ Browser Security:</strong> The browser cannot delete files directly (read-only access). Click <em>Download Delete List</em> for a shell script, then run it in Terminal or PowerShell.</div>
+    ${S.trash.map(f=>`<div class="lrow"><div class="lrow-ic">${fmtIcon(f.ext)}</div><div class="lrow-inf"><div class="li-nm">${esc(f.name)}</div><div class="li-sub">${f.sizeMB} MB · ${(f.ext||'').toUpperCase()}</div></div><button class="f-cp" onclick="undoTrash(${f.id})" style="color:var(--orange);border-color:var(--orange);margin-top:2px">Undo</button></div>`).join('')}
+  `;
+}
+function dlList(){
+  const lines=['# MusicCleanup — Delete List',`# Generated: ${new Date().toLocaleString()}`,`# Total: ${S.trash.length} files`,'','# macOS / Linux:','',
+    ...S.trash.map(f=>`rm "${f.name}"  # ${f.sizeMB} MB`),'','# Windows PowerShell:','',
+    ...S.trash.map(f=>`Remove-Item "${f.name}"  # ${f.sizeMB} MB`),'','# Filenames:','',
+    ...S.trash.map(f=>f.name)];
+  const url=URL.createObjectURL(new Blob([lines.join('\n')],{type:'text/plain'}));
+  Object.assign(document.createElement('a'),{href:url,download:`musiccleanup-${Date.now()}.txt`}).click();
+  URL.revokeObjectURL(url);toast('Delete list downloaded','ok');
+}
+
+/* All files */
+function renderAllFiles(){
+  const el=document.getElementById('ac'),em=document.getElementById('ae');
+  if(!S.files.length){em.style.display='flex';return;}
+  em.style.display='none';
+  const sl=S.files.slice(0,200);
+  el.innerHTML=`<div style="font-family:var(--f-mono);font-size:10px;color:var(--ash);padding:0 2px 12px;letter-spacing:.05em">SHOWING FIRST ${sl.length} OF ${S.files.length.toLocaleString()} AUDIO FILES</div>`+
+    sl.map(f=>`<div class="lrow"><div class="lrow-ic">${fmtIcon(f.ext)}</div><div class="lrow-inf"><div class="li-nm">${esc(f.name)}</div><div class="li-sub">${[f.title&&f.artist?`${f.artist} — ${f.title}`:'',f.durationStr||'',f.bitrate?f.bitrate+'kbps':''].filter(Boolean).join(' · ')}</div></div><div class="lrow-sz">${f.sizeMB} MB</div></div>`).join('');
+}
+
+/* Corrupt */
+function renderCorrupt(){
+  const el=document.getElementById('cc'),em=document.getElementById('ce');
+  if(!S.corrupt.length){em.style.display='flex';return;}
+  em.style.display='none';
+  el.innerHTML=S.corrupt.map(f=>`<div class="lrow"><div class="lrow-ic" style="color:var(--red)">⚠</div><div class="lrow-inf"><div class="li-nm">${esc(f.name)}</div><div class="li-err">${esc(f.errorMsg||'Unreadable')}</div></div><div class="lrow-sz">${f.sizeMB} MB</div></div>`).join('');
+}
+
+/* Pager */
+function renderPager(cur,total){
+  const el=document.getElementById('pg');if(total<=1){el.innerHTML='';return;}
+  const lo=Math.max(1,cur-2),hi=Math.min(total,cur+2);
+  let h=`<button class="pbn" onclick="gp(${cur-1})" ${cur<=1?'disabled':''}>‹</button>`;
+  if(lo>1)h+=`<button class="pbn" onclick="gp(1)">1</button>`;
+  if(lo>2)h+=`<span class="pdot">…</span>`;
+  for(let p=lo;p<=hi;p++)h+=`<button class="pbn ${p===cur?'on':''}" onclick="gp(${p})">${p}</button>`;
+  if(hi<total-1)h+=`<span class="pdot">…</span>`;
+  if(hi<total)h+=`<button class="pbn" onclick="gp(${total})">${total}</button>`;
+  h+=`<button class="pbn" onclick="gp(${cur+1})" ${cur>=total?'disabled':''}>›</button>`;
+  el.innerHTML=h;
+}
+function gp(p){const g=getFS(),max=Math.max(1,Math.ceil(g.length/S.pp));if(p<1||p>max)return;S.page=p;renderGroups();document.getElementById('tab-dup').scrollTo({top:0,behavior:'smooth'});}
+
+/* Tabs */
+function setupTabs(){
+  document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>{
+    const n=t.dataset.tab;
+    document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('on',x.dataset.tab===n));
+    ['dup','all','corrupt','trash'].forEach(x=>document.getElementById('tab-'+x).style.display=x===n?'block':'none');
+    if(n==='trash')renderTrash();
+  }));
+}
+
+/* Filter pills */
+function setupFPs(){
+  document.getElementById('fps').addEventListener('click',e=>{
+    const p=e.target.closest('.fp');if(!p)return;
+    document.querySelectorAll('.fp').forEach(x=>x.classList.remove('on'));
+    p.classList.add('on');S.filter=p.dataset.t;S.page=1;renderGroups();
+  });
+}
+
+/* PWA */
+function setupPWA(){
+  if('serviceWorker' in navigator)navigator.serviceWorker.register('service-worker.js').catch(()=>{});
+  window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();S.deferInstall=e;document.getElementById('ib').classList.add('on');});
+  document.getElementById('ib-btn').addEventListener('click',async()=>{
+    if(!S.deferInstall)return;
+    S.deferInstall.prompt();
+    const{outcome}=await S.deferInstall.userChoice;
+    if(outcome==='accepted'){document.getElementById('ib').classList.remove('on');toast('App installed!','ok');}
+    S.deferInstall=null;
+  });
+}
+
+/* Helpers */
+function setSBtn(scanning){
+  const b=document.getElementById('scan-btn');b.classList.toggle('cancelling',scanning);
+  b.innerHTML=scanning?'<span class="spin">↻</span> Cancel Scan':'<svg width="13" height="13" viewBox="0 0 16 16" fill="currentColor"><path d="M11.742 10.344a6.5 6.5 0 10-1.397 1.398h.001l3.85 3.85a1 1 0 001.414-1.414l-3.85-3.85a6.5 6.5 0 00-1.398-1.397zm-5.242.656a5.5 5.5 0 100-11 5.5 5.5 0 000 11z"/></svg> Scan Library';
+}
+function resetUI(){
+  document.getElementById('rh').classList.remove('on');
+  document.getElementById('stats').style.display='none';
+  document.getElementById('filters').style.display='none';
+  document.getElementById('gc').innerHTML='';
+  ['bd','ba','bc'].forEach(id=>document.getElementById(id).textContent='0');
+  document.getElementById('de').style.display='flex';
+  document.getElementById('de').querySelector('.e-title').textContent='Scanning…';
+}
+function fmt(n){return Number(n).toLocaleString();}
+function fmtMB(mb){return mb>=1024?(mb/1024).toFixed(2)+' GB':mb.toFixed(0)+' MB';}
+function fmtIcon(e){return({flac:'🎼',wav:'🔊',mp3:'🎵',m4a:'🍎',ogg:'🔈',opus:'📻',aiff:'🎹',aif:'🎹',wma:'🪟'})[e]||'🎵';}
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function cp(name){navigator.clipboard.writeText(name).then(()=>toast('Copied','info')).catch(()=>{});}
+function toast(msg,type='info',ms=4000){
+  const el=Object.assign(document.createElement('div'),{className:'toast '+type,textContent:msg});
+  document.getElementById('toasts').appendChild(el);setTimeout(()=>el.remove(),ms);
+}
+</script>
+</body>
+</html>
