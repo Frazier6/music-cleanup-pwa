@@ -72,23 +72,7 @@ body::before {
   z-index:100; position:relative;
 }
 .logo { display:flex; align-items:center; gap:11px; }
-.vinyl-badge {
-  width:30px; height:30px; border-radius:50%; flex-shrink:0; position:relative;
-  background: conic-gradient(
-    var(--ink3) 0deg,var(--ink4) 16deg,var(--ink3) 32deg,var(--ink4) 48deg,
-    var(--ink3) 64deg,var(--ink4) 80deg,var(--ink3) 96deg,var(--ink4) 112deg,
-    var(--ink3) 128deg,var(--ink4) 144deg,var(--ink3) 160deg,var(--ink4) 176deg,
-    var(--ink3) 192deg,var(--ink4) 208deg,var(--ink3) 224deg,var(--ink4) 240deg,
-    var(--ink3) 256deg,var(--ink4) 272deg,var(--ink3) 288deg,var(--ink4) 304deg,
-    var(--ink3) 320deg,var(--ink4) 336deg,var(--ink3) 352deg,var(--ink4) 360deg
-  );
-  border:2px solid var(--accent); overflow:hidden;
-}
-.vinyl-badge::after {
-  content:''; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
-  width:9px; height:9px; border-radius:50%; background:var(--accent);
-  box-shadow:0 0 0 3px var(--ink1);
-}
+/* vinyl-badge replaced by SVG in HTML */
 .logo-words { display:flex; flex-direction:column; line-height:1; }
 .logo-name  { font-size:14px; font-weight:800; letter-spacing:.06em; color:var(--paper); text-transform:uppercase; }
 .logo-name em { color:var(--accent); font-style:normal; }
@@ -139,11 +123,13 @@ body::before {
   content:''; position:absolute; inset:0;
   background:radial-gradient(ellipse at 50% 0%,var(--accent-dim) 0%,transparent 70%);
   opacity:0; transition:opacity var(--tr2);
+  pointer-events:none;
 }
 .drop:hover, .drop.drag { border-color:var(--accent); }
 .drop:hover::before, .drop.drag::before { opacity:1; }
 .drop-disc {
   width:52px; height:52px; border-radius:50%; margin:0 auto 12px; position:relative;
+  pointer-events:none;
   background: conic-gradient(
     var(--ink3) 0deg,var(--ink4) 13deg,var(--ink3) 26deg,var(--ink4) 39deg,
     var(--ink3) 52deg,var(--ink4) 65deg,var(--ink3) 78deg,var(--ink4) 91deg,
@@ -164,8 +150,8 @@ body::before {
   box-shadow:0 0 0 4px var(--ink2);
 }
 @keyframes disc-spin { to { transform:rotate(360deg); } }
-.drop-title { font-size:13px; font-weight:700; color:var(--paper); margin-bottom:4px; position:relative; z-index:1; }
-.drop-sub   { font-size:11px; color:var(--dust); line-height:1.55; position:relative; z-index:1; }
+.drop-title { font-size:13px; font-weight:700; color:var(--paper); margin-bottom:4px; position:relative; z-index:1; pointer-events:none; }
+.drop-sub   { font-size:11px; color:var(--dust); line-height:1.55; position:relative; z-index:1; pointer-events:none; }
 .drop-sub strong { color:var(--accent); font-weight:500; }
 .folder-chip {
   display:none; margin-top:10px; padding:6px 10px;
@@ -548,6 +534,116 @@ body::before {
 ::-webkit-scrollbar { width:5px; height:5px; }
 ::-webkit-scrollbar-track { background:transparent; }
 ::-webkit-scrollbar-thumb { background:var(--line2); border-radius:3px; }
+
+/* ── Version badge & What's New ─────────────────────────────────────────── */
+.h-ver {
+  font-family:var(--f-mono); font-size:9px; padding:3px 8px;
+  background:var(--ink3); border:1px solid var(--line2); border-radius:3px;
+  color:var(--ash); letter-spacing:.06em; cursor:pointer;
+  display:flex; align-items:center; gap:5px; transition:all var(--tr);
+}
+.h-ver:hover { border-color:var(--accent); color:var(--accent); }
+.h-ver-dot {
+  width:6px; height:6px; border-radius:50%;
+  background:var(--accent2); flex-shrink:0;
+  box-shadow:0 0 0 2px rgba(144,96,224,.2);
+}
+.wn-overlay {
+  display:none; position:fixed; inset:0;
+  background:rgba(0,0,0,.7); backdrop-filter:blur(4px);
+  align-items:center; justify-content:center; z-index:9998; padding:20px;
+}
+.wn-overlay.on { display:flex; }
+.wn-modal {
+  background:var(--ink1); border:1px solid var(--line2);
+  border-radius:12px; max-width:500px; width:100%;
+  overflow:hidden; max-height:80vh; display:flex; flex-direction:column;
+}
+.wn-header {
+  display:flex; align-items:center; gap:12px; padding:18px 22px;
+  border-bottom:1px solid var(--line);
+}
+.wn-disc {
+  width:32px; height:32px; border-radius:50%; flex-shrink:0;
+}
+.wn-title { flex:1; }
+.wn-title-top {
+  font-size:15px; font-weight:800; letter-spacing:.02em; color:var(--paper);
+}
+.wn-title-sub {
+  font-family:var(--f-mono); font-size:9px; letter-spacing:.12em;
+  text-transform:uppercase; color:var(--ash); margin-top:2px;
+}
+.wn-close {
+  background:none; border:none; color:var(--ash); cursor:pointer;
+  font-size:18px; padding:4px 8px; border-radius:4px;
+  transition:color var(--tr); line-height:1;
+}
+.wn-close:hover { color:var(--paper); }
+.wn-body { overflow-y:auto; padding:18px 22px; flex:1; }
+.wn-body::-webkit-scrollbar { width:4px; }
+.wn-body::-webkit-scrollbar-thumb { background:var(--line2); border-radius:2px; }
+.wn-item {
+  display:flex; gap:12px; padding:10px 0;
+  border-bottom:1px solid var(--line);
+}
+.wn-item:last-child { border-bottom:none; }
+.wn-dot {
+  width:6px; height:6px; border-radius:50%; background:var(--accent);
+  flex-shrink:0; margin-top:5px;
+}
+.wn-item-title { font-size:13px; font-weight:600; color:var(--paper2); margin-bottom:2px; }
+.wn-item-desc  { font-family:var(--f-mono); font-size:10px; color:var(--ash); line-height:1.55; }
+.wn-footer {
+  padding:14px 22px; border-top:1px solid var(--line);
+  display:flex; justify-content:flex-end;
+}
+.wn-ok {
+  padding:8px 20px; background:var(--accent); border:none; border-radius:5px;
+  color:#fff; font-family:var(--f-disp); font-size:12px; font-weight:800;
+  letter-spacing:.05em; text-transform:uppercase; cursor:pointer;
+  transition:opacity var(--tr);
+}
+.wn-ok:hover { opacity:.88; }
+
+/* ── Redesigned vinyl badge (logo) ─────────────────────────────────────── */
+.vinyl-badge {
+  width:30px; height:30px; border-radius:50%; flex-shrink:0;
+  position:relative; background:var(--ink2); border:none; overflow:visible;
+}
+
+/* ── Format badge system ────────────────────────────────────────────────── */
+.fmt-badge {
+  display:inline-flex; align-items:center; gap:3px; height:18px;
+  padding:0 6px; border-radius:3px; border:1px solid;
+  font-family:var(--f-mono); font-size:9px; letter-spacing:.04em;
+  white-space:nowrap; vertical-align:middle; flex-shrink:0;
+}
+.fmt-badge svg { width:7px; height:7px; flex-shrink:0; }
+.fmt-lossless { border-color:rgba(74,142,240,.45); color:#7ab0f8; background:rgba(74,142,240,.1); }
+.fmt-lossy    { border-color:rgba(144,96,224,.45); color:#b090f8; background:rgba(144,96,224,.1); }
+.fmt-container{ border-color:rgba(40,180,200,.4);  color:#50d0e8; background:rgba(40,180,200,.09); }
+.fmt-default  { border-color:var(--line2); color:var(--ash); background:var(--ink3); }
+
+/* ── Redesigned feed-fmt (uses fmt-badge classes) ────────────────────────── */
+.feed-fmt {
+  display:inline-flex; align-items:center; height:16px;
+  padding:0 5px; border-radius:2px; border:1px solid;
+  font-family:var(--f-mono); font-size:8.5px; letter-spacing:.04em;
+  white-space:nowrap; flex-shrink:0;
+}
+
+/* ── Redesigned empty state discs ───────────────────────────────────────── */
+.e-disc {
+  width:72px; height:72px; border-radius:50%;
+  border:1.5px solid var(--line2); background:var(--ink2);
+  position:relative; margin-bottom:4px; opacity:.5;
+  display:flex; align-items:center; justify-content:center;
+}
+.e-disc svg { width:40px; height:40px; }
+
+/* ── Warning SVG icon ───────────────────────────────────────────────────── */
+.warn-svg { width:15px; height:15px; flex-shrink:0; }
 </style>
 </head>
 <body>
@@ -558,7 +654,7 @@ body::before {
 </div></div>
 
 <div class="ib" id="ib">
-  <span style="font-size:16px">📲</span>
+  <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="3" y="1" width="10" height="14" rx="2" stroke="#b0bcdc" stroke-width="1.2"/><path d="M6 12.5H10" stroke="#b0bcdc" stroke-width="1.2" stroke-linecap="round"/><path d="M8 5V8M8 8L6.5 6.5M8 8L9.5 6.5" stroke="#4a8ef0" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
   <span>Install <strong>MusicCleanup</strong> as a desktop app for offline use</span>
   <button class="ib-inst" id="ib-btn">Install</button>
   <button class="ib-x" onclick="document.getElementById('ib').classList.remove('on')">✕</button>
@@ -567,14 +663,31 @@ body::before {
 <div class="app">
   <header class="header">
     <div class="logo">
-      <div class="vinyl-badge"></div>
+      <div class="vinyl-badge">
+        <svg width="30" height="30" viewBox="0 0 30 30" fill="none">
+          <circle cx="15" cy="15" r="14" fill="#101828" stroke="#4a8ef0" stroke-width="1.5"/>
+          <circle cx="15" cy="15" r="9" fill="none" stroke="#1e2e48" stroke-width="0.75"/>
+          <circle cx="15" cy="15" r="5" fill="none" stroke="#1e2e48" stroke-width="0.75"/>
+          <rect x="4" y="13" width="2" height="4" rx="1" fill="#4a8ef0" opacity=".55"/>
+          <rect x="7" y="11" width="2" height="8" rx="1" fill="#4a8ef0" opacity=".75"/>
+          <rect x="10" y="12.5" width="2" height="5" rx="1" fill="#4a8ef0"/>
+          <circle cx="15" cy="15" r="2.5" fill="#4a8ef0"/>
+          <rect x="18" y="12.5" width="2" height="5" rx="1" fill="#9060e0"/>
+          <rect x="21" y="11" width="2" height="8" rx="1" fill="#9060e0" opacity=".75"/>
+          <rect x="24" y="13" width="2" height="4" rx="1" fill="#9060e0" opacity=".55"/>
+        </svg>
+      </div>
       <div class="logo-words">
         <div class="logo-name">Music<em>Cleanup</em></div>
-        <div class="logo-tag">Duplicate Detector · PWA</div>
+        <div class="logo-tag">Duplicate Detector · v2.0</div>
       </div>
     </div>
     <div class="h-div"></div>
     <div class="h-pill"><div class="h-dot"></div>Client-Only · 100% Private</div>
+    <button class="h-ver" onclick="document.getElementById('wn-overlay').classList.add('on')" title="What's new in v2.0">
+      <div class="h-ver-dot"></div>
+      v2.0 · What's New
+    </button>
     <div class="h-sep"></div>
     <div class="h-count" id="hc"></div>
   </header>
@@ -584,7 +697,7 @@ body::before {
 
       <div class="s-blk">
         <div class="s-eye">Music Folder</div>
-        <div class="drop" id="dz">
+        <div class="drop" id="dz" onclick="pickDir()">
           <div class="drop-disc" id="dd"></div>
           <div class="drop-title">Select Your Music Folder</div>
           <div class="drop-sub">Click to browse, or drag &amp; drop a folder<br><strong>All processing stays on your device</strong></div>
@@ -690,7 +803,15 @@ body::before {
         <div id="gc"></div>
         <div class="pager" id="pg"></div>
         <div class="empty" id="de">
-          <div class="e-disc"></div>
+          <div class="e-disc">
+            <svg viewBox="0 0 40 40" fill="none">
+              <circle cx="14" cy="20" r="11" stroke="#2a3e5e" stroke-width="1.5"/>
+              <circle cx="14" cy="20" r="6" stroke="#1e2e48" stroke-width="1"/>
+              <circle cx="14" cy="20" r="2.5" fill="#2a3e5e"/>
+              <circle cx="26" cy="20" r="9" stroke="#304080" stroke-width="1" stroke-dasharray="3 2"/>
+              <circle cx="26" cy="20" r="2" fill="#304080"/>
+            </svg>
+          </div>
           <div class="e-title">Ready to Scan</div>
           <div class="e-sub">Select your music folder in the sidebar, then click <strong style="color:var(--accent)">Scan Library</strong> to detect duplicate tracks.</div>
         </div>
@@ -699,22 +820,137 @@ body::before {
       <!-- All files -->
       <div class="content" id="tab-all" style="display:none">
         <div id="ac"></div>
-        <div class="empty" id="ae"><div class="e-disc"></div><div class="e-title">No Files Yet</div><div class="e-sub">Run a scan to see all discovered audio files.</div></div>
+        <div class="empty" id="ae"><div class="e-disc">
+    <svg viewBox="0 0 40 40" fill="none">
+      <rect x="6"  y="16" width="4" height="8"  rx="2" fill="#2a3e5e"/>
+      <rect x="12" y="11" width="4" height="18" rx="2" fill="#304080"/>
+      <rect x="18" y="14" width="4" height="12" rx="2" fill="#2a3e5e"/>
+      <rect x="24" y="9"  width="4" height="22" rx="2" fill="#304080"/>
+      <rect x="30" y="15" width="4" height="10" rx="2" fill="#2a3e5e"/>
+    </svg>
+  </div><div class="e-title">No Files Yet</div><div class="e-sub">Run a scan to see all discovered audio files.</div></div>
       </div>
 
       <!-- Corrupt -->
       <div class="content" id="tab-corrupt" style="display:none">
         <div id="cc"></div>
-        <div class="empty" id="ce"><div class="e-disc"></div><div class="e-title">No Issues Found</div><div class="e-sub">All scanned files appear to be readable.</div></div>
+        <div class="empty" id="ce"><div class="e-disc">
+    <svg viewBox="0 0 40 40" fill="none">
+      <circle cx="20" cy="20" r="16" stroke="#2a3e5e" stroke-width="1.5"/>
+      <circle cx="20" cy="20" r="10" stroke="#1e2e48" stroke-width="1"/>
+      <circle cx="20" cy="20" r="3"  fill="#2a3e5e"/>
+      <path d="M12 12L18 19L14 24L22 28" stroke="#304080" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  </div><div class="e-title">No Issues Found</div><div class="e-sub">All scanned files appear to be readable.</div></div>
       </div>
 
       <!-- Trash -->
       <div class="content" id="tab-trash" style="display:none">
         <div id="tc">
-          <div class="empty"><div class="e-disc"></div><div class="e-title">Trash is Empty</div><div class="e-sub">Files you mark for removal appear here for review.<br><strong>Nothing is deleted automatically.</strong></div></div>
+          <div class="empty"><div class="e-disc">
+            <svg viewBox="0 0 40 40" fill="none">
+              <rect x="8"  y="15" width="24" height="18" rx="2" stroke="#2a3e5e" stroke-width="1.5"/>
+              <path d="M6 15H34" stroke="#2a3e5e" stroke-width="1.5" stroke-linecap="round"/>
+              <path d="M15 15V12C15 11.4 15.4 11 16 11H24C24.6 11 25 11.4 25 12V15" stroke="#304080" stroke-width="1" stroke-linecap="round"/>
+              <path d="M16 20V28M20 20V28M24 20V28" stroke="#2a3e5e" stroke-width="1" stroke-linecap="round"/>
+            </svg>
+          </div><div class="e-title">Trash is Empty</div><div class="e-sub">Files you mark for removal appear here for review.<br><strong>Nothing is deleted automatically.</strong></div></div>
         </div>
       </div>
     </main>
+  </div>
+</div>
+
+<!-- What's New modal -->
+<div class="wn-overlay" id="wn-overlay">
+  <div class="wn-modal">
+    <div class="wn-header">
+      <svg class="wn-disc" width="32" height="32" viewBox="0 0 32 32" fill="none">
+        <circle cx="16" cy="16" r="15" fill="#101828" stroke="#4a8ef0" stroke-width="1.5"/>
+        <circle cx="16" cy="16" r="10" fill="none" stroke="#1e2e48" stroke-width="0.75"/>
+        <circle cx="16" cy="16" r="6" fill="none" stroke="#1e2e48" stroke-width="0.75"/>
+        <rect x="4"  y="14" width="2" height="4" rx="1" fill="#4a8ef0" opacity=".55"/>
+        <rect x="7"  y="12" width="2" height="8" rx="1" fill="#4a8ef0" opacity=".75"/>
+        <rect x="10" y="13" width="2" height="6" rx="1" fill="#4a8ef0"/>
+        <circle cx="16" cy="16" r="2.5" fill="#4a8ef0"/>
+        <rect x="20" y="13" width="2" height="6" rx="1" fill="#9060e0"/>
+        <rect x="23" y="12" width="2" height="8" rx="1" fill="#9060e0" opacity=".75"/>
+        <rect x="26" y="14" width="2" height="4" rx="1" fill="#9060e0" opacity=".55"/>
+      </svg>
+      <div class="wn-title">
+        <div class="wn-title-top">What's New in v2.0</div>
+        <div class="wn-title-sub">MusicCleanup · Duplicate Detector PWA</div>
+      </div>
+      <button class="wn-close" onclick="document.getElementById('wn-overlay').classList.remove('on')">×</button>
+    </div>
+    <div class="wn-body">
+      <div class="wn-item">
+        <div class="wn-dot"></div>
+        <div>
+          <div class="wn-item-title">Blue + Purple palette</div>
+          <div class="wn-item-desc">New cobalt blue primary with violet purple secondary throughout</div>
+        </div>
+      </div>
+      <div class="wn-item">
+        <div class="wn-dot"></div>
+        <div>
+          <div class="wn-item-title">Icon system redesign</div>
+          <div class="wn-item-desc">SVG format badges, semantic empty states, refined pipeline icons</div>
+        </div>
+      </div>
+      <div class="wn-item">
+        <div class="wn-dot"></div>
+        <div>
+          <div class="wn-item-title">Waveform logo</div>
+          <div class="wn-item-desc">New app logo with waveform disc design in header and PWA icon</div>
+        </div>
+      </div>
+      <div class="wn-item">
+        <div class="wn-dot"></div>
+        <div>
+          <div class="wn-item-title">Version badge</div>
+          <div class="wn-item-desc">Version number and What's New accessible from the header</div>
+        </div>
+      </div>
+      <div class="wn-item">
+        <div class="wn-dot"></div>
+        <div>
+          <div class="wn-item-title">Expand groups option</div>
+          <div class="wn-item-desc">Toggle to open all duplicate groups automatically on scan complete</div>
+        </div>
+      </div>
+      <div class="wn-item">
+        <div class="wn-dot"></div>
+        <div>
+          <div class="wn-item-title">Live file feed</div>
+          <div class="wn-item-desc">Real-time file stream visible during scan with duplicate highlighting</div>
+        </div>
+      </div>
+      <div class="wn-item">
+        <div class="wn-dot"></div>
+        <div>
+          <div class="wn-item-title">Scan timer</div>
+          <div class="wn-item-desc">Scan completion time shown in header after scan finishes</div>
+        </div>
+      </div>
+      <div class="wn-item">
+        <div class="wn-dot"></div>
+        <div>
+          <div class="wn-item-title">Album in file rows</div>
+          <div class="wn-item-desc">Album name displayed in file detail rows for easier identification</div>
+        </div>
+      </div>
+      <div class="wn-item">
+        <div class="wn-dot"></div>
+        <div>
+          <div class="wn-item-title">Animated pipeline</div>
+          <div class="wn-item-desc">Checkmarks animate in on stage completion, spinner on active stage</div>
+        </div>
+      </div>
+    </div>
+    <div class="wn-footer">
+      <button class="wn-ok" onclick="document.getElementById('wn-overlay').classList.remove('on')">Got it</button>
+    </div>
   </div>
 </div>
 <div class="toasts" id="toasts"></div>
@@ -758,7 +994,7 @@ async function pickDir(){try{setDir(await window.showDirectoryPicker({mode:'read
 function setDir(h){
   S.folder=h;
   const fc=document.getElementById('fc');
-  fc.textContent='📂 '+h.name;fc.classList.add('on');
+  fc.innerHTML='<svg width="12" height="12" viewBox="0 0 16 16" fill="none" style="margin-right:5px;vertical-align:middle"><path d="M1 4.5A1.5 1.5 0 012.5 3h3.672a1.5 1.5 0 011.06.44l.94.94H13.5A1.5 1.5 0 0115 6v6.5a1.5 1.5 0 01-1.5 1.5h-11A1.5 1.5 0 011 12.5v-8z" stroke="#4a8ef0" stroke-width="1.2" fill="none"/></svg>'+h.name;fc.classList.add('on');
   document.getElementById('scan-btn').disabled=false;
   document.querySelector('.drop-title').textContent=h.name;
   document.querySelector('.drop-sub').innerHTML=`<strong>${esc(h.name)}</strong> — click Scan Library to begin`;
@@ -951,7 +1187,7 @@ function buildFRow(f,keep){
   const ik=f.name===keep,im=S.sel.has(f.id);
   const pills=[
     ik?`<span class="fpsm kp">Keep</span>`:'',
-    `<span class="fpsm fm">${f.ext.toUpperCase()}</span>`,
+    fmtBadge(f.ext),
     f.bitrate?`<span class="fpsm">${f.bitrate}k</span>`:'',
     f.durationStr?`<span class="fpsm">${f.durationStr}</span>`:'',
     f.sampleRate?`<span class="fpsm">${(f.sampleRate/1000).toFixed(1)}kHz</span>`:'',
@@ -1000,7 +1236,7 @@ function undoTrash(id){S.trash=S.trash.filter(f=>f.id!==id);document.getElementB
 function renderTrash(){
   const el=document.getElementById('tc');
   if(!S.trash.length){
-    el.innerHTML=`<div class="empty"><div class="e-disc"></div><div class="e-title">Trash is Empty</div><div class="e-sub">Files you mark for removal appear here for final review.<br><strong>Nothing is deleted automatically.</strong></div></div>`;return;
+    el.innerHTML=`<div class="empty"><div class="e-disc"><svg viewBox="0 0 40 40" fill="none"><rect x="8" y="15" width="24" height="18" rx="2" stroke="#2a3e5e" stroke-width="1.5"/><path d="M6 15H34" stroke="#2a3e5e" stroke-width="1.5" stroke-linecap="round"/><path d="M15 15V12C15 11.4 15.4 11 16 11H24C24.6 11 25 11.4 25 12V15" stroke="#304080" stroke-width="1" stroke-linecap="round"/><path d="M16 20V28M20 20V28M24 20V28" stroke="#2a3e5e" stroke-width="1" stroke-linecap="round"/></svg></div><div class="e-title">Trash is Empty</div><div class="e-sub">Files you mark for removal appear here for final review.<br><strong>Nothing is deleted automatically.</strong></div></div>`;return;
   }
   const total=S.trash.reduce((s,f)=>s+parseFloat(f.sizeMB),0).toFixed(1);
   el.innerHTML=`
@@ -1037,7 +1273,7 @@ function renderCorrupt(){
   const el=document.getElementById('cc'),em=document.getElementById('ce');
   if(!S.corrupt.length){em.style.display='flex';return;}
   em.style.display='none';
-  el.innerHTML=S.corrupt.map(f=>`<div class="lrow"><div class="lrow-ic" style="color:var(--red)">⚠</div><div class="lrow-inf"><div class="li-nm">${esc(f.name)}</div><div class="li-err">${esc(f.errorMsg||'Unreadable')}</div></div><div class="lrow-sz">${f.sizeMB} MB</div></div>`).join('');
+  el.innerHTML=S.corrupt.map(f=>`<div class="lrow"><div class="lrow-ic"><svg class="warn-svg" viewBox="0 0 16 16" fill="none"><path d="M8 2L14.5 14H1.5L8 2Z" stroke="#e04868" stroke-width="1.5" stroke-linejoin="round"/><path d="M8 6.5V9.5" stroke="#e04868" stroke-width="1.5" stroke-linecap="round"/><circle cx="8" cy="11.5" r="0.75" fill="#e04868"/></svg></div><div class="lrow-inf"><div class="li-nm">${esc(f.name)}</div><div class="li-err">${esc(f.errorMsg||'Unreadable')}</div></div><div class="lrow-sz">${f.sizeMB} MB</div></div>`).join('');
 }
 
 /* Pager */
@@ -1103,7 +1339,18 @@ function resetUI(){
 }
 function fmt(n){return Number(n).toLocaleString();}
 function fmtMB(mb){return mb>=1024?(mb/1024).toFixed(2)+' GB':mb.toFixed(0)+' MB';}
-function fmtIcon(e){return({flac:'🎼',wav:'🔊',mp3:'🎵',m4a:'🍎',ogg:'🔈',opus:'📻',aiff:'🎹',aif:'🎹',wma:'🪟'})[e]||'🎵';}
+function fmtBadge(e){
+  const lo=new Set(['flac','wav','aiff','aif','wv','ape','dsf','dsd']);
+  const ly=new Set(['mp3','aac','ogg','oga','opus','wma','mpc','spx','tta']);
+  const co=new Set(['m4a','m4b','m4p','mp4']);
+  const cls=lo.has(e)?'fmt-lossless':ly.has(e)?'fmt-lossy':co.has(e)?'fmt-container':'fmt-default';
+  const lo_ic='<path d="M1 3.5h6M4 1v5.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>';
+  const ly_ic='<circle cx="3.5" cy="3.5" r="2.5" stroke="currentColor" stroke-width="1"/><circle cx="3.5" cy="3.5" r="1" fill="currentColor"/>';
+  const co_ic='<rect x=".5" y="1" width="6" height="5" rx="1" stroke="currentColor" stroke-width="1"/>';
+  const ic=lo.has(e)?lo_ic:ly.has(e)||co.has(e)?co.has(e)?co_ic:ly_ic:ly_ic;
+  return `<span class="fmt-badge ${cls}"><svg viewBox="0 0 7 7" fill="none">${ic}</svg>${e.toUpperCase()}</span>`;
+}
+function fmtIcon(e){return fmtBadge(e);}
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 function cp(name){navigator.clipboard.writeText(name).then(()=>toast('Copied','info')).catch(()=>{});}
 function toast(msg,type='info',ms=4000){
