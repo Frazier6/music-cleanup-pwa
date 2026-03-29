@@ -738,6 +738,48 @@ body::before {
 /* ── Filter + sort combined in one s-cblk ─────────────────────────────────── */
 .filter-sort-row { display:flex; gap:5px; align-items:center; margin-top:9px; }
 .filter-sort-row .s-sel { flex:1; }
+
+/* ── Update banner ──────────────────────────────────────────────────────── */
+.upd-banner {
+  display:none; align-items:center; gap:10px; padding:8px 20px;
+  background:var(--ink2); border-bottom:1px solid var(--accent);
+  flex-shrink:0; z-index:200; position:relative;
+}
+.upd-banner.on { display:flex; animation:upd-slide .25s ease; }
+@keyframes upd-slide { from{transform:translateY(-100%);opacity:0} to{transform:none;opacity:1} }
+.upd-disc {
+  width:20px; height:20px; border-radius:50%; flex-shrink:0;
+  border:1.5px solid var(--accent); background:var(--ink3);
+  display:flex; align-items:center; justify-content:center;
+}
+.upd-disc svg { width:10px; height:10px; }
+.upd-text {
+  font-family:var(--f-mono); font-size:10.5px; color:var(--paper2); flex:1;
+  letter-spacing:.02em;
+}
+.upd-text strong { color:var(--accent); }
+.upd-later {
+  font-family:var(--f-mono); font-size:10px; color:var(--ash);
+  background:none; border:none; cursor:pointer; padding:3px 8px;
+  transition:color var(--tr);
+}
+.upd-later:hover { color:var(--paper2); }
+.upd-now {
+  font-family:var(--f-disp); font-size:11px; font-weight:800;
+  letter-spacing:.05em; text-transform:uppercase; padding:6px 14px;
+  background:var(--accent); border:none; border-radius:var(--r);
+  color:#fff; cursor:pointer; display:flex; align-items:center; gap:6px;
+  transition:opacity var(--tr), transform var(--tr);
+}
+.upd-now:hover { opacity:.88; transform:translateY(-1px); }
+.upd-now.loading { opacity:.6; pointer-events:none; }
+.upd-spinner {
+  width:11px; height:11px; border-radius:50%;
+  border:1.5px solid rgba(255,255,255,.3);
+  border-top-color:#fff; animation:spin .7s linear infinite;
+  display:none;
+}
+.upd-now.loading .upd-spinner { display:block; }
 </style>
 </head>
 <body>
@@ -755,6 +797,23 @@ body::before {
 </div>
 
 <div class="app">
+
+  <!-- Update available banner -->
+  <div class="upd-banner" id="upd-banner">
+    <div class="upd-disc">
+      <svg viewBox="0 0 16 16" fill="none">
+        <path d="M8 3v6M8 9l-2.5-2.5M8 9l2.5-2.5" stroke="#4a8ef0" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M3 13h10" stroke="#4a8ef0" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <div class="upd-text"><strong id="upd-version">Update available</strong> — a new version of MusicCleanup is ready</div>
+    <button class="upd-later" id="upd-later" onclick="dismissUpdate()">Later</button>
+    <button class="upd-now" id="upd-now" onclick="applyUpdate()">
+      <span class="upd-spinner" id="upd-spinner"></span>
+      Update Now
+    </button>
+  </div>
+
   <header class="header">
     <div class="logo">
       <div class="vinyl-badge">
@@ -773,14 +832,14 @@ body::before {
       </div>
       <div class="logo-words">
         <div class="logo-name">Music<em>Cleanup</em></div>
-        <div class="logo-tag">Duplicate Detector · v3.0</div>
+        <div class="logo-tag">Duplicate Detector · v3.1</div>
       </div>
     </div>
     <div class="h-div"></div>
     <div class="h-pill"><div class="h-dot"></div>Client-Only · 100% Private</div>
-    <button class="h-ver" onclick="document.getElementById('wn-overlay').classList.add('on')" title="What's new in v3.0">
+    <button class="h-ver" onclick="document.getElementById('wn-overlay').classList.add('on')" title="What's new in v3.1">
       <div class="h-ver-dot"></div>
-      v3.0 · What's New
+      v3.1 · What's New
     </button>
     <div class="h-sep"></div>
     <div class="h-count" id="hc"></div>
@@ -1030,12 +1089,19 @@ body::before {
         <rect x="26" y="14" width="2" height="4" rx="1" fill="#9060e0" opacity=".55"/>
       </svg>
       <div class="wn-title">
-        <div class="wn-title-top">What's New in v3.0</div>
+        <div class="wn-title-top">What's New in v3.1</div>
         <div class="wn-title-sub">MusicCleanup · Duplicate Detector PWA</div>
       </div>
       <button class="wn-close" onclick="document.getElementById('wn-overlay').classList.remove('on')">×</button>
     </div>
     <div class="wn-body">
+      <div class="wn-item">
+        <div class="wn-dot"></div>
+        <div>
+          <div class="wn-item-title">Auto-update button</div>
+          <div class="wn-item-desc">App detects new versions automatically. A banner slides in with an Update Now button — one click applies the update and reloads. No manual cache clearing needed.</div>
+        </div>
+      </div>
       <div class="wn-item">
         <div class="wn-dot"></div>
         <div>
@@ -1122,7 +1188,7 @@ body::before {
 <div class="toasts" id="toasts"></div>
 
 <script>
-const APP_VERSION='3.0';
+const APP_VERSION='3.1';
 const S={worker:null,scanning:false,folder:null,files:[],groups:[],corrupt:[],trash:[],
   sel:new Set(),filter:'all',sort:'wasted',search:'',page:1,pp:12,deferInstall:null,scanStart:0,appState:'idle'};
 
@@ -1558,10 +1624,58 @@ function setupFPs(){
   });
 }
 
-/* PWA */
+/* PWA + Update system */
 function setupPWA(){
-  if('serviceWorker' in navigator)navigator.serviceWorker.register('service-worker.js').catch(()=>{});
-  window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();S.deferInstall=e;document.getElementById('ib').classList.add('on');});
+  if(!('serviceWorker' in navigator))return;
+
+  navigator.serviceWorker.register('service-worker.js').then(reg=>{
+
+    // New SW waiting = update available
+    if(reg.waiting)showUpdateBanner(reg.waiting);
+
+    // SW found during page load
+    reg.addEventListener('updatefound',()=>{
+      const newSW=reg.installing;
+      newSW.addEventListener('statechange',()=>{
+        if(newSW.state==='installed'&&navigator.serviceWorker.controller){
+          showUpdateBanner(newSW);
+        }
+      });
+    });
+
+    // Periodically check for updates (every 60s)
+    setInterval(()=>reg.update(),60000);
+
+  }).catch(()=>{});
+
+  // After SW activates (post-reload), detect fresh install and toast
+  navigator.serviceWorker.addEventListener('controllerchange',()=>{
+    if(S._reloading)return;
+    S._reloading=true;
+    window.location.reload();
+  });
+
+  // SW posted SW_ACTIVATED → show "Updated to vX.X" toast
+  navigator.serviceWorker.addEventListener('message',e=>{
+    if(e.data&&e.data.type==='SW_ACTIVATED'){
+      const prev=sessionStorage.getItem('mc-prev-version');
+      const next=e.data.version||'';
+      if(prev&&prev!==next){
+        toast(`Updated to v${next} — click What's New to see changes`,'ok',6000);
+      }
+      sessionStorage.setItem('mc-prev-version',next);
+    }
+  });
+
+  // Record current version for comparison after reload
+  if(!sessionStorage.getItem('mc-prev-version')){
+    sessionStorage.setItem('mc-prev-version',APP_VERSION);
+  }
+
+  // Install prompt
+  window.addEventListener('beforeinstallprompt',e=>{
+    e.preventDefault();S.deferInstall=e;document.getElementById('ib').classList.add('on');
+  });
   document.getElementById('ib-btn').addEventListener('click',async()=>{
     if(!S.deferInstall)return;
     S.deferInstall.prompt();
@@ -1569,6 +1683,32 @@ function setupPWA(){
     if(outcome==='accepted'){document.getElementById('ib').classList.remove('on');toast('App installed!','ok');}
     S.deferInstall=null;
   });
+}
+
+/* Update banner */
+let _waitingSW=null;
+function showUpdateBanner(sw){
+  _waitingSW=sw;
+  const banner=document.getElementById('upd-banner');
+  const vEl=document.getElementById('upd-version');
+  banner.classList.add('on');
+  // Try to extract version from cache name if possible
+  if(vEl)vEl.textContent='Update ready';
+}
+function dismissUpdate(){
+  document.getElementById('upd-banner').classList.remove('on');
+}
+function applyUpdate(){
+  if(!_waitingSW)return;
+  const btn=document.getElementById('upd-now');
+  btn.classList.add('loading');
+  btn.innerHTML='<span class="upd-spinner" id="upd-spinner" style="display:block"></span> Updating…';
+  _waitingSW.postMessage({type:'SKIP_WAITING'});
+  // controllerchange event fires → page reloads automatically
+  setTimeout(()=>{
+    // Fallback reload if controllerchange didn't fire
+    window.location.reload();
+  },2500);
 }
 
 /* Helpers */
