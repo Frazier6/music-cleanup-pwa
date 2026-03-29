@@ -1,6 +1,6 @@
 // service-worker.js — MusicCleanup PWA
-const CACHE   = 'music-cleanup-v8-3.1';
-const VERSION = '3.1';
+const CACHE   = 'music-cleanup-v8-3.3';
+const VERSION = '3.3';
 const ASSETS  = [
   './',
   './index.html',

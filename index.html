@@ -201,7 +201,7 @@ body::before {
 .pipeline.on { display:block; }
 .pb-wrap { height:3px; background:var(--ink3); border-radius:2px; overflow:hidden; margin-bottom:9px; }
 .pb-fill {
-  height:100%; background:linear-gradient(to right,var(--accent),var(--accent2));
+  height:100%; background:linear-gradient(to right,#28a870,#38d890);
   border-radius:2px; transition:width .3s ease; width:0;
 }
 .pb-fill.ind { width:35%; animation:pb-ind 1.3s ease-in-out infinite; }
@@ -780,6 +780,115 @@ body::before {
   display:none;
 }
 .upd-now.loading .upd-spinner { display:block; }
+
+/* ── How-to guide ─────────────────────────────────────────────────────────── */
+.guide-wrap {
+  flex:1; overflow-y:auto; padding:20px 28px;
+  display:flex; flex-direction:column; gap:0;
+}
+.guide-wrap::-webkit-scrollbar { width:4px; }
+.guide-wrap::-webkit-scrollbar-thumb { background:var(--line2); border-radius:2px; }
+
+.guide-header {
+  display:flex; align-items:center; justify-content:space-between;
+  margin-bottom:18px;
+}
+.guide-title {
+  font-size:16px; font-weight:800; color:var(--paper);
+  letter-spacing:-.01em;
+}
+.guide-subtitle {
+  font-family:var(--f-mono); font-size:9.5px; color:var(--ash);
+  letter-spacing:.06em; margin-top:3px;
+}
+
+.guide-steps { display:flex; flex-direction:column; gap:0; position:relative; }
+.guide-steps::before {
+  content:''; position:absolute; left:18px; top:24px;
+  bottom:24px; width:1px; background:var(--line2); z-index:0;
+}
+
+.guide-step {
+  display:flex; align-items:flex-start; gap:14px;
+  padding:14px 0; position:relative; z-index:1;
+}
+.guide-step:last-child { padding-bottom:0; }
+
+.gs-num {
+  width:36px; height:36px; border-radius:50%; flex-shrink:0;
+  background:var(--ink2); border:1.5px solid var(--line2);
+  display:flex; align-items:center; justify-content:center;
+  font-family:var(--f-mono); font-size:11px; font-weight:400;
+  color:var(--ash); transition:all var(--tr); position:relative; z-index:1;
+}
+.guide-step.active .gs-num {
+  background:var(--accent-dim); border-color:var(--accent);
+  color:var(--accent);
+}
+.guide-step.done .gs-num {
+  background:rgba(40,168,112,.15); border-color:rgba(40,168,112,.5);
+  color:var(--green);
+}
+.gs-body { flex:1; min-width:0; padding-top:7px; }
+.gs-head {
+  font-size:13px; font-weight:700; color:var(--paper2);
+  margin-bottom:4px; display:flex; align-items:center; gap:8px;
+}
+.guide-step.active .gs-head { color:var(--paper); }
+.guide-step.done   .gs-head { color:var(--paper3); }
+.gs-desc {
+  font-family:var(--f-mono); font-size:10px; color:var(--ash);
+  line-height:1.65;
+}
+.gs-desc em  { color:var(--accent); font-style:normal; }
+.gs-desc strong { color:var(--paper2); font-weight:400; }
+.gs-tip {
+  display:inline-flex; align-items:center; gap:5px;
+  margin-top:7px; padding:5px 9px;
+  background:var(--ink2); border:1px solid var(--line2);
+  border-radius:4px; font-family:var(--f-mono);
+  font-size:9.5px; color:var(--dust); cursor:pointer;
+  transition:border-color var(--tr), color var(--tr);
+}
+.gs-tip:hover { border-color:var(--accent); color:var(--accent); }
+.gs-tip svg { width:10px; height:10px; flex-shrink:0; }
+
+/* Active step glow on num */
+.guide-step.active .gs-num::after {
+  content:''; position:absolute; inset:-4px; border-radius:50%;
+  border:1px solid var(--accent-dim); pointer-events:none;
+}
+
+.guide-cta {
+  margin-top:16px; padding-top:16px; border-top:1px solid var(--line);
+  display:flex; gap:8px; align-items:center;
+}
+.guide-cta-btn {
+  padding:9px 18px; background:var(--accent); border:none;
+  border-radius:var(--r); color:#fff; font-family:var(--f-disp);
+  font-size:12px; font-weight:800; letter-spacing:.05em;
+  text-transform:uppercase; cursor:pointer; transition:opacity var(--tr), transform var(--tr);
+}
+.guide-cta-btn:hover { opacity:.88; transform:translateY(-1px); }
+.guide-cta-note {
+  font-family:var(--f-mono); font-size:9.5px; color:var(--ash); line-height:1.5;
+}
+
+/* Help button in header */
+.h-help {
+  display:flex; align-items:center; gap:5px;
+  font-family:var(--f-mono); font-size:9.5px; color:var(--ash);
+  padding:3px 8px; background:var(--ink2); border:1px solid var(--line);
+  border-radius:3px; cursor:pointer; transition:all var(--tr); letter-spacing:.05em;
+}
+.h-help:hover { border-color:var(--accent); color:var(--accent); }
+.h-help svg { width:11px; height:11px; flex-shrink:0; }
+
+/* Guide overlay (for non-idle states) */
+#guide-overlay { display:none; }
+#guide-overlay.on { display:flex; animation:fadein .2s ease; }
+#guide-overlay .guide-step { padding:10px 0; }
+#guide-overlay .guide-step:first-child { padding-top:0; }
 </style>
 </head>
 <body>
@@ -832,16 +941,24 @@ body::before {
       </div>
       <div class="logo-words">
         <div class="logo-name">Music<em>Cleanup</em></div>
-        <div class="logo-tag">Duplicate Detector · v3.1</div>
+        <div class="logo-tag">Duplicate Detector · v3.3</div>
       </div>
     </div>
     <div class="h-div"></div>
     <div class="h-pill"><div class="h-dot"></div>Client-Only · 100% Private</div>
-    <button class="h-ver" onclick="document.getElementById('wn-overlay').classList.add('on')" title="What's new in v3.1">
+    <button class="h-ver" onclick="document.getElementById('wn-overlay').classList.add('on')" title="What's new in v3.3">
       <div class="h-ver-dot"></div>
-      v3.1 · What's New
+      v3.3 · What's New
     </button>
     <div class="h-sep"></div>
+    <button class="h-help" onclick="showGuide()" title="How to use MusicCleanup">
+      <svg viewBox="0 0 16 16" fill="none">
+        <circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.2"/>
+        <path d="M6.5 6C6.5 5.17 7.17 4.5 8 4.5s1.5.67 1.5 1.5c0 .97-.75 1.4-1.2 1.8C7.9 8.2 7.75 8.6 7.75 9" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+        <circle cx="8" cy="11" r=".6" fill="currentColor"/>
+      </svg>
+      How to use
+    </button>
     <div class="h-count" id="hc"></div>
   </header>
 
@@ -937,36 +1054,110 @@ body::before {
 
     <main class="main">
 
-      <!-- STATE: IDLE — hero welcome panel -->
+      <!-- STATE: IDLE — how-to guide -->
       <div class="hero-panel" id="state-idle">
-        <div class="hero-area">
-          <div class="hero-rings">
-            <svg width="500" height="500" viewBox="0 0 500 500" fill="none">
-              <circle cx="250" cy="250" r="220" stroke="#4a8ef0" stroke-width="1"/>
-              <circle cx="250" cy="250" r="170" stroke="#4a8ef0" stroke-width="1"/>
-              <circle cx="250" cy="250" r="120" stroke="#4a8ef0" stroke-width="1"/>
-              <circle cx="250" cy="250" r="70"  stroke="#9060e0" stroke-width="1"/>
-            </svg>
-          </div>
-          <div class="hero-content">
-            <div class="hero-disc">
-              <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
-                <rect x="5" y="13" width="3" height="6"  rx="1.5" fill="#304080" opacity=".6"/>
-                <rect x="10" y="10" width="3" height="12" rx="1.5" fill="#304080" opacity=".75"/>
-                <rect x="15" y="12" width="3" height="8"  rx="1.5" fill="#304080"/>
-                <rect x="20" y="10" width="3" height="12" rx="1.5" fill="#304080" opacity=".75"/>
-                <rect x="25" y="13" width="3" height="6"  rx="1.5" fill="#304080" opacity=".6"/>
-              </svg>
+        <div class="guide-wrap">
+
+          <div class="guide-header">
+            <div>
+              <div class="guide-title">How to clean up your library</div>
+              <div class="guide-subtitle">6 steps · takes about 2 minutes</div>
             </div>
-            <div class="hero-h">Select a folder to begin</div>
-            <div class="hero-sub">Drop your music library in the sidebar.<br>MusicCleanup scans, hashes, and finds every<br><em>duplicate track</em> across all formats.</div>
+            <div style="display:flex;gap:6px">
+              <div class="hint" style="padding:8px 12px;background:var(--ink2);border:1px solid var(--line);border-radius:6px;text-align:center;min-width:52px">
+                <div class="hint-n" style="font-size:14px">10+</div>
+                <div class="hint-l">Formats</div>
+              </div>
+              <div class="hint" style="padding:8px 12px;background:var(--ink2);border:1px solid var(--line);border-radius:6px;text-align:center;min-width:52px">
+                <div class="hint-n" style="font-size:14px">0</div>
+                <div class="hint-l">Uploads</div>
+              </div>
+            </div>
           </div>
-        </div>
-        <div class="hints-strip">
-          <div class="hint"><div class="hint-n">3</div><div class="hint-l">Detection stages</div></div>
-          <div class="hint"><div class="hint-n">10+</div><div class="hint-l">Audio formats</div></div>
-          <div class="hint"><div class="hint-n">10K+</div><div class="hint-l">Files supported</div></div>
-          <div class="hint"><div class="hint-n">0</div><div class="hint-l">Data uploaded</div></div>
+
+          <div class="guide-steps" id="guide-steps">
+
+            <div class="guide-step active" id="gs-1">
+              <div class="gs-num">1</div>
+              <div class="gs-body">
+                <div class="gs-head">
+                  <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M1 4.5A1.5 1.5 0 012.5 3h3.672a1.5 1.5 0 011.06.44l.94.94H13.5A1.5 1.5 0 0115 6v6.5a1.5 1.5 0 01-1.5 1.5h-11A1.5 1.5 0 011 12.5v-8z" stroke="currentColor" stroke-width="1.2" fill="none"/></svg>
+                  Select your music folder
+                </div>
+                <div class="gs-desc">Click the drop zone in the sidebar or drag your music folder onto it. Works with any folder — your whole library or just a subfolder.<br><br><strong>Supported:</strong> MP3, FLAC, WAV, M4A, AAC, OGG, OPUS, AIFF, WMA and more.</div>
+                <div class="gs-tip" onclick="document.getElementById('dz').click()">
+                  <svg viewBox="0 0 16 16" fill="none"><path d="M1 4.5A1.5 1.5 0 012.5 3h3.672a1.5 1.5 0 011.06.44l.94.94H13.5A1.5 1.5 0 0115 6v6.5a1.5 1.5 0 01-1.5 1.5h-11A1.5 1.5 0 011 12.5v-8z" stroke="currentColor" stroke-width="1.1" fill="none"/></svg>
+                  Click to open folder picker
+                </div>
+              </div>
+            </div>
+
+            <div class="guide-step" id="gs-2">
+              <div class="gs-num">2</div>
+              <div class="gs-body">
+                <div class="gs-head">
+                  <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><rect x="2" y="4" width="12" height="8" rx="1.5" stroke="currentColor" stroke-width="1.2"/><path d="M5 8h6" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+                  Set your options
+                </div>
+                <div class="gs-desc"><em>Auto-select duplicates</em> pre-checks the non-recommended copies for you — the worker picks the best quality file to keep (FLAC over MP3, higher bitrate wins).<br><br>Turn on <em>Expand groups on load</em> if you want all groups open by default.</div>
+              </div>
+            </div>
+
+            <div class="guide-step" id="gs-3">
+              <div class="gs-num">3</div>
+              <div class="gs-body">
+                <div class="gs-head">
+                  <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><circle cx="6.5" cy="6.5" r="5" stroke="currentColor" stroke-width="1.2"/><path d="M10.5 10.5L14 14" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+                  Run the scan
+                </div>
+                <div class="gs-desc">Click <em>Scan Library</em>. The scan runs in 4 stages:<br><br><strong>Index</strong> → finds all audio files<br><strong>Meta</strong> → reads tags (title, artist, album)<br><strong>Hash</strong> → fingerprints every file<br><strong>Dedup</strong> → groups the duplicates<br><br>Large libraries (10,000+ files) take 1–3 minutes.</div>
+              </div>
+            </div>
+
+            <div class="guide-step" id="gs-4">
+              <div class="gs-num">4</div>
+              <div class="gs-body">
+                <div class="gs-head">
+                  <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><rect x="2" y="2" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.2"/><path d="M5 8l2 2 4-4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  Review duplicate groups
+                </div>
+                <div class="gs-desc">Groups are color-coded by match type:<br><br><strong style="color:var(--red)">Exact Copy</strong> — byte-for-byte identical files<br><strong style="color:var(--orange)">Same Audio</strong> — same recording, different tags or format<br><strong style="color:var(--yellow)">Metadata Match</strong> — same title + artist<br><br>The <em>green Keep badge</em> marks the recommended file to keep. You can override it with <em>Set Keep</em> on any row.</div>
+              </div>
+            </div>
+
+            <div class="guide-step" id="gs-5">
+              <div class="gs-num">5</div>
+              <div class="gs-body">
+                <div class="gs-head">
+                  <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><rect x="3" y="1" width="10" height="14" rx="1.5" stroke="currentColor" stroke-width="1.2"/><path d="M5 8l2 2 4-4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  Select files to remove
+                </div>
+                <div class="gs-desc">Check the files you want to delete — or use the group-level checkbox to select all non-kept files in one click. Use <em>Select all Exact</em> in the filter bar for bulk selection.<br><br>Then click <em>Move to Trash Review</em>.</div>
+              </div>
+            </div>
+
+            <div class="guide-step" id="gs-6">
+              <div class="gs-num">6</div>
+              <div class="gs-body">
+                <div class="gs-head">
+                  <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M4 8h8M9.5 5.5L12 8l-2.5 2.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/><rect x="2" y="2" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.2"/></svg>
+                  Download and run the delete list
+                </div>
+                <div class="gs-desc">Go to the <em>Trash</em> tab and click <em>Download Delete List</em>. This gives you a text file with ready-to-run shell commands.<br><br><strong>macOS / Linux:</strong> open Terminal, paste the commands<br><strong>Windows:</strong> open PowerShell, paste the commands<br><br>The app cannot delete files directly — browser security requires this extra step.</div>
+                <div class="gs-tip" onclick="document.querySelector('[data-tab=trash]')?.click()">
+                  <svg viewBox="0 0 16 16" fill="none"><rect x="3" y="4" width="10" height="10" rx="1.5" stroke="currentColor" stroke-width="1.1"/><path d="M1 4h14M6 4V3a1 1 0 011-1h2a1 1 0 011 1v1M6 7v4M10 7v4" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/></svg>
+                  Go to Trash Review tab
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <div class="guide-cta">
+            <button class="guide-cta-btn" onclick="document.getElementById('dz').click()">Get Started</button>
+            <div class="guide-cta-note">Select a folder to begin.<br>Everything runs in your browser — nothing leaves your device.</div>
+          </div>
+
         </div>
       </div>
 
@@ -1089,13 +1280,34 @@ body::before {
         <rect x="26" y="14" width="2" height="4" rx="1" fill="#9060e0" opacity=".55"/>
       </svg>
       <div class="wn-title">
-        <div class="wn-title-top">What's New in v3.1</div>
+        <div class="wn-title-top">What's New in v3.3</div>
         <div class="wn-title-sub">MusicCleanup · Duplicate Detector PWA</div>
       </div>
       <button class="wn-close" onclick="document.getElementById('wn-overlay').classList.remove('on')">×</button>
     </div>
     <div class="wn-body">
       <div class="wn-item">
+      <div class="wn-item">
+        <div class="wn-dot"></div>
+        <div>
+          <div class="wn-item-title">Folder drop fixed</div>
+          <div class="wn-item-desc">Fixed infinite recursion in setDir caused by a hoisted function wrapper. Drop handler now surfaces errors instead of swallowing them. Full-page drag target added so drops on the guide content still register.</div>
+        </div>
+      </div>
+      <div class="wn-item">
+        <div class="wn-dot"></div>
+        <div>
+          <div class="wn-item-title">Step-by-step guide</div>
+          <div class="wn-item-desc">Idle screen replaced with a 6-step interactive how-to guide. Steps auto-advance as you work. "How to use" button in the header reopens the guide from any state.</div>
+        </div>
+      </div>
+      <div class="wn-item">
+        <div class="wn-dot"></div>
+        <div>
+          <div class="wn-item-title">Green scan progress bar</div>
+          <div class="wn-item-desc">Progress bar during scanning is now green — matches the completion/success visual language.</div>
+        </div>
+      </div>
         <div class="wn-dot"></div>
         <div>
           <div class="wn-item-title">Auto-update button</div>
@@ -1188,7 +1400,7 @@ body::before {
 <div class="toasts" id="toasts"></div>
 
 <script>
-const APP_VERSION='3.1';
+const APP_VERSION='3.3';
 const S={worker:null,scanning:false,folder:null,files:[],groups:[],corrupt:[],trash:[],
   sel:new Set(),filter:'all',sort:'wasted',search:'',page:1,pp:12,deferInstall:null,scanStart:0,appState:'idle'};
 
@@ -1249,7 +1461,7 @@ function pushFeedRow(name,ext,sizeMB,isDup,isActive){
 
 document.addEventListener('DOMContentLoaded',()=>{
   if(!('showDirectoryPicker' in window)){document.getElementById('co').classList.add('on');return;}
-  initW();setupDZ();setupTabs();setupFPs();setupPWA();setupSearch();setupKbd();
+  initW();setupDZ();setupDocDrag();setupTabs();setupFPs();setupPWA();setupSearch();setupKbd();
   document.getElementById('sort').addEventListener('change',e=>{S.sort=e.target.value;S.page=1;renderGroups();});
   document.getElementById('expandall').addEventListener('change',()=>{if(S.groups.length)renderGroups();});
   setState('idle');
@@ -1266,17 +1478,79 @@ function initW(){
   };
 }
 
+
+/* Document-level drag target — catches drops that miss #dz when guide is visible */
+function setupDocDrag(){
+  // Show the drop zone highlighted when anything is dragged over the main panel
+  const main=document.querySelector('.main');
+  if(!main)return;
+  main.addEventListener('dragover',e=>{
+    e.preventDefault();
+    e.dataTransfer.dropEffect='copy';
+    document.getElementById('dz')?.classList.add('drag');
+  });
+  main.addEventListener('dragleave',e=>{
+    if(!main.contains(e.relatedTarget))
+      document.getElementById('dz')?.classList.remove('drag');
+  });
+  main.addEventListener('drop',async e=>{
+    e.preventDefault();e.stopPropagation();
+    document.getElementById('dz')?.classList.remove('drag');
+    const items=[...e.dataTransfer.items];
+    for(const item of items){
+      if(item.kind==='file'&&typeof item.getAsFileSystemHandle==='function'){
+        try{
+          const h=await item.getAsFileSystemHandle();
+          if(h.kind==='directory'){setDir(h);return;}
+        }catch{}
+      }
+    }
+    if(items.length)toast('Drop a folder onto the sidebar drop zone','err');
+  });
+}
 function setupDZ(){
   const dz=document.getElementById('dz');
   dz.addEventListener('click',pickDir);
-  dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('drag');});
-  dz.addEventListener('dragleave',()=>dz.classList.remove('drag'));
+
+  dz.addEventListener('dragover',e=>{
+    e.preventDefault();
+    e.dataTransfer.dropEffect='copy';
+    dz.classList.add('drag');
+  });
+  dz.addEventListener('dragleave',e=>{
+    // Only remove if leaving the dz entirely (not entering a child)
+    if(!dz.contains(e.relatedTarget))dz.classList.remove('drag');
+  });
+  dz.addEventListener('dragend',()=>dz.classList.remove('drag'));
+
   dz.addEventListener('drop',async e=>{
-    e.preventDefault();dz.classList.remove('drag');
-    for(const item of[...e.dataTransfer.items]){
-      if(item.kind==='file'){try{const h=await item.getAsFileSystemHandle();if(h.kind==='directory'){setDir(h);return;}}catch{}}
+    e.preventDefault();e.stopPropagation();
+    dz.classList.remove('drag');
+
+    const items=[...e.dataTransfer.items];
+    if(!items.length){toast('Nothing dropped — try dragging a folder','err');return;}
+
+    // Try getAsFileSystemHandle (Chrome 86+)
+    if(typeof items[0].getAsFileSystemHandle==='function'){
+      for(const item of items){
+        if(item.kind==='file'){
+          try{
+            const h=await item.getAsFileSystemHandle();
+            if(h.kind==='directory'){setDir(h);return;}
+          }catch(err){
+            // getAsFileSystemHandle failed — common if dragging from some locations
+            console.warn('FSAPI drag failed:',err);
+          }
+        }
+      }
+      // Items exist but none were directories
+      const kinds=items.map(i=>i.kind).join(',');
+      toast('Drop a folder, not individual files (got: '+kinds+')','err');
+      return;
     }
-    toast('Drop a folder, not individual files','err');
+
+    // Fallback: FSAPI not supported at all
+    toast('Drag & drop folders requires Chrome 86+. Use the click button instead.','err');
   });
 }
 async function pickDir(){try{setDir(await window.showDirectoryPicker({mode:'read'}));}catch(e){if(e.name!=='AbortError')toast('Could not open folder: '+e.message,'err');}}
@@ -1287,7 +1561,8 @@ function setDir(h){
   document.getElementById('scan-btn').disabled=false;
   document.querySelector('.drop-title').textContent=h.name;
   document.querySelector('.drop-sub').innerHTML=`<strong>${esc(h.name)}</strong> — click Scan Library to begin`;
-  toast('Folder: '+h.name,'info');
+  toast('Folder ready: '+h.name,'ok');
+  if(S.appState==='idle')setGuideStep(2);
 }
 
 document.getElementById('scan-btn').addEventListener('click',async()=>{
@@ -1308,6 +1583,7 @@ async function doScan(){
     const hc=document.getElementById('hc');
     hc.textContent=handles.length.toLocaleString()+' files found';hc.classList.add('on');
     S.worker.postMessage({type:'scan',payload:{fileHandles:handles}});
+    setGuideStep(3);
   }catch(e){onErr({message:e.message});}
 }
 function cancelScan(){S.worker.terminate();initW();S.scanning=false;setSBtn(false);setState('idle');toast('Cancelled','info');}
@@ -1396,6 +1672,7 @@ function onDone(d){
   }
 
   setState('results');
+  setGuideStep(4);
   renderGroups();renderCorrupt();renderAllFiles();
   toast(`Scan complete — ${d.groups.length} duplicate groups found`,'ok');
 }
@@ -1748,6 +2025,54 @@ function toast(msg,type='info',ms=4000){
   const el=Object.assign(document.createElement('div'),{className:'toast '+type,textContent:msg});
   document.getElementById('toasts').appendChild(el);setTimeout(()=>el.remove(),ms);
 }
+
+/* ── How-to guide ─────────────────────────────────────────────────────────── */
+function showGuide(){
+  // If in results/scan state, switch back to idle to show guide
+  if(S.appState!=='idle'){
+    // Show a brief guide modal overlay instead of switching state
+    const existing=document.getElementById('guide-overlay');
+    if(existing){existing.classList.toggle('on');return;}
+    const ov=document.createElement('div');
+    ov.id='guide-overlay';
+    ov.style.cssText='position:fixed;inset:0;background:rgba(8,12,20,.88);z-index:9000;display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(2px)';
+    ov.innerHTML=`<div style="background:var(--ink1);border:1px solid var(--line2);border-radius:12px;max-width:520px;width:100%;max-height:85vh;display:flex;flex-direction:column;overflow:hidden">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--line)">
+        <div>
+          <div style="font-size:14px;font-weight:800;color:var(--paper)">How to use MusicCleanup</div>
+          <div style="font-family:var(--f-mono);font-size:9px;color:var(--ash);margin-top:2px">6 steps · all processing is local</div>
+        </div>
+        <button onclick="document.getElementById('guide-overlay').classList.remove('on')" style="background:none;border:none;color:var(--ash);font-size:18px;cursor:pointer;padding:4px 8px;line-height:1">×</button>
+      </div>
+      <div style="overflow-y:auto;padding:16px 20px" id="guide-overlay-body"></div>
+    </div>`;
+    document.body.appendChild(ov);
+    // Clone guide steps into overlay
+    const src=document.getElementById('guide-steps');
+    const dest=document.getElementById('guide-overlay-body');
+    if(src&&dest){dest.innerHTML=src.innerHTML;}
+    ov.classList.add('on');
+    ov.addEventListener('click',e=>{if(e.target===ov)ov.classList.remove('on');});
+  } else {
+    // Already in idle — scroll guide into view
+    document.getElementById('guide-steps')?.scrollIntoView({behavior:'smooth',block:'start'});
+  }
+}
+
+/* Mark step N as active (1-indexed) */
+function setGuideStep(n){
+  for(let i=1;i<=6;i++){
+    const el=document.getElementById('gs-'+i);
+    if(!el)continue;
+    el.classList.remove('active','done');
+    if(i<n)el.classList.add('done');
+    else if(i===n)el.classList.add('active');
+  }
+}
+
+/* Auto-progress guide when folder is selected */
+
+// Guide step sync handled inside setDir
 </script>
 </body>
 </html>
