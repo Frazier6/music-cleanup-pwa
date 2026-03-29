@@ -10,926 +10,479 @@
 <link rel="apple-touch-icon" href="icons/icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
 <style>
-/* ── Blue + Purple palette ──────────────────────────────────────────────── */
+/* ── Design tokens ─────────────────────────────────────────────────── */
 :root {
-  /* Backgrounds — deep blue-black */
-  --ink:   #080c14;
-  --ink1:  #0c1220;
-  --ink2:  #101828;
-  --ink3:  #172035;
-  --ink4:  #1e2a42;
-  --line:  #1e2e48;
-  --line2: #2a3e5e;
-
-  /* Text — cool blue-whites */
-  --paper:  #e2e8f8;
-  --paper2: #b0bcdc;
-  --paper3: #7888b4;
-  --dust:   #5060a0;
-  --ash:    #304080;
-
-  /* Accent — cobalt blue primary + violet purple secondary */
-  --accent:      #4a8ef0;
-  --accent2:     #9060e0;
-  --accent-dim:  rgba(74,142,240,.15);
-  --accent-glow: rgba(74,142,240,.06);
-  --accent-mix:  rgba(144,96,224,.1);
-
-  /* Status */
-  --red:    #e04868;
-  --orange: #d4683a;
-  --yellow: #c0a820;
-  --green:  #38a878;
-  --teal:   #28b4c8;
-  --violet: #9060e0;
-
-  --f-disp: 'Syne', sans-serif;
-  --f-mono: 'DM Mono', monospace;
-  --r: 5px; --r2: 10px;
-  --tr: 160ms ease; --tr2: 260ms cubic-bezier(.25,.46,.45,.94);
+  --bg0:#080c14; --bg1:#0c1220; --bg2:#101828; --bg3:#172035; --bg4:#1e2a42;
+  --ln:#1e2e48;  --ln2:#2a3e5e;
+  --tx:#e2e8f8;  --tx2:#b0bcdc; --tx3:#7888b4;
+  --mu:#5060a0;  --fa:#304080;
+  --ac:#4a8ef0;  --ac2:#9060e0;
+  --adim:rgba(74,142,240,.14); --aglow:rgba(74,142,240,.06);
+  --red:#e04868; --grn:#38a878; --ora:#d4683a; --yel:#c0a820; --tel:#28b4c8;
+  --ff:'Syne',sans-serif; --fm:'DM Mono',monospace;
+  --r:5px; --r2:10px; --tr:150ms ease;
 }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden;background:var(--bg0);color:var(--tx);font-family:var(--ff);font-size:14px}
 
-/* ── Reset ──────────────────────────────────────────────────────────────── */
-*,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
-html,body { height:100%; overflow:hidden; background:var(--ink); color:var(--paper); font-family:var(--f-disp); font-size:14px; line-height:1.5; }
+/* ── Layout shell ──────────────────────────────────────────────────── */
+.app{display:grid;grid-template-rows:auto auto 1fr;height:100vh;overflow:hidden}
 
-/* Subtle star-field grain */
-body::before {
-  content:''; position:fixed; inset:0; pointer-events:none; z-index:0; opacity:.018;
-  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  background-size:160px;
-}
+/* ── Update banner ─────────────────────────────────────────────────── */
+#upd{display:none;align-items:center;gap:10px;padding:7px 20px;
+     background:var(--bg2);border-bottom:1px solid var(--ac);font-size:12px}
+#upd.on{display:flex}
+#upd-txt{font-family:var(--fm);color:var(--tx2);flex:1}
+#upd-txt strong{color:var(--ac)}
+.upd-btn{padding:5px 12px;border:none;border-radius:var(--r);font-family:var(--ff);
+         font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;cursor:pointer}
+#upd-later{background:none;color:var(--mu);font-size:11px;cursor:pointer;font-family:var(--fm)}
+#upd-now{background:var(--ac);color:#fff}
 
-/* ── App shell ──────────────────────────────────────────────────────────── */
-.app { display:grid; grid-template-rows:54px 1fr; height:100vh; position:relative; z-index:1; }
+/* ── Nav bar ────────────────────────────────────────────────────────── */
+nav{display:flex;align-items:center;gap:14px;padding:0 20px;height:50px;
+    background:var(--bg1);border-bottom:1px solid var(--ln);flex-shrink:0}
+.logo{display:flex;align-items:center;gap:10px}
+.logo-disc{width:28px;height:28px;border-radius:50%;border:1.5px solid var(--ac);
+           background:var(--bg2);position:relative;flex-shrink:0}
+.logo-disc svg{position:absolute;inset:0;width:100%;height:100%}
+.logo-name{font-size:13px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--tx)}
+.logo-name em{color:var(--ac);font-style:normal}
+.logo-tag{font-family:var(--fm);font-size:8.5px;letter-spacing:.15em;color:var(--fa);text-transform:uppercase;margin-top:2px}
+.nav-sep{flex:1}
+.nav-pill{display:flex;align-items:center;gap:5px;font-family:var(--fm);font-size:9.5px;
+          color:var(--mu);padding:3px 8px;background:var(--bg2);border:1px solid var(--ln);border-radius:3px}
+.ndot{width:5px;height:5px;border-radius:50%;background:var(--grn)}
+.nav-ver{font-family:var(--fm);font-size:9.5px;padding:3px 8px;background:var(--bg2);
+         border:1px solid var(--ln2);border-radius:3px;color:var(--mu);cursor:pointer;
+         display:flex;align-items:center;gap:5px;transition:all var(--tr)}
+.nav-ver:hover{border-color:var(--ac);color:var(--ac)}
+.nver-dot{width:6px;height:6px;border-radius:50%;background:var(--ac2)}
+.nav-help{display:flex;align-items:center;gap:5px;font-family:var(--fm);font-size:9.5px;
+          color:var(--mu);padding:3px 8px;background:var(--bg2);border:1px solid var(--ln);
+          border-radius:3px;cursor:pointer;transition:all var(--tr)}
+.nav-help:hover{border-color:var(--ac);color:var(--ac)}
+#nav-count{font-family:var(--fm);font-size:10px;color:var(--tx3);padding:3px 10px;
+           background:var(--bg2);border:1px solid var(--ln);border-radius:3px;display:none}
+#nav-count.on{display:block}
 
-/* ── Header ─────────────────────────────────────────────────────────────── */
-.header {
-  display:flex; align-items:center; gap:16px; padding:0 22px;
-  background:var(--ink1); border-bottom:1px solid var(--line);
-  z-index:100; position:relative;
-}
-.logo { display:flex; align-items:center; gap:11px; }
-/* vinyl-badge replaced by SVG in HTML */
-.logo-words { display:flex; flex-direction:column; line-height:1; }
-.logo-name  { font-size:14px; font-weight:800; letter-spacing:.06em; color:var(--paper); text-transform:uppercase; }
-.logo-name em { color:var(--accent); font-style:normal; }
-.logo-tag   { font-family:var(--f-mono); font-size:9px; letter-spacing:.16em; color:var(--ash); text-transform:uppercase; margin-top:2px; }
+/* ── Body ───────────────────────────────────────────────────────────── */
+.body{display:grid;grid-template-columns:268px 1fr;overflow:hidden;min-height:0}
 
-.h-div  { width:1px; height:20px; background:var(--line2); }
-.h-pill {
-  display:flex; align-items:center; gap:6px; font-family:var(--f-mono);
-  font-size:10px; letter-spacing:.07em; color:var(--dust);
-  padding:3px 8px; background:var(--ink2); border:1px solid var(--line); border-radius:3px;
-}
-.h-dot  { width:5px; height:5px; border-radius:50%; background:var(--green); }
-.h-sep  { flex:1; }
-.h-count {
-  font-family:var(--f-mono); font-size:11px; color:var(--paper3);
-  padding:3px 10px; background:var(--ink2); border:1px solid var(--line); border-radius:3px;
-  display:none;
-}
-.h-count.on { display:block; }
-
-/* ── Body split ─────────────────────────────────────────────────────────── */
-.body { display:grid; grid-template-columns:280px 1fr; overflow:hidden; }
-
-/* ── Sidebar ─────────────────────────────────────────────────────────────── */
-.sidebar {
-  background:var(--ink1); border-right:1px solid var(--line);
-  display:flex; flex-direction:column; overflow-y:auto; overflow-x:hidden;
-}
-.sidebar::-webkit-scrollbar { width:4px; }
-.sidebar::-webkit-scrollbar-thumb { background:var(--line2); border-radius:2px; }
-
-.s-blk { padding:18px 20px; border-bottom:1px solid var(--line); }
-.s-blk:last-child { border-bottom:none; }
-.s-eye {
-  font-family:var(--f-mono); font-size:9px; font-weight:500;
-  letter-spacing:.18em; text-transform:uppercase; color:var(--ash);
-  margin-bottom:12px; display:flex; align-items:center; gap:8px;
-}
-.s-eye::after { content:''; flex:1; height:1px; background:var(--line); }
+/* ── Sidebar ────────────────────────────────────────────────────────── */
+aside{background:var(--bg1);border-right:1px solid var(--ln);display:flex;flex-direction:column;overflow:hidden}
+.s-primary{padding:18px 16px;border-bottom:2px solid var(--ln2);flex-shrink:0}
+.s-scroll{flex:1;overflow-y:auto;overflow-x:hidden;min-height:0}
+.s-scroll::-webkit-scrollbar{width:3px}
+.s-scroll::-webkit-scrollbar-thumb{background:var(--ln2);border-radius:2px}
+.s-block{padding:12px 16px;border-bottom:1px solid var(--ln)}
+.s-footer{flex-shrink:0;border-top:1px solid var(--ln2)}
+.s-label{font-family:var(--fm);font-size:8px;letter-spacing:.2em;text-transform:uppercase;
+         color:var(--fa);margin-bottom:8px;display:flex;align-items:center;gap:7px}
+.s-label::after{content:'';flex:1;height:1px;background:var(--ln)}
 
 /* Drop zone */
-.drop {
-  position:relative; border-radius:var(--r2); border:1.5px dashed var(--line2);
-  background:var(--ink2); padding:22px 16px; text-align:center; cursor:pointer;
-  transition:border-color var(--tr), background var(--tr); overflow:hidden;
-}
-.drop::before {
-  content:''; position:absolute; inset:0;
-  background:radial-gradient(ellipse at 50% 0%,var(--accent-dim) 0%,transparent 70%);
-  opacity:0; transition:opacity var(--tr2);
-  pointer-events:none;
-}
-.drop:hover, .drop.drag { border-color:var(--accent); }
-.drop:hover::before, .drop.drag::before { opacity:1; }
-.drop-disc {
-  width:52px; height:52px; border-radius:50%; margin:0 auto 12px; position:relative;
-  pointer-events:none;
-  background: conic-gradient(
-    var(--ink3) 0deg,var(--ink4) 13deg,var(--ink3) 26deg,var(--ink4) 39deg,
-    var(--ink3) 52deg,var(--ink4) 65deg,var(--ink3) 78deg,var(--ink4) 91deg,
-    var(--ink3) 104deg,var(--ink4) 117deg,var(--ink3) 130deg,var(--ink4) 143deg,
-    var(--ink3) 156deg,var(--ink4) 169deg,var(--ink3) 182deg,var(--ink4) 195deg,
-    var(--ink3) 208deg,var(--ink4) 221deg,var(--ink3) 234deg,var(--ink4) 247deg,
-    var(--ink3) 260deg,var(--ink4) 273deg,var(--ink3) 286deg,var(--ink4) 299deg,
-    var(--ink3) 312deg,var(--ink4) 325deg,var(--ink3) 338deg,var(--ink4) 351deg,
-    var(--ink3) 360deg
-  );
-  border:2px solid var(--line2); transition:border-color var(--tr);
-  animation:disc-spin 14s linear infinite paused;
-}
-.drop:hover .drop-disc, .drop.drag .drop-disc { border-color:var(--accent); animation-play-state:running; }
-.drop-disc::after {
-  content:''; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
-  width:14px; height:14px; border-radius:50%; background:var(--accent);
-  box-shadow:0 0 0 4px var(--ink2);
-}
-@keyframes disc-spin { to { transform:rotate(360deg); } }
-.drop-title { font-size:13px; font-weight:700; color:var(--paper); margin-bottom:4px; position:relative; z-index:1; pointer-events:none; }
-.drop-sub   { font-size:11px; color:var(--dust); line-height:1.55; position:relative; z-index:1; pointer-events:none; }
-.drop-sub strong { color:var(--accent); font-weight:500; }
-.folder-chip {
-  display:none; margin-top:10px; padding:6px 10px;
-  background:var(--ink3); border:1px solid var(--accent); border-radius:var(--r);
-  font-family:var(--f-mono); font-size:11px; color:var(--accent); text-align:center; word-break:break-all;
-}
-.folder-chip.on { display:block; }
-
-/* Options toggle */
-.tog { position:relative; width:38px; height:22px; flex-shrink:0; cursor:pointer; }
-.tog input { opacity:0; width:0; height:0; }
-.tog-bg {
-  position:absolute; inset:0; border-radius:11px;
-  background:var(--ink3); border:1px solid var(--line2); transition:all var(--tr);
-}
-.tog input:checked ~ .tog-bg { background:var(--accent); border-color:var(--accent); }
-.tog-dot {
-  position:absolute; top:3px; left:3px; width:14px; height:14px; border-radius:50%;
-  background:var(--ash); transition:all var(--tr);
-}
-.tog input:checked ~ .tog-dot { transform:translateX(16px); background:#fff; }
-.opt-row { display:flex; align-items:center; justify-content:space-between; gap:10px; padding:8px 0; }
-.opt-row+.opt-row { border-top:1px solid var(--line); }
-.opt-lbl { font-size:13px; font-weight:500; color:var(--paper2); }
-.opt-dsc { font-family:var(--f-mono); font-size:10px; color:var(--ash); margin-top:2px; }
+.drop{border:1.5px dashed var(--ln2);border-radius:var(--r2);background:var(--bg2);
+      padding:20px 14px;text-align:center;cursor:pointer;position:relative;overflow:hidden;
+      transition:border-color var(--tr)}
+.drop:hover,.drop.drag{border-color:var(--ac)}
+.drop::before{content:'';position:absolute;inset:0;
+              background:radial-gradient(ellipse at 50% 0%,var(--adim) 0%,transparent 70%);
+              opacity:0;transition:opacity var(--tr);pointer-events:none}
+.drop:hover::before,.drop.drag::before{opacity:1}
+.drop-ring{width:48px;height:48px;border-radius:50%;margin:0 auto 10px;border:1.5px solid var(--ln2);
+           background:var(--bg2);display:flex;align-items:center;justify-content:center;
+           transition:border-color var(--tr);pointer-events:none}
+.drop:hover .drop-ring,.drop.drag .drop-ring{border-color:var(--ac)}
+.drop-t{font-size:12px;font-weight:700;color:var(--tx);margin-bottom:3px;pointer-events:none}
+.drop-s{font-family:var(--fm);font-size:10px;color:var(--mu);line-height:1.5;pointer-events:none}
+.drop-s em{color:var(--ac);font-style:normal}
+#folder-chip{display:none;margin-top:9px;padding:6px 10px;background:var(--bg3);
+             border:1px solid var(--ac);border-radius:var(--r);font-family:var(--fm);
+             font-size:10px;color:var(--ac);word-break:break-all;text-align:center}
+#folder-chip.on{display:block}
 
 /* Scan button */
-.scan-btn {
-  width:100%; padding:12px; background:var(--accent); border:none; border-radius:var(--r);
-  color:#fff; font-family:var(--f-disp); font-size:14px; font-weight:800;
-  letter-spacing:.05em; text-transform:uppercase; cursor:pointer;
-  display:flex; align-items:center; justify-content:center; gap:8px;
-  position:relative; overflow:hidden; transition:transform var(--tr), opacity var(--tr);
-}
-.scan-btn::before {
-  content:''; position:absolute; inset:0;
-  background:linear-gradient(to right,transparent,rgba(255,255,255,.12),transparent);
-  transform:translateX(-100%); transition:transform .55s ease;
-}
-.scan-btn:hover:not(:disabled)::before { transform:translateX(100%); }
-.scan-btn:hover:not(:disabled) { transform:translateY(-1px); }
-.scan-btn:disabled { opacity:.3; cursor:not-allowed; transform:none; }
-.scan-btn.cancelling { background:var(--red); }
+#scan-btn{width:100%;padding:11px;margin-top:11px;background:var(--ac);border:none;
+          border-radius:var(--r);color:#fff;font-family:var(--ff);font-size:13px;font-weight:800;
+          letter-spacing:.05em;text-transform:uppercase;cursor:pointer;display:flex;
+          align-items:center;justify-content:center;gap:7px;transition:opacity var(--tr),transform var(--tr);
+          position:relative;overflow:hidden}
+#scan-btn::before{content:'';position:absolute;inset:0;
+                  background:linear-gradient(to right,transparent,rgba(255,255,255,.12),transparent);
+                  transform:translateX(-100%);transition:transform .5s ease}
+#scan-btn:hover:not(:disabled)::before{transform:translateX(100%)}
+#scan-btn:hover:not(:disabled){transform:translateY(-1px)}
+#scan-btn:disabled{opacity:.28;cursor:not-allowed;transform:none}
+#scan-btn.cancel{background:var(--red)}
+@keyframes spin{to{transform:rotate(360deg)}}
+.spin{display:inline-block;animation:spin .8s linear infinite}
 
-/* Pipeline */
-.pipeline { display:none; margin-top:14px; }
-.pipeline.on { display:block; }
-.pb-wrap { height:3px; background:var(--ink3); border-radius:2px; overflow:hidden; margin-bottom:9px; }
-.pb-fill {
-  height:100%; background:linear-gradient(to right,#28a870,#38d890);
-  border-radius:2px; transition:width .3s ease; width:0;
-}
-.pb-fill.ind { width:35%; animation:pb-ind 1.3s ease-in-out infinite; }
-@keyframes pb-ind { 0%{margin-left:-35%} 100%{margin-left:135%} }
+/* Options toggles */
+.opt-row{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:7px 0}
+.opt-row+.opt-row{border-top:1px solid var(--ln)}
+.opt-lbl{font-size:12px;font-weight:500;color:var(--tx2)}
+.tog{position:relative;width:34px;height:20px;flex-shrink:0;cursor:pointer}
+.tog input{opacity:0;width:0;height:0}
+.tog-bg{position:absolute;inset:0;border-radius:10px;background:var(--bg3);border:1px solid var(--ln2);transition:all var(--tr)}
+.tog input:checked~.tog-bg{background:var(--ac);border-color:var(--ac)}
+.tog-dot{position:absolute;top:3px;left:3px;width:13px;height:13px;border-radius:50%;background:var(--fa);transition:all var(--tr)}
+.tog input:checked~.tog-dot{transform:translateX(14px);background:#fff}
 
-.ps-row { display:grid; grid-template-columns:repeat(4,1fr); gap:4px; margin-bottom:9px; }
-.ps {
-  display:flex; flex-direction:column; align-items:center; gap:3px; padding:6px 3px;
-  border-radius:4px; border:1px solid var(--line); background:var(--ink2);
-  transition:border-color var(--tr), background var(--tr);
-}
-.ps.act  { border-color:var(--accent);  background:var(--accent-dim); }
-.ps.done { border-color:var(--green);   background:rgba(74,158,122,.08); }
+/* Stats strip */
+#stats-strip{display:none;margin-bottom:0}
+#stats-strip.on{display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px}
+.stat-c{background:var(--bg2);border:1px solid var(--ln);border-radius:var(--r);padding:8px 6px;text-align:center;position:relative;overflow:hidden}
+.stat-c::before{content:'';position:absolute;left:0;top:0;bottom:0;width:2px}
+.stat-c.g::before{background:var(--grn)}.stat-c.r::before{background:var(--red)}.stat-c.a::before{background:var(--ac)}
+.stat-n{font-size:16px;font-weight:800;line-height:1;letter-spacing:-.01em}
+.stat-n.g{color:var(--grn)}.stat-n.r{color:var(--red)}.stat-n.a{color:var(--ac)}
+.stat-l{font-family:var(--fm);font-size:7.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--fa);margin-top:3px}
 
-/* Checkmark for done stage */
-.ps-icon { width:14px; height:14px; display:flex; align-items:center; justify-content:center; }
-.ps-check {
-  width:14px; height:14px; border-radius:50%;
-  background:rgba(74,158,122,.2); display:flex; align-items:center; justify-content:center;
-}
-.ps-check svg { width:8px; height:8px; }
-.ps-spinner {
-  width:12px; height:12px; border-radius:50%;
-  border:1.5px solid var(--accent-dim); border-top-color:var(--accent);
-  animation:spin 1s linear infinite;
-}
-.ps-wait {
-  width:6px; height:6px; border-radius:50%; background:var(--line2);
-}
-@keyframes spin { to { transform:rotate(360deg); } }
-.ps-lb {
-  font-family:var(--f-mono); font-size:8px; color:var(--ash);
-  letter-spacing:.07em; text-transform:uppercase; text-align:center;
-}
-.ps.act .ps-lb  { color:var(--accent); }
-.ps.done .ps-lb { color:var(--green); }
-.pb-msg { font-family:var(--f-mono); font-size:10px; color:var(--ash); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-
-/* Stats strip — 3-col horizontal */
-.stat-strip { display:grid; grid-template-columns:1fr 1fr 1fr; gap:4px; }
-.stat-card {
-  background:var(--ink2); border:1px solid var(--line); border-radius:var(--r);
-  padding:9px 8px; text-align:center; position:relative; overflow:hidden;
-  transition:border-color var(--tr);
-}
-.stat-card:hover { border-color:var(--line2); }
-.stat-card::before { content:''; position:absolute; left:0; top:0; bottom:0; width:2px; border-radius:0; }
-.stat-card.a::before { background:var(--accent); }
-.stat-card.r::before { background:var(--red); }
-.stat-card.g::before { background:var(--green); }
-.stat-n { font-size:17px; font-weight:800; line-height:1; letter-spacing:-.01em; color:var(--paper); }
-.stat-n.a { color:var(--accent); }
-.stat-n.r { color:var(--red); }
-.stat-n.g { color:var(--green); }
-.stat-l { font-family:var(--f-mono); font-size:7.5px; letter-spacing:.09em; text-transform:uppercase; color:var(--ash); margin-top:3px; }
-/* Legacy stat-grid alias */
-.stat-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:4px; }
-
-/* Live feed */
-.feed-wrap { margin-top:4px; }
-.feed-lbl  { font-family:var(--f-mono); font-size:9px; letter-spacing:.14em; text-transform:uppercase; color:var(--ash); margin-bottom:7px; }
-.feed-list { display:flex; flex-direction:column; gap:2px; max-height:220px; overflow:hidden; }
-.feed-row {
-  display:flex; align-items:center; gap:8px; padding:5px 10px;
-  background:var(--ink2); border:1px solid var(--line); border-radius:4px;
-  transition:all var(--tr);
-}
-.feed-row.match { border-color:rgba(224,82,114,.3); background:rgba(224,82,114,.05); }
-.feed-row.active { border-color:var(--accent); background:var(--accent-glow); }
-.feed-row.faded  { opacity:.3; }
-.feed-dot { width:5px; height:5px; border-radius:50%; flex-shrink:0; }
-.feed-dot.ok  { background:var(--line2); }
-.feed-dot.act { background:var(--accent); }
-.feed-dot.dup { background:var(--red); }
-.feed-fmt {
-  font-family:var(--f-mono); font-size:8.5px; padding:1px 5px; border-radius:2px;
-  border:1px solid; flex-shrink:0;
-}
-.feed-fmt.fl { border-color:rgba(124,106,240,.4); color:var(--accent); }
-.feed-fmt.mp { border-color:rgba(58,158,200,.4); color:var(--teal); }
-.feed-fmt.m4 { border-color:rgba(154,122,240,.4); color:var(--violet); }
-.feed-name { font-family:var(--f-mono); font-size:10px; color:var(--paper2); flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; min-width:0; }
-.feed-sz   { font-family:var(--f-mono); font-size:9px; color:var(--ash); flex-shrink:0; }
-.feed-tag  { font-family:var(--f-mono); font-size:9px; color:var(--red); flex-shrink:0; }
+/* Search */
+#search-wrap{display:none}
+#search-wrap.on{display:block}
+.s-search{display:flex;align-items:center;gap:7px;padding:6px 9px;background:var(--bg2);
+          border:1px solid var(--ln2);border-radius:var(--r);transition:border-color var(--tr)}
+.s-search:focus-within{border-color:var(--ac)}
+.s-search input{background:none;border:none;outline:none;font-family:var(--fm);font-size:10.5px;color:var(--tx2);width:100%}
+.s-search input::placeholder{color:var(--fa)}
+.s-search-kbd{font-family:var(--fm);font-size:8px;color:var(--fa);padding:1px 5px;background:var(--bg3);border:1px solid var(--ln2);border-radius:2px;flex-shrink:0}
 
 /* Filter pills */
-.fstrip { display:flex; gap:4px; flex-wrap:wrap; }
-.fp {
-  font-family:var(--f-mono); font-size:10px; letter-spacing:.05em; padding:4px 9px;
-  border-radius:3px; cursor:pointer; border:1px solid var(--line2);
-  background:var(--ink2); color:var(--dust); transition:all var(--tr); white-space:nowrap;
-}
-.fp:hover { color:var(--paper2); border-color:var(--dust); }
-.fp.on { background:var(--accent-dim); border-color:var(--accent); color:var(--accent); }
+#filter-wrap{display:none}
+#filter-wrap.on{display:block}
+.fstrip{display:flex;gap:3px;flex-wrap:wrap}
+.fp{font-family:var(--fm);font-size:9.5px;padding:3px 8px;border-radius:3px;cursor:pointer;
+    border:1px solid var(--ln2);background:var(--bg2);color:var(--mu);transition:all var(--tr)}
+.fp:hover{color:var(--tx2)}
+.fp.on{background:var(--adim);border-color:var(--ac);color:var(--ac)}
+.fp.r{color:var(--red);border-color:rgba(224,72,104,.3)}
+.fp.o{color:var(--ora);border-color:rgba(212,104,58,.3)}
+.fp.y{color:var(--yel);border-color:rgba(192,168,32,.3)}
+.sort-row{display:flex;gap:5px;align-items:center;margin-top:8px}
+.s-sel{flex:1;padding:6px 8px;appearance:none;background:var(--bg2);border:1px solid var(--ln2);
+       border-radius:var(--r);color:var(--mu);font-family:var(--fm);font-size:10px;outline:none;cursor:pointer}
+.s-sel:hover{border-color:var(--ac)}
+.rescan-btn{padding:6px 10px;background:var(--bg3);border:1px solid var(--ln2);border-radius:var(--r);
+            font-family:var(--fm);font-size:9.5px;color:var(--tx3);cursor:pointer;display:none;
+            transition:all var(--tr);white-space:nowrap}
+.rescan-btn.on{display:block}
+.rescan-btn:hover{color:var(--tx);border-color:var(--ac)}
 
-/* Sort */
-.s-sel {
-  width:100%; padding:7px 10px; appearance:none; background:var(--ink2);
-  border:1px solid var(--line2); border-radius:var(--r); color:var(--dust);
-  font-family:var(--f-mono); font-size:11px; outline:none; cursor:pointer;
-  transition:border-color var(--tr);
-}
-.s-sel:hover,.s-sel:focus { border-color:var(--accent); color:var(--paper2); }
+/* Privacy footer */
+.priv{padding:11px 16px;font-family:var(--fm);font-size:9px;color:var(--fa);line-height:1.65;border-bottom:1px solid var(--ln)}
+.priv strong{color:var(--tx3);font-weight:400}
 
-/* Privacy note */
-.priv-note { margin-top:auto; padding:16px 20px; border-top:1px solid var(--line); font-family:var(--f-mono); font-size:10px; color:var(--ash); line-height:1.7; }
-.priv-note strong { color:var(--paper3); font-weight:500; }
+/* Sidebar secondary tabs */
+.side-tabs{display:flex}
+.stab{flex:1;padding:8px 4px;font-size:11px;font-weight:700;color:var(--fa);text-align:center;
+      cursor:pointer;border-top:2px solid transparent;transition:all var(--tr);
+      display:flex;align-items:center;justify-content:center;gap:3px;white-space:nowrap}
+.stab:hover{color:var(--tx2)}
+.stab.on{color:var(--tx);border-top-color:var(--ac)}
+.stab-b{font-family:var(--fm);font-size:7.5px;padding:1px 4px;border-radius:10px;
+        background:var(--bg3);border:1px solid var(--ln2);color:var(--fa);min-width:16px;text-align:center}
+.stab.on .stab-b{background:var(--adim);border-color:var(--ac);color:var(--ac)}
 
-/* ── Main panel ──────────────────────────────────────────────────────────── */
-.main { display:flex; flex-direction:column; overflow:hidden; background:var(--ink); }
+/* ── Main panel — data-state drives visibility ──────────────────────── */
+main{display:flex;flex-direction:column;overflow:hidden;background:var(--bg0);min-height:0}
 
-/* Tab bar — hidden, replaced by side-tabs in sidebar */
-.tab-bar { display:none; }
-.tab { display:none; }
-.tbadge { display:none; }
+/* idle state */
+.panel-idle{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.guide-wrap{flex:1;overflow-y:auto;padding:22px 26px}
+.guide-wrap::-webkit-scrollbar{width:4px}
+.guide-wrap::-webkit-scrollbar-thumb{background:var(--ln2);border-radius:2px}
+.guide-header{margin-bottom:18px}
+.guide-title{font-size:17px;font-weight:800;color:var(--tx);letter-spacing:-.01em}
+.guide-sub{font-family:var(--fm);font-size:9.5px;color:var(--fa);margin-top:3px;letter-spacing:.06em}
+.guide-steps{display:flex;flex-direction:column;position:relative}
+.guide-steps::before{content:'';position:absolute;left:17px;top:28px;bottom:28px;width:1px;background:var(--ln2);z-index:0}
+.gs{display:flex;gap:13px;padding:13px 0;position:relative;z-index:1}
+.gs-num{width:34px;height:34px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;
+        font-family:var(--fm);font-size:11px;color:var(--fa);background:var(--bg2);
+        border:1.5px solid var(--ln2);transition:all var(--tr);position:relative;z-index:1}
+.gs.active .gs-num{background:var(--adim);border-color:var(--ac);color:var(--ac)}
+.gs.done .gs-num{background:rgba(56,168,120,.15);border-color:rgba(56,168,120,.5);color:var(--grn)}
+.gs-body{flex:1;min-width:0;padding-top:6px}
+.gs-head{font-size:12.5px;font-weight:700;color:var(--tx2);margin-bottom:4px;display:flex;align-items:center;gap:7px}
+.gs.active .gs-head{color:var(--tx)}
+.gs.done .gs-head{color:var(--tx3)}
+.gs-desc{font-family:var(--fm);font-size:10px;color:var(--fa);line-height:1.7}
+.gs-desc em{color:var(--ac);font-style:normal}
+.gs-desc .t-red{color:var(--red)} .gs-desc .t-ora{color:var(--ora)} .gs-desc .t-yel{color:var(--yel)}
+.gs-tip{display:inline-flex;align-items:center;gap:5px;margin-top:7px;padding:4px 9px;
+        background:var(--bg2);border:1px solid var(--ln2);border-radius:var(--r);
+        font-family:var(--fm);font-size:9.5px;color:var(--mu);cursor:pointer;transition:all var(--tr)}
+.gs-tip:hover{border-color:var(--ac);color:var(--ac)}
+.guide-cta{margin-top:14px;padding-top:14px;border-top:1px solid var(--ln);display:flex;gap:9px;align-items:center}
+.guide-cta-btn{padding:9px 18px;background:var(--ac);border:none;border-radius:var(--r);color:#fff;
+               font-family:var(--ff);font-size:12px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;cursor:pointer;transition:opacity var(--tr)}
+.guide-cta-btn:hover{opacity:.88}
+.guide-cta-note{font-family:var(--fm);font-size:9.5px;color:var(--fa);line-height:1.6}
+.hints-strip{display:flex;border-top:1px solid var(--ln);flex-shrink:0;background:var(--bg1)}
+.hint{flex:1;padding:12px 8px;text-align:center;border-right:1px solid var(--ln)}
+.hint:last-child{border-right:none}
+.hint-n{font-size:16px;font-weight:800;color:var(--ac);line-height:1}
+.hint-l{font-family:var(--fm);font-size:8px;letter-spacing:.09em;text-transform:uppercase;color:var(--fa);margin-top:4px}
 
-/* Content */
-.content { flex:1; overflow-y:auto; padding:20px 22px; }
-.content::-webkit-scrollbar { width:5px; }
-.content::-webkit-scrollbar-thumb { background:var(--line2); border-radius:3px; }
+/* scan state */
+.panel-scan{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.scan-progress{padding:16px 20px;border-bottom:1px solid var(--ln);background:var(--bg1);flex-shrink:0}
+.sp-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:10px}
+.sp-title{font-size:13.5px;font-weight:700;color:var(--tx2)}
+.sp-pct{font-family:var(--fm);font-size:15px;color:var(--grn);font-weight:400}
+.pb-wrap{height:3px;background:var(--bg3);border-radius:2px;overflow:hidden;margin-bottom:10px}
+.pb-fill{height:100%;background:linear-gradient(to right,#28a870,#38d890);border-radius:2px;width:0;transition:width .3s ease}
+.pb-fill.ind{width:35%;animation:pind 1.3s ease-in-out infinite}
+@keyframes pind{0%{margin-left:-35%}100%{margin-left:135%}}
+.ps-row{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin-bottom:8px}
+.ps{display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 3px;
+    border-radius:4px;border:1px solid var(--ln);background:var(--bg2);transition:all var(--tr)}
+.ps.done{border-color:rgba(56,168,120,.5);background:rgba(56,168,120,.07)}
+.ps.act{border-color:rgba(74,142,240,.5);background:var(--adim)}
+.ps-ic{width:16px;height:16px;display:flex;align-items:center;justify-content:center}
+.ps-ck{width:14px;height:14px;border-radius:50%;background:rgba(56,168,120,.2);display:flex;align-items:center;justify-content:center}
+.ps-sp{width:12px;height:12px;border-radius:50%;border:1.5px solid rgba(74,142,240,.3);border-top-color:var(--ac);animation:spin .9s linear infinite}
+.ps-wt{width:6px;height:6px;border-radius:50%;background:var(--ln2)}
+.ps-lb{font-family:var(--fm);font-size:8px;letter-spacing:.07em;text-transform:uppercase;color:var(--fa)}
+.ps.done .ps-lb{color:var(--grn)}.ps.act .ps-lb{color:var(--ac)}
+.pb-msg{font-family:var(--fm);font-size:9.5px;color:var(--fa);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.feed-panel{flex:1;overflow:hidden;padding:14px 20px;display:flex;flex-direction:column;gap:9px}
+.feed-head{display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.feed-lbl{font-family:var(--fm);font-size:8.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--fa)}
+.feed-dups{font-family:var(--fm);font-size:10px;color:var(--red)}
+#feed-list{display:flex;flex-direction:column;gap:2px;overflow:hidden}
+.feed-row{display:flex;align-items:center;gap:8px;padding:5px 10px;background:var(--bg1);border:1px solid var(--ln);border-radius:4px}
+.feed-row.dup{border-color:rgba(224,72,104,.25);background:rgba(224,72,104,.05)}
+.feed-row.cur{border-color:rgba(74,142,240,.3);background:var(--aglow)}
+.fd-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0}
+.fd-dot.ok{background:var(--ln2)}.fd-dot.cur{background:var(--ac)}.fd-dot.dup{background:var(--red)}
+.fd-name{font-family:var(--fm);font-size:10px;color:var(--tx2);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.fd-sz{font-family:var(--fm);font-size:9px;color:var(--fa);flex-shrink:0}
+.fd-tag{font-family:var(--fm);font-size:9px;color:var(--red);flex-shrink:0}
+
+/* results state */
+.panel-results{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.content{flex:1;overflow-y:auto;padding:16px 18px}
+.content::-webkit-scrollbar{width:4px}
+.content::-webkit-scrollbar-thumb{background:var(--ln2);border-radius:2px}
 
 /* Results header strip */
-.rh { display:none; background:var(--ink1); border:1px solid var(--line); border-radius:var(--r2); margin-bottom:18px; overflow:hidden; }
-.rh.on { display:flex; }
-.rh-cell { flex:1; padding:14px 18px; border-right:1px solid var(--line); position:relative; }
-.rh-cell:last-child { border-right:none; }
-.rh-cell::before { content:''; position:absolute; left:0; top:0; bottom:0; width:3px; border-radius:0; }
-.rh-cell.a::before { background:var(--accent); }
-.rh-cell.r::before { background:var(--red); }
-.rh-cell.g::before { background:var(--green); }
-.rh-val { font-size:26px; font-weight:800; letter-spacing:-.02em; line-height:1; }
-.rh-val.a { color:var(--accent); }
-.rh-val.r { color:var(--red); }
-.rh-val.g { color:var(--green); }
-.rh-lbl { font-family:var(--f-mono); font-size:9px; letter-spacing:.12em; text-transform:uppercase; color:var(--ash); margin-top:5px; }
+.rh{display:none;background:var(--bg1);border:1px solid var(--ln);border-radius:var(--r2);margin-bottom:14px;overflow:hidden}
+.rh.on{display:flex}
+.rh-cell{flex:1;padding:12px 16px;border-right:1px solid var(--ln);position:relative}
+.rh-cell:last-child{border-right:none}
+.rh-cell::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px}
+.rh-cell.a::before{background:var(--ac)}.rh-cell.r::before{background:var(--red)}.rh-cell.g::before{background:var(--grn)}
+.rh-val{font-size:24px;font-weight:800;letter-spacing:-.02em;line-height:1}
+.rh-val.a{color:var(--ac)}.rh-val.r{color:var(--red)}.rh-val.g{color:var(--grn)}
+.rh-lbl{font-family:var(--fm);font-size:8px;letter-spacing:.12em;text-transform:uppercase;color:var(--fa);margin-top:4px}
 
 /* Action bar */
-.act-bar {
-  display:none; align-items:center; gap:10px; padding:10px 14px; margin-bottom:16px;
-  background:rgba(224,82,114,.06); border:1px solid rgba(224,82,114,.22); border-radius:var(--r);
-}
-.act-bar.on { display:flex; }
-.ab-cnt { font-family:var(--f-mono); font-size:12px; color:var(--red); flex:1; letter-spacing:.03em; }
-.ab-clr {
-  padding:5px 12px; font-family:var(--f-mono); font-size:11px;
-  background:var(--ink3); border:1px solid var(--line2); border-radius:var(--r);
-  color:var(--dust); cursor:pointer; transition:all var(--tr);
-}
-.ab-clr:hover { color:var(--paper2); }
-.ab-go {
-  padding:5px 14px; font-family:var(--f-disp); font-size:12px; font-weight:800;
-  letter-spacing:.05em; text-transform:uppercase;
-  background:var(--red); border:none; border-radius:var(--r); color:#fff; cursor:pointer;
-  transition:opacity var(--tr);
-}
-.ab-go:hover { opacity:.85; }
+#act-bar{display:none;align-items:center;gap:8px;padding:9px 12px;margin-bottom:12px;
+         background:rgba(224,72,104,.06);border:1px solid rgba(224,72,104,.2);border-radius:var(--r)}
+#act-bar.on{display:flex}
+#act-cnt{font-family:var(--fm);font-size:11px;color:var(--red);flex:1}
+.ab-clr{padding:4px 10px;font-family:var(--fm);font-size:10px;background:var(--bg3);
+        border:1px solid var(--ln2);border-radius:var(--r);color:var(--mu);cursor:pointer;transition:all var(--tr)}
+.ab-clr:hover{color:var(--tx2)}
+.ab-go{padding:5px 13px;font-family:var(--ff);font-size:11px;font-weight:800;letter-spacing:.05em;
+       text-transform:uppercase;background:var(--red);border:none;border-radius:var(--r);color:#fff;cursor:pointer;transition:opacity var(--tr)}
+.ab-go:hover{opacity:.88}
 
 /* Group cards */
-.gcard {
-  background:var(--ink1); border:1px solid var(--line); border-radius:var(--r2);
-  margin-bottom:10px; overflow:hidden; transition:border-color var(--tr), box-shadow var(--tr);
-}
-.gcard:hover { border-color:var(--line2); box-shadow:0 2px 16px rgba(0,0,0,.4); }
-.ghdr {
-  display:flex; align-items:center; gap:10px; padding:12px 16px;
-  cursor:pointer; user-select:none; background:var(--ink2);
-  transition:background var(--tr); position:relative;
-}
-.ghdr:hover { background:var(--ink3); }
-.ghdr::before { content:''; position:absolute; left:0; top:0; bottom:0; width:3px; border-radius:0; }
-.gcard[data-t="exact_file"]     .ghdr::before { background:var(--red); }
-.gcard[data-t="exact_audio"]    .ghdr::before { background:var(--orange); }
-.gcard[data-t="metadata_match"] .ghdr::before { background:var(--yellow); }
-
-.g-type-pill {
-  font-family:var(--f-mono); font-size:9px; letter-spacing:.1em; text-transform:uppercase;
-  padding:3px 8px; border-radius:3px; border:1px solid currentColor; white-space:nowrap; font-weight:500;
-}
-.g-info { flex:1; min-width:0; }
-.g-song   { font-size:13px; font-weight:700; color:var(--paper); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-.g-artist { font-family:var(--f-mono); font-size:10px; color:var(--dust); margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-.g-cnt {
-  font-family:var(--f-mono); font-size:10px; color:var(--ash); padding:2px 7px;
-  background:var(--ink3); border:1px solid var(--line2); border-radius:3px; white-space:nowrap; flex-shrink:0;
-}
-.g-waste { font-family:var(--f-mono); font-size:11px; color:var(--ash); text-align:right; flex-shrink:0; line-height:1.3; }
-.g-waste strong { color:var(--paper3); display:block; font-size:13px; }
-.gchev { color:var(--ash); flex-shrink:0; transition:transform var(--tr2); }
-.gcard.open .gchev { transform:rotate(90deg); }
-.gbody { display:none; }
-.gcard.open .gbody { display:block; }
+.gcard{background:var(--bg1);border:1px solid var(--ln);border-radius:var(--r2);margin-bottom:8px;overflow:hidden;transition:border-color var(--tr)}
+.gcard:hover{border-color:var(--ln2)}
+.ghdr{display:flex;align-items:center;gap:8px;padding:10px 14px;background:var(--bg2);cursor:pointer;position:relative;user-select:none}
+.ghdr::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px}
+.gcard[data-type="exact_file"] .ghdr::before{background:var(--red)}
+.gcard[data-type="exact_audio"] .ghdr::before{background:var(--ora)}
+.gcard[data-type="metadata_match"] .ghdr::before{background:var(--yel)}
+.g-cbx{width:13px;height:13px;accent-color:var(--red);cursor:pointer;flex-shrink:0}
+.g-tag{font-family:var(--fm);font-size:8.5px;letter-spacing:.09em;text-transform:uppercase;
+       padding:2px 7px;border-radius:3px;border:1px solid currentColor;white-space:nowrap;flex-shrink:0}
+.g-info{flex:1;min-width:0}
+.g-song{font-size:12px;font-weight:700;color:var(--tx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.g-meta{font-family:var(--fm);font-size:9px;color:var(--mu);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.g-cnt{font-family:var(--fm);font-size:9px;color:var(--fa);padding:2px 6px;background:var(--bg3);border:1px solid var(--ln2);border-radius:3px;white-space:nowrap;flex-shrink:0}
+.g-waste{font-family:var(--fm);font-size:11px;color:var(--fa);text-align:right;flex-shrink:0;line-height:1.3}
+.g-waste strong{color:var(--tx3);display:block;font-size:12.5px}
+.g-chev{color:var(--fa);flex-shrink:0;transition:transform var(--tr)}
+.gcard.open .g-chev{transform:rotate(90deg)}
+.gbody{display:none;border-top:1px solid var(--ln)}
+.gcard.open .gbody{display:block}
 
 /* File rows */
-.frow {
-  display:grid; grid-template-columns:17px 1fr auto; gap:12px; align-items:start;
-  padding:10px 16px 10px 20px; border-top:1px solid var(--line);
-  transition:background var(--tr); position:relative;
-}
-.frow:hover { background:var(--ink2); }
-.frow.kr { background:rgba(74,158,122,.04); }
-.frow.mr { background:rgba(224,82,114,.05); }
-.frow::before { content:''; position:absolute; left:0; top:6px; bottom:6px; width:2px; border-radius:0; opacity:0; }
-.frow.kr::before { background:var(--green); opacity:1; }
-.frow.mr::before { background:var(--red); opacity:.6; }
+.frow{display:grid;grid-template-columns:14px 1fr auto;gap:10px;align-items:start;
+      padding:9px 14px 9px 18px;border-bottom:1px solid var(--ln);position:relative;transition:background var(--tr)}
+.frow:last-child{border-bottom:none}
+.frow:hover{background:var(--bg2)}
+.frow.keep{background:rgba(56,168,120,.04)}
+.frow.marked{background:rgba(224,72,104,.04)}
+.frow::before{content:'';position:absolute;left:0;top:5px;bottom:5px;width:2px}
+.frow.keep::before{background:var(--grn)}
+.frow.marked::before{background:var(--red);opacity:.6}
+.fchk{width:13px;height:13px;accent-color:var(--red);cursor:pointer;margin-top:3px}
+.fd{min-width:0}
+.f-nm{font-family:var(--fm);font-size:11px;color:var(--tx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.f-detail{font-family:var(--fm);font-size:9.5px;color:var(--mu);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.f-pills{display:flex;gap:3px;flex-wrap:wrap;margin-top:5px}
+.fp2{font-family:var(--fm);font-size:8.5px;padding:1px 5px;border-radius:2px;border:1px solid var(--ln2);color:var(--fa);background:var(--bg3)}
+.fp2.keep{border-color:var(--grn);color:var(--grn);background:rgba(56,168,120,.1)}
+.fp2.fl{border-color:rgba(74,142,240,.4);color:#7ab0f8;background:rgba(74,142,240,.08)}
+.fp2.lo{border-color:rgba(144,96,224,.4);color:#b090f8;background:rgba(144,96,224,.08)}
+.fp2.co{border-color:rgba(40,180,200,.4);color:#50d0e8;background:rgba(40,180,200,.07)}
+.fside{display:flex;flex-direction:column;align-items:flex-end;gap:4px}
+.f-sz{font-family:var(--fm);font-size:9.5px;color:var(--fa)}
+.f-cp{font-family:var(--fm);font-size:8.5px;padding:2px 7px;border-radius:3px;cursor:pointer;
+      border:1px solid var(--ln2);background:var(--bg3);color:var(--fa);transition:all var(--tr)}
+.f-cp:hover{color:var(--tx2);border-color:var(--mu)}
 
-.fchk { cursor:pointer; accent-color:var(--red); width:14px; height:14px; flex-shrink:0; margin-top:3px; }
-.fd { min-width:0; }
-.f-nm { font-family:var(--f-mono); font-size:11.5px; color:var(--paper); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-.f-dt { font-family:var(--f-mono); font-size:10px; color:var(--dust); margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-.f-pills { display:flex; gap:4px; flex-wrap:wrap; margin-top:5px; }
-.fpsm {
-  font-family:var(--f-mono); font-size:9px; letter-spacing:.05em; padding:1px 5px;
-  border-radius:2px; border:1px solid var(--line2); color:var(--ash); background:var(--ink3);
-}
-.fpsm.kp { border-color:var(--green); color:var(--green); background:rgba(74,158,122,.1); }
-.fpsm.fm { border-color:var(--teal); color:var(--teal); }
-.f-side { display:flex; flex-direction:column; align-items:flex-end; gap:5px; }
-.f-sz  { font-family:var(--f-mono); font-size:10px; color:var(--ash); white-space:nowrap; }
-.f-cp  {
-  font-family:var(--f-mono); font-size:9px; letter-spacing:.05em; text-transform:uppercase;
-  padding:3px 7px; border-radius:3px; cursor:pointer; border:1px solid var(--line2);
-  background:var(--ink3); color:var(--ash); transition:all var(--tr);
-}
-.f-cp:hover { color:var(--paper2); border-color:var(--dust); }
-
-/* Pagination */
-.pager { display:flex; align-items:center; justify-content:center; gap:4px; padding:16px 0 2px; }
-.pbn {
-  height:30px; min-width:30px; padding:0 8px; display:flex; align-items:center; justify-content:center;
-  font-family:var(--f-mono); font-size:11px; border:1px solid var(--line2);
-  background:var(--ink2); color:var(--dust); border-radius:var(--r); cursor:pointer; transition:all var(--tr);
-}
-.pbn:hover:not(:disabled) { color:var(--paper2); border-color:var(--dust); }
-.pbn.on { background:var(--accent-dim); border-color:var(--accent); color:var(--accent); }
-.pbn:disabled { opacity:.3; cursor:not-allowed; }
-.pdot { font-family:var(--f-mono); font-size:11px; color:var(--ash); padding:0 2px; }
+/* Pager */
+.pager{display:flex;align-items:center;justify-content:center;gap:3px;padding:14px 0 2px}
+.pbn{height:28px;min-width:28px;padding:0 7px;display:flex;align-items:center;justify-content:center;
+     font-family:var(--fm);font-size:10.5px;border:1px solid var(--ln2);background:var(--bg2);
+     color:var(--mu);border-radius:var(--r);cursor:pointer;transition:all var(--tr)}
+.pbn:hover:not(:disabled){color:var(--tx2);border-color:var(--mu)}
+.pbn.on{background:var(--adim);border-color:var(--ac);color:var(--ac)}
+.pbn:disabled{opacity:.3;cursor:not-allowed}
+.pdot{font-family:var(--fm);font-size:11px;color:var(--fa);padding:0 2px}
 
 /* Empty states */
-.empty { display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:300px; text-align:center; gap:12px; padding:20px; }
-.e-disc {
-  width:72px; height:72px; border-radius:50%; margin-bottom:4px; position:relative; opacity:.4;
-  background: conic-gradient(
-    var(--ink2) 0deg,var(--ink3) 18deg,var(--ink2) 36deg,var(--ink3) 54deg,
-    var(--ink2) 72deg,var(--ink3) 90deg,var(--ink2) 108deg,var(--ink3) 126deg,
-    var(--ink2) 144deg,var(--ink3) 162deg,var(--ink2) 180deg,var(--ink3) 198deg,
-    var(--ink2) 216deg,var(--ink3) 234deg,var(--ink2) 252deg,var(--ink3) 270deg,
-    var(--ink2) 288deg,var(--ink3) 306deg,var(--ink2) 324deg,var(--ink3) 342deg,
-    var(--ink2) 360deg
-  );
-  border:2px solid var(--line2);
-}
-.e-disc::after { content:''; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:18px; height:18px; border-radius:50%; background:var(--ink3); border:2px solid var(--line2); }
-.e-title { font-size:18px; font-weight:700; color:var(--paper2); letter-spacing:-.01em; }
-.e-sub   { font-size:13px; color:var(--dust); max-width:300px; line-height:1.65; }
+.empty{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:280px;gap:10px;padding:20px;text-align:center}
+.e-disc{width:68px;height:68px;border-radius:50%;border:1.5px solid var(--ln2);background:var(--bg2);display:flex;align-items:center;justify-content:center;opacity:.45;margin-bottom:4px}
+.e-disc svg{width:36px;height:36px}
+.e-title{font-size:17px;font-weight:700;color:var(--tx2);letter-spacing:-.01em}
+.e-sub{font-family:var(--fm);font-size:10px;color:var(--mu);max-width:280px;line-height:1.7}
+.e-sub em{color:var(--ac);font-style:normal}
 
-/* List rows (all files / corrupt) */
-.lrow {
-  display:flex; align-items:flex-start; gap:12px; padding:10px 14px;
-  border-bottom:1px solid var(--line); transition:background var(--tr);
-}
-.lrow:first-child { border-top:1px solid var(--line); }
-.lrow:hover { background:var(--ink1); }
-.lrow-ic  { font-size:16px; flex-shrink:0; margin-top:1px; }
-.lrow-inf { flex:1; min-width:0; }
-.li-nm    { font-family:var(--f-mono); font-size:11.5px; color:var(--paper2); word-break:break-all; }
-.li-sub   { font-family:var(--f-mono); font-size:10px; color:var(--dust); margin-top:3px; }
-.li-err   { font-size:11px; color:var(--red); margin-top:2px; }
-.lrow-sz  { font-family:var(--f-mono); font-size:10px; color:var(--ash); white-space:nowrap; flex-shrink:0; margin-top:2px; }
+/* List rows (all-files / corrupt) */
+.lrow{display:flex;align-items:flex-start;gap:11px;padding:9px 14px;border-bottom:1px solid var(--ln);transition:background var(--tr)}
+.lrow:hover{background:var(--bg1)}
+.lrow-inf{flex:1;min-width:0}
+.li-nm{font-family:var(--fm);font-size:11px;color:var(--tx2);word-break:break-all}
+.li-sub{font-family:var(--fm);font-size:9.5px;color:var(--mu);margin-top:2px}
+.li-err{font-size:11px;color:var(--red);margin-top:2px}
+.lrow-sz{font-family:var(--fm);font-size:9.5px;color:var(--fa);flex-shrink:0;margin-top:2px}
 
 /* Trash tab */
-.th-strip {
-  display:flex; align-items:center; gap:12px; padding:12px 16px;
-  background:var(--ink1); border:1px solid var(--line); border-radius:var(--r2); margin-bottom:14px;
-}
-.th-info { flex:1; font-family:var(--f-mono); font-size:11px; color:var(--dust); }
-.th-info strong { color:var(--paper2); }
-.th-dl {
-  padding:7px 14px; font-family:var(--f-disp); font-size:12px; font-weight:800;
-  letter-spacing:.05em; text-transform:uppercase; background:var(--accent);
-  border:none; border-radius:var(--r); color:#fff; cursor:pointer; transition:opacity var(--tr);
-}
-.th-dl:hover { opacity:.88; }
-.warn-note {
-  padding:10px 14px; background:rgba(184,164,40,.06); border:1px solid rgba(184,164,40,.2);
-  border-radius:var(--r); margin-bottom:14px; font-size:12px; color:var(--dust); line-height:1.6;
-}
-.warn-note strong { color:var(--yellow); }
+.th-strip{display:flex;align-items:center;gap:10px;padding:11px 14px;background:var(--bg1);border:1px solid var(--ln);border-radius:var(--r2);margin-bottom:12px}
+.th-info{flex:1;font-family:var(--fm);font-size:10.5px;color:var(--mu)}
+.th-info strong{color:var(--tx2)}
+.th-clr{padding:5px 10px;font-family:var(--fm);font-size:10px;background:var(--bg3);border:1px solid var(--ln2);border-radius:var(--r);color:var(--mu);cursor:pointer;transition:all var(--tr)}
+.th-clr:hover{color:var(--tx2)}
+.th-dl{padding:6px 13px;font-family:var(--ff);font-size:11px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;background:var(--ac);border:none;border-radius:var(--r);color:#fff;cursor:pointer;transition:opacity var(--tr)}
+.th-dl:hover{opacity:.88}
+.warn-note{padding:9px 12px;background:rgba(192,168,32,.06);border:1px solid rgba(192,168,32,.15);border-radius:var(--r);margin-bottom:12px;font-family:var(--fm);font-size:9.5px;color:var(--mu);line-height:1.65}
+.warn-note strong{color:var(--yel);font-weight:400}
 
-/* Toast */
-.toasts { position:fixed; bottom:20px; right:20px; z-index:9999; display:flex; flex-direction:column; gap:6px; }
-.toast {
-  padding:10px 16px; border-radius:var(--r); font-size:13px; font-weight:500;
-  background:var(--ink2); border:1px solid var(--line2); color:var(--paper);
-  box-shadow:0 6px 24px rgba(0,0,0,.5); animation:t-in 170ms ease forwards; max-width:320px;
-}
-.toast.ok   { border-left:3px solid var(--green); }
-.toast.err  { border-left:3px solid var(--red); }
-.toast.info { border-left:3px solid var(--accent); }
-@keyframes t-in { from{transform:translateX(12px);opacity:0} to{transform:none;opacity:1} }
+/* Toasts */
+#toasts{position:fixed;bottom:18px;right:18px;z-index:9999;display:flex;flex-direction:column;gap:5px;pointer-events:none}
+.toast{padding:9px 14px;border-radius:var(--r);font-size:12px;font-weight:500;background:var(--bg2);border:1px solid var(--ln2);color:var(--tx);max-width:310px;animation:tin .17s ease forwards}
+.toast.ok{border-left:3px solid var(--grn)}.toast.err{border-left:3px solid var(--red)}.toast.info{border-left:3px solid var(--ac)}
+@keyframes tin{from{transform:translateX(10px);opacity:0}to{transform:none;opacity:1}}
 
 /* Install banner */
-.ib { display:none; align-items:center; gap:10px; padding:8px 20px; background:var(--accent-glow); border-bottom:1px solid var(--accent-dim); font-size:12px; color:var(--paper2); }
-.ib.on { display:flex; }
-.ib-inst { padding:4px 12px; background:var(--accent); border:none; border-radius:3px; color:#fff; font-size:12px; font-weight:700; cursor:pointer; margin-left:auto; transition:opacity var(--tr); }
-.ib-inst:hover { opacity:.88; }
-.ib-x { background:none; border:none; color:var(--ash); cursor:pointer; font-size:14px; padding:2px 6px; }
+#ib{display:none;align-items:center;gap:10px;padding:7px 20px;background:var(--aglow);border-bottom:1px solid var(--adim);font-size:12px;color:var(--tx2)}
+#ib.on{display:flex}
+.ib-inst{padding:4px 11px;background:var(--ac);border:none;border-radius:3px;color:#fff;font-size:11px;font-weight:700;cursor:pointer}
+.ib-x{background:none;border:none;color:var(--fa);cursor:pointer;font-size:14px;padding:2px 6px}
 
 /* Compat overlay */
-.co { display:none; position:fixed; inset:0; background:rgba(0,0,0,.85); backdrop-filter:blur(4px); align-items:center; justify-content:center; z-index:9999; padding:20px; }
-.co.on { display:flex; }
-.co-box { background:var(--ink1); border:1px solid var(--line2); border-radius:12px; max-width:480px; width:100%; padding:32px; text-align:center; }
-.co-box h2 { font-size:22px; font-weight:800; margin-bottom:12px; }
-.co-box p  { color:var(--dust); font-size:14px; line-height:1.8; margin-bottom:14px; }
-.co-box code { font-family:var(--f-mono); font-size:12px; background:var(--ink3); padding:2px 7px; border-radius:3px; color:var(--accent); }
+#co{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);align-items:center;justify-content:center;z-index:9999;padding:20px}
+#co.on{display:flex}
+.co-box{background:var(--bg1);border:1px solid var(--ln2);border-radius:12px;max-width:460px;width:100%;padding:30px;text-align:center}
+.co-box h2{font-size:20px;font-weight:800;margin-bottom:10px}
+.co-box p{color:var(--mu);font-size:13px;line-height:1.8;margin-bottom:12px}
+.co-box code{font-family:var(--fm);background:var(--bg3);padding:2px 6px;border-radius:3px;color:var(--ac)}
 
-@keyframes fadein { from{opacity:0;transform:translateY(4px)} to{opacity:1;transform:none} }
-.fi { animation:fadein .25s ease forwards; }
-.spin { display:inline-block; animation:spin 1s linear infinite; }
+/* What's New modal */
+#wn{display:none;position:fixed;inset:0;background:rgba(0,0,0,.72);backdrop-filter:blur(3px);align-items:center;justify-content:center;z-index:9998;padding:20px}
+#wn.on{display:flex}
+.wn-box{background:var(--bg1);border:1px solid var(--ln2);border-radius:12px;max-width:500px;width:100%;max-height:82vh;display:flex;flex-direction:column;overflow:hidden}
+.wn-hdr{display:flex;align-items:center;gap:11px;padding:16px 20px;border-bottom:1px solid var(--ln)}
+.wn-hdr-text{flex:1}.wn-hdr-title{font-size:14px;font-weight:800;color:var(--tx)}
+.wn-hdr-sub{font-family:var(--fm);font-size:8.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--fa);margin-top:2px}
+.wn-x{background:none;border:none;color:var(--fa);cursor:pointer;font-size:18px;padding:4px 8px;line-height:1;transition:color var(--tr)}
+.wn-x:hover{color:var(--tx)}
+.wn-body{overflow-y:auto;padding:16px 20px;flex:1}
+.wn-body::-webkit-scrollbar{width:4px}
+.wn-body::-webkit-scrollbar-thumb{background:var(--ln2);border-radius:2px}
+.wn-item{display:flex;gap:11px;padding:9px 0;border-bottom:1px solid var(--ln)}
+.wn-item:last-child{border-bottom:none}
+.wn-dot{width:6px;height:6px;border-radius:50%;background:var(--ac);flex-shrink:0;margin-top:5px}
+.wn-it{font-size:12.5px;font-weight:600;color:var(--tx2);margin-bottom:2px}
+.wn-id{font-family:var(--fm);font-size:9.5px;color:var(--fa);line-height:1.6}
+.wn-foot{padding:12px 20px;border-top:1px solid var(--ln);display:flex;justify-content:flex-end}
+.wn-ok{padding:7px 18px;background:var(--ac);border:none;border-radius:var(--r);color:#fff;font-family:var(--ff);font-size:11px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;cursor:pointer;transition:opacity var(--tr)}
+.wn-ok:hover{opacity:.88}
 
-/* Scrollbar */
-::-webkit-scrollbar { width:5px; height:5px; }
-::-webkit-scrollbar-track { background:transparent; }
-::-webkit-scrollbar-thumb { background:var(--line2); border-radius:3px; }
-
-/* ── Version badge & What's New ─────────────────────────────────────────── */
-.h-ver {
-  font-family:var(--f-mono); font-size:9px; padding:3px 8px;
-  background:var(--ink3); border:1px solid var(--line2); border-radius:3px;
-  color:var(--ash); letter-spacing:.06em; cursor:pointer;
-  display:flex; align-items:center; gap:5px; transition:all var(--tr);
-}
-.h-ver:hover { border-color:var(--accent); color:var(--accent); }
-.h-ver-dot {
-  width:6px; height:6px; border-radius:50%;
-  background:var(--accent2); flex-shrink:0;
-  box-shadow:0 0 0 2px rgba(144,96,224,.2);
-}
-.wn-overlay {
-  display:none; position:fixed; inset:0;
-  background:rgba(0,0,0,.7); backdrop-filter:blur(4px);
-  align-items:center; justify-content:center; z-index:9998; padding:20px;
-}
-.wn-overlay.on { display:flex; }
-.wn-modal {
-  background:var(--ink1); border:1px solid var(--line2);
-  border-radius:12px; max-width:500px; width:100%;
-  overflow:hidden; max-height:80vh; display:flex; flex-direction:column;
-}
-.wn-header {
-  display:flex; align-items:center; gap:12px; padding:18px 22px;
-  border-bottom:1px solid var(--line);
-}
-.wn-disc {
-  width:32px; height:32px; border-radius:50%; flex-shrink:0;
-}
-.wn-title { flex:1; }
-.wn-title-top {
-  font-size:15px; font-weight:800; letter-spacing:.02em; color:var(--paper);
-}
-.wn-title-sub {
-  font-family:var(--f-mono); font-size:9px; letter-spacing:.12em;
-  text-transform:uppercase; color:var(--ash); margin-top:2px;
-}
-.wn-close {
-  background:none; border:none; color:var(--ash); cursor:pointer;
-  font-size:18px; padding:4px 8px; border-radius:4px;
-  transition:color var(--tr); line-height:1;
-}
-.wn-close:hover { color:var(--paper); }
-.wn-body { overflow-y:auto; padding:18px 22px; flex:1; }
-.wn-body::-webkit-scrollbar { width:4px; }
-.wn-body::-webkit-scrollbar-thumb { background:var(--line2); border-radius:2px; }
-.wn-item {
-  display:flex; gap:12px; padding:10px 0;
-  border-bottom:1px solid var(--line);
-}
-.wn-item:last-child { border-bottom:none; }
-.wn-dot {
-  width:6px; height:6px; border-radius:50%; background:var(--accent);
-  flex-shrink:0; margin-top:5px;
-}
-.wn-item-title { font-size:13px; font-weight:600; color:var(--paper2); margin-bottom:2px; }
-.wn-item-desc  { font-family:var(--f-mono); font-size:10px; color:var(--ash); line-height:1.55; }
-.wn-footer {
-  padding:14px 22px; border-top:1px solid var(--line);
-  display:flex; justify-content:flex-end;
-}
-.wn-ok {
-  padding:8px 20px; background:var(--accent); border:none; border-radius:5px;
-  color:#fff; font-family:var(--f-disp); font-size:12px; font-weight:800;
-  letter-spacing:.05em; text-transform:uppercase; cursor:pointer;
-  transition:opacity var(--tr);
-}
-.wn-ok:hover { opacity:.88; }
-
-/* ── Redesigned vinyl badge (logo) ─────────────────────────────────────── */
-.vinyl-badge {
-  width:30px; height:30px; border-radius:50%; flex-shrink:0;
-  position:relative; background:var(--ink2); border:none; overflow:visible;
-}
-
-/* ── Format badge system ────────────────────────────────────────────────── */
-.fmt-badge {
-  display:inline-flex; align-items:center; gap:3px; height:18px;
-  padding:0 6px; border-radius:3px; border:1px solid;
-  font-family:var(--f-mono); font-size:9px; letter-spacing:.04em;
-  white-space:nowrap; vertical-align:middle; flex-shrink:0;
-}
-.fmt-badge svg { width:7px; height:7px; flex-shrink:0; }
-.fmt-lossless { border-color:rgba(74,142,240,.45); color:#7ab0f8; background:rgba(74,142,240,.1); }
-.fmt-lossy    { border-color:rgba(144,96,224,.45); color:#b090f8; background:rgba(144,96,224,.1); }
-.fmt-container{ border-color:rgba(40,180,200,.4);  color:#50d0e8; background:rgba(40,180,200,.09); }
-.fmt-default  { border-color:var(--line2); color:var(--ash); background:var(--ink3); }
-
-/* ── Redesigned feed-fmt (uses fmt-badge classes) ────────────────────────── */
-.feed-fmt {
-  display:inline-flex; align-items:center; height:16px;
-  padding:0 5px; border-radius:2px; border:1px solid;
-  font-family:var(--f-mono); font-size:8.5px; letter-spacing:.04em;
-  white-space:nowrap; flex-shrink:0;
-}
-
-/* ── Redesigned empty state discs ───────────────────────────────────────── */
-.e-disc {
-  width:72px; height:72px; border-radius:50%;
-  border:1.5px solid var(--line2); background:var(--ink2);
-  position:relative; margin-bottom:4px; opacity:.5;
-  display:flex; align-items:center; justify-content:center;
-}
-.e-disc svg { width:40px; height:40px; }
-
-/* ── Warning SVG icon ───────────────────────────────────────────────────── */
-.warn-svg { width:15px; height:15px; flex-shrink:0; }
-
-/* ── Search bar ─────────────────────────────────────────────────────────── */
-.s-search {
-  display:flex; align-items:center; gap:7px; padding:7px 10px;
-  background:var(--ink2); border:1px solid var(--line2); border-radius:var(--r);
-  transition:border-color var(--tr);
-}
-.s-search:focus-within { border-color:var(--accent); }
-.s-search-ic { flex-shrink:0; color:var(--ash); }
-.s-search input {
-  background:none; border:none; outline:none; font-family:var(--f-mono);
-  font-size:11px; color:var(--paper2); width:100%; min-width:0;
-}
-.s-search input::placeholder { color:var(--ash); }
-.s-search-kbd {
-  font-family:var(--f-mono); font-size:8.5px; color:var(--ash);
-  padding:1px 5px; background:var(--ink3); border:1px solid var(--line2);
-  border-radius:2px; flex-shrink:0;
-}
-
-/* ── Sidebar secondary nav tabs (bottom of sidebar) ─────────────────────── */
-.side-tabs {
-  display:flex; border-bottom:none;
-  background:var(--ink2); border-top:1px solid var(--line);
-}
-.stab {
-  flex:1; padding:9px 4px; font-size:11px; font-weight:700;
-  color:var(--ash); text-align:center; cursor:pointer;
-  border-top:2px solid transparent; transition:all var(--tr);
-  white-space:nowrap; display:flex; align-items:center; justify-content:center; gap:4px;
-}
-.stab:hover { color:var(--paper2); }
-.stab.on { color:var(--paper); border-top-color:var(--accent); }
-.stab-b {
-  font-family:var(--f-mono); font-size:8px; padding:1px 5px;
-  border-radius:10px; background:var(--ink3); border:1px solid var(--line2);
-  color:var(--ash); min-width:18px; text-align:center;
-}
-.stab.on .stab-b { background:var(--accent-dim); border-color:var(--accent); color:var(--accent); }
-
-/* ── Privacy footer (inside s-footer, above side-tabs) ──────────────────── */
-.priv-inner {
-  padding:12px 18px; font-family:var(--f-mono); font-size:9.5px;
-  color:var(--ash); line-height:1.65; border-bottom:1px solid var(--line);
-}
-.priv-inner strong { color:var(--paper3); font-weight:500; }
-
-/* ── Scan state main panel ───────────────────────────────────────────────── */
-.scan-main {
-  display:none; flex:1; flex-direction:column; overflow:hidden;
-}
-.scan-main.on { display:flex; }
-.scan-progress {
-  padding:16px 20px; border-bottom:1px solid var(--line);
-  background:var(--ink1); flex-shrink:0;
-}
-.sp-head { display:flex; align-items:baseline; justify-content:space-between; margin-bottom:10px; }
-.sp-title { font-size:14px; font-weight:700; color:var(--paper2); }
-.sp-pct { font-family:var(--f-mono); font-size:15px; color:var(--accent); }
-.feed-panel { flex:1; overflow:hidden; padding:14px 20px; display:flex; flex-direction:column; gap:10px; }
-.feed-head { display:flex; align-items:center; justify-content:space-between; }
-.feed-head-lbl { font-family:var(--f-mono); font-size:9px; letter-spacing:.16em; text-transform:uppercase; color:var(--ash); }
-.feed-dup-count { font-family:var(--f-mono); font-size:10px; color:var(--red); }
-#feed-list { display:flex; flex-direction:column; gap:2px; overflow:hidden; }
-
-/* ── Hero idle panel ─────────────────────────────────────────────────────── */
-.hero-panel { display:flex; flex-direction:column; overflow:hidden; flex:1; }
-.hero-area {
-  flex:1; display:flex; flex-direction:column; align-items:center;
-  justify-content:center; gap:0; padding:30px; position:relative; overflow:hidden;
-}
-.hero-rings {
-  position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
-  pointer-events:none; opacity:.035;
-}
-.hero-content { position:relative; z-index:1; text-align:center; }
-.hero-disc {
-  width:72px; height:72px; border-radius:50%; margin:0 auto 18px;
-  border:1.5px solid var(--line2); background:var(--ink1);
-  display:flex; align-items:center; justify-content:center;
-}
-.hero-h { font-size:18px; font-weight:700; color:var(--paper3); letter-spacing:-.01em; margin-bottom:7px; }
-.hero-sub { font-family:var(--f-mono); font-size:10.5px; color:var(--ash); line-height:1.7; max-width:280px; }
-.hero-sub em { color:var(--accent); font-style:normal; }
-.hints-strip {
-  display:flex; gap:0; padding:0; background:var(--ink1);
-  border-top:1px solid var(--line); flex-shrink:0;
-}
-.hint {
-  flex:1; padding:12px 10px; text-align:center;
-  border-right:1px solid var(--line);
-}
-.hint:last-child { border-right:none; }
-.hint-n { font-size:17px; font-weight:800; color:var(--accent); line-height:1; }
-.hint-l { font-family:var(--f-mono); font-size:8px; letter-spacing:.09em; text-transform:uppercase; color:var(--ash); margin-top:4px; }
-
-/* ── Results tab panel (was main, now no top tab-bar) ────────────────────── */
-.results-panel { display:none; flex:1; flex-direction:column; overflow:hidden; }
-.results-panel.on { display:flex; }
-
-/* ── Filter + sort combined in one s-cblk ─────────────────────────────────── */
-.filter-sort-row { display:flex; gap:5px; align-items:center; margin-top:9px; }
-.filter-sort-row .s-sel { flex:1; }
-
-/* ── Update banner ──────────────────────────────────────────────────────── */
-.upd-banner {
-  display:none; align-items:center; gap:10px; padding:8px 20px;
-  background:var(--ink2); border-bottom:1px solid var(--accent);
-  flex-shrink:0; z-index:200; position:relative;
-}
-.upd-banner.on { display:flex; animation:upd-slide .25s ease; }
-@keyframes upd-slide { from{transform:translateY(-100%);opacity:0} to{transform:none;opacity:1} }
-.upd-disc {
-  width:20px; height:20px; border-radius:50%; flex-shrink:0;
-  border:1.5px solid var(--accent); background:var(--ink3);
-  display:flex; align-items:center; justify-content:center;
-}
-.upd-disc svg { width:10px; height:10px; }
-.upd-text {
-  font-family:var(--f-mono); font-size:10.5px; color:var(--paper2); flex:1;
-  letter-spacing:.02em;
-}
-.upd-text strong { color:var(--accent); }
-.upd-later {
-  font-family:var(--f-mono); font-size:10px; color:var(--ash);
-  background:none; border:none; cursor:pointer; padding:3px 8px;
-  transition:color var(--tr);
-}
-.upd-later:hover { color:var(--paper2); }
-.upd-now {
-  font-family:var(--f-disp); font-size:11px; font-weight:800;
-  letter-spacing:.05em; text-transform:uppercase; padding:6px 14px;
-  background:var(--accent); border:none; border-radius:var(--r);
-  color:#fff; cursor:pointer; display:flex; align-items:center; gap:6px;
-  transition:opacity var(--tr), transform var(--tr);
-}
-.upd-now:hover { opacity:.88; transform:translateY(-1px); }
-.upd-now.loading { opacity:.6; pointer-events:none; }
-.upd-spinner {
-  width:11px; height:11px; border-radius:50%;
-  border:1.5px solid rgba(255,255,255,.3);
-  border-top-color:#fff; animation:spin .7s linear infinite;
-  display:none;
-}
-.upd-now.loading .upd-spinner { display:block; }
-
-/* ── How-to guide ─────────────────────────────────────────────────────────── */
-.guide-wrap {
-  flex:1; overflow-y:auto; padding:20px 28px;
-  display:flex; flex-direction:column; gap:0;
-}
-.guide-wrap::-webkit-scrollbar { width:4px; }
-.guide-wrap::-webkit-scrollbar-thumb { background:var(--line2); border-radius:2px; }
-
-.guide-header {
-  display:flex; align-items:center; justify-content:space-between;
-  margin-bottom:18px;
-}
-.guide-title {
-  font-size:16px; font-weight:800; color:var(--paper);
-  letter-spacing:-.01em;
-}
-.guide-subtitle {
-  font-family:var(--f-mono); font-size:9.5px; color:var(--ash);
-  letter-spacing:.06em; margin-top:3px;
-}
-
-.guide-steps { display:flex; flex-direction:column; gap:0; position:relative; }
-.guide-steps::before {
-  content:''; position:absolute; left:18px; top:24px;
-  bottom:24px; width:1px; background:var(--line2); z-index:0;
-}
-
-.guide-step {
-  display:flex; align-items:flex-start; gap:14px;
-  padding:14px 0; position:relative; z-index:1;
-}
-.guide-step:last-child { padding-bottom:0; }
-
-.gs-num {
-  width:36px; height:36px; border-radius:50%; flex-shrink:0;
-  background:var(--ink2); border:1.5px solid var(--line2);
-  display:flex; align-items:center; justify-content:center;
-  font-family:var(--f-mono); font-size:11px; font-weight:400;
-  color:var(--ash); transition:all var(--tr); position:relative; z-index:1;
-}
-.guide-step.active .gs-num {
-  background:var(--accent-dim); border-color:var(--accent);
-  color:var(--accent);
-}
-.guide-step.done .gs-num {
-  background:rgba(40,168,112,.15); border-color:rgba(40,168,112,.5);
-  color:var(--green);
-}
-.gs-body { flex:1; min-width:0; padding-top:7px; }
-.gs-head {
-  font-size:13px; font-weight:700; color:var(--paper2);
-  margin-bottom:4px; display:flex; align-items:center; gap:8px;
-}
-.guide-step.active .gs-head { color:var(--paper); }
-.guide-step.done   .gs-head { color:var(--paper3); }
-.gs-desc {
-  font-family:var(--f-mono); font-size:10px; color:var(--ash);
-  line-height:1.65;
-}
-.gs-desc em  { color:var(--accent); font-style:normal; }
-.gs-desc strong { color:var(--paper2); font-weight:400; }
-.gs-tip {
-  display:inline-flex; align-items:center; gap:5px;
-  margin-top:7px; padding:5px 9px;
-  background:var(--ink2); border:1px solid var(--line2);
-  border-radius:4px; font-family:var(--f-mono);
-  font-size:9.5px; color:var(--dust); cursor:pointer;
-  transition:border-color var(--tr), color var(--tr);
-}
-.gs-tip:hover { border-color:var(--accent); color:var(--accent); }
-.gs-tip svg { width:10px; height:10px; flex-shrink:0; }
-
-/* Active step glow on num */
-.guide-step.active .gs-num::after {
-  content:''; position:absolute; inset:-4px; border-radius:50%;
-  border:1px solid var(--accent-dim); pointer-events:none;
-}
-
-.guide-cta {
-  margin-top:16px; padding-top:16px; border-top:1px solid var(--line);
-  display:flex; gap:8px; align-items:center;
-}
-.guide-cta-btn {
-  padding:9px 18px; background:var(--accent); border:none;
-  border-radius:var(--r); color:#fff; font-family:var(--f-disp);
-  font-size:12px; font-weight:800; letter-spacing:.05em;
-  text-transform:uppercase; cursor:pointer; transition:opacity var(--tr), transform var(--tr);
-}
-.guide-cta-btn:hover { opacity:.88; transform:translateY(-1px); }
-.guide-cta-note {
-  font-family:var(--f-mono); font-size:9.5px; color:var(--ash); line-height:1.5;
-}
-
-/* Help button in header */
-.h-help {
-  display:flex; align-items:center; gap:5px;
-  font-family:var(--f-mono); font-size:9.5px; color:var(--ash);
-  padding:3px 8px; background:var(--ink2); border:1px solid var(--line);
-  border-radius:3px; cursor:pointer; transition:all var(--tr); letter-spacing:.05em;
-}
-.h-help:hover { border-color:var(--accent); color:var(--accent); }
-.h-help svg { width:11px; height:11px; flex-shrink:0; }
-
-/* Guide overlay (for non-idle states) */
-#guide-overlay { display:none; }
-#guide-overlay.on { display:flex; animation:fadein .2s ease; }
-#guide-overlay .guide-step { padding:10px 0; }
-#guide-overlay .guide-step:first-child { padding-top:0; }
+/* Scrollbar global */
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--ln2);border-radius:3px}
 </style>
 </head>
 <body>
 
-<div class="co" id="co"><div class="co-box">
-  <h2>Browser Not Supported</h2>
-  <p>MusicCleanup requires the <strong>File System Access API</strong>, available in <strong>Chrome 86+</strong> and <strong>Edge 86+</strong>.<br><br>Firefox and Safari don't support folder access in the browser yet.<br><br>Open this page in <code>Chrome</code> or <code>Edge</code> on desktop.</p>
-</div></div>
+<div id="co">
+  <div class="co-box">
+    <h2>Browser Not Supported</h2>
+    <p>MusicCleanup requires the <strong>File System Access API</strong>, available in <code>Chrome 86+</code> and <code>Edge 86+</code> on desktop. Firefox and Safari don't support folder access yet.</p>
+  </div>
+</div>
 
-<div class="ib" id="ib">
-  <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="3" y="1" width="10" height="14" rx="2" stroke="#b0bcdc" stroke-width="1.2"/><path d="M6 12.5H10" stroke="#b0bcdc" stroke-width="1.2" stroke-linecap="round"/><path d="M8 5V8M8 8L6.5 6.5M8 8L9.5 6.5" stroke="#4a8ef0" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+<div id="ib">
+  <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><rect x="3" y="1" width="10" height="14" rx="2" stroke="#b0bcdc" stroke-width="1.2"/><path d="M6 12.5H10" stroke="#b0bcdc" stroke-width="1.2" stroke-linecap="round"/><path d="M8 5V8M8 8L6.5 6.5M8 8L9.5 6.5" stroke="#4a8ef0" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
   <span>Install <strong>MusicCleanup</strong> as a desktop app for offline use</span>
   <button class="ib-inst" id="ib-btn">Install</button>
   <button class="ib-x" onclick="document.getElementById('ib').classList.remove('on')">✕</button>
 </div>
 
-<div class="app">
-
-  <!-- Update available banner -->
-  <div class="upd-banner" id="upd-banner">
-    <div class="upd-disc">
-      <svg viewBox="0 0 16 16" fill="none">
-        <path d="M8 3v6M8 9l-2.5-2.5M8 9l2.5-2.5" stroke="#4a8ef0" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-        <path d="M3 13h10" stroke="#4a8ef0" stroke-width="1.5" stroke-linecap="round"/>
+<div id="wn">
+  <div class="wn-box">
+    <div class="wn-hdr">
+      <svg width="28" height="28" viewBox="0 0 30 30" fill="none">
+        <circle cx="15" cy="15" r="14" fill="#101828" stroke="#4a8ef0" stroke-width="1.5"/>
+        <circle cx="15" cy="15" r="9" fill="none" stroke="#1e2e48" stroke-width=".75"/>
+        <circle cx="15" cy="15" r="5" fill="none" stroke="#1e2e48" stroke-width=".75"/>
+        <rect x="4" y="13" width="2" height="4" rx="1" fill="#4a8ef0" opacity=".55"/>
+        <rect x="7" y="11" width="2" height="8" rx="1" fill="#4a8ef0" opacity=".75"/>
+        <rect x="10" y="12.5" width="2" height="5" rx="1" fill="#4a8ef0"/>
+        <circle cx="15" cy="15" r="2.5" fill="#4a8ef0"/>
+        <rect x="18" y="12.5" width="2" height="5" rx="1" fill="#9060e0"/>
+        <rect x="21" y="11" width="2" height="8" rx="1" fill="#9060e0" opacity=".75"/>
+        <rect x="24" y="13" width="2" height="4" rx="1" fill="#9060e0" opacity=".55"/>
       </svg>
+      <div class="wn-hdr-text">
+        <div class="wn-hdr-title">What's New in v4.0</div>
+        <div class="wn-hdr-sub">MusicCleanup · Duplicate Detector PWA</div>
+      </div>
+      <button class="wn-x" onclick="closeWN()">×</button>
     </div>
-    <div class="upd-text"><strong id="upd-version">Update available</strong> — a new version of MusicCleanup is ready</div>
-    <button class="upd-later" id="upd-later" onclick="dismissUpdate()">Later</button>
-    <button class="upd-now" id="upd-now" onclick="applyUpdate()">
-      <span class="upd-spinner" id="upd-spinner"></span>
-      Update Now
-    </button>
+    <div class="wn-body" id="wn-body"></div>
+    <div class="wn-foot"><button class="wn-ok" onclick="closeWN()">Got it</button></div>
   </div>
+</div>
 
-  <header class="header">
+<div id="upd">
+  <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 3v6M8 9l-2-2M8 9l2-2" stroke="#4a8ef0" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 13h10" stroke="#4a8ef0" stroke-width="1.4" stroke-linecap="round"/></svg>
+  <div id="upd-txt"><strong>Update available</strong> — a new version is ready</div>
+  <button id="upd-later">Later</button>
+  <button id="upd-now" class="upd-btn">Update Now</button>
+</div>
+
+<div class="app">
+  <nav>
     <div class="logo">
-      <div class="vinyl-badge">
-        <svg width="30" height="30" viewBox="0 0 30 30" fill="none">
+      <div class="logo-disc">
+        <svg viewBox="0 0 30 30" fill="none">
           <circle cx="15" cy="15" r="14" fill="#101828" stroke="#4a8ef0" stroke-width="1.5"/>
-          <circle cx="15" cy="15" r="9" fill="none" stroke="#1e2e48" stroke-width="0.75"/>
-          <circle cx="15" cy="15" r="5" fill="none" stroke="#1e2e48" stroke-width="0.75"/>
+          <circle cx="15" cy="15" r="9" fill="none" stroke="#1e2e48" stroke-width=".75"/>
+          <circle cx="15" cy="15" r="5" fill="none" stroke="#1e2e48" stroke-width=".75"/>
           <rect x="4" y="13" width="2" height="4" rx="1" fill="#4a8ef0" opacity=".55"/>
           <rect x="7" y="11" width="2" height="8" rx="1" fill="#4a8ef0" opacity=".75"/>
           <rect x="10" y="12.5" width="2" height="5" rx="1" fill="#4a8ef0"/>
@@ -939,1140 +492,1051 @@ body::before {
           <rect x="24" y="13" width="2" height="4" rx="1" fill="#9060e0" opacity=".55"/>
         </svg>
       </div>
-      <div class="logo-words">
+      <div>
         <div class="logo-name">Music<em>Cleanup</em></div>
-        <div class="logo-tag">Duplicate Detector · v3.3</div>
+        <div class="logo-tag">Duplicate Detector · v4.0</div>
       </div>
     </div>
-    <div class="h-div"></div>
-    <div class="h-pill"><div class="h-dot"></div>Client-Only · 100% Private</div>
-    <button class="h-ver" onclick="document.getElementById('wn-overlay').classList.add('on')" title="What's new in v3.3">
-      <div class="h-ver-dot"></div>
-      v3.3 · What's New
-    </button>
-    <div class="h-sep"></div>
-    <button class="h-help" onclick="showGuide()" title="How to use MusicCleanup">
-      <svg viewBox="0 0 16 16" fill="none">
-        <circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.2"/>
-        <path d="M6.5 6C6.5 5.17 7.17 4.5 8 4.5s1.5.67 1.5 1.5c0 .97-.75 1.4-1.2 1.8C7.9 8.2 7.75 8.6 7.75 9" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
-        <circle cx="8" cy="11" r=".6" fill="currentColor"/>
-      </svg>
+    <div class="nav-sep"></div>
+    <div class="nav-pill"><div class="ndot"></div>Private · On-Device</div>
+    <button class="nav-ver" onclick="openWN()"><div class="nver-dot"></div>v4.0 · What's New</button>
+    <button class="nav-help" onclick="showHelp()">
+      <svg width="11" height="11" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.2"/><path d="M6.5 6C6.5 5.17 7.17 4.5 8 4.5s1.5.67 1.5 1.5c0 .97-.75 1.4-1.2 1.8-.38.34-.55.72-.55 1.2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><circle cx="8" cy="11" r=".65" fill="currentColor"/></svg>
       How to use
     </button>
-    <div class="h-count" id="hc"></div>
-  </header>
+    <div id="nav-count"></div>
+  </nav>
 
   <div class="body">
-    <aside class="sidebar">
-
-      <!-- Zone 1: PRIMARY — folder picker + scan button -->
+    <aside>
+      <!-- Zone 1: Primary -->
       <div class="s-primary">
-        <div class="s-eye">Music Folder</div>
-        <div class="drop" id="dz" onclick="pickDir()">
-          <div class="drop-disc" id="dd"></div>
-          <div class="drop-title">Select Your Music Folder</div>
-          <div class="drop-sub">Click to browse, or drag &amp; drop a folder<br><strong>All processing stays on your device</strong></div>
+        <div class="s-label">Music Folder</div>
+        <div class="drop" id="dz">
+          <div class="drop-ring">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M3 7.5A1.5 1.5 0 014.5 6h4.086a1.5 1.5 0 011.06.44l.915.914H19.5A1.5 1.5 0 0121 9v9a1.5 1.5 0 01-1.5 1.5h-15A1.5 1.5 0 013 18V7.5z" stroke="#4a8ef0" stroke-width="1.4" fill="none"/></svg>
+          </div>
+          <div class="drop-t">Select Your Music Folder</div>
+          <div class="drop-s">Click to browse or drag &amp; drop<br><em>All processing stays on your device</em></div>
         </div>
-        <div class="folder-chip" id="fc"></div>
-        <button class="scan-btn" id="scan-btn" disabled style="margin-top:12px">
-          <svg width="13" height="13" viewBox="0 0 16 16" fill="currentColor"><path d="M11.742 10.344a6.5 6.5 0 10-1.397 1.398h.001l3.85 3.85a1 1 0 001.414-1.414l-3.85-3.85a6.5 6.5 0 00-1.398-1.397zm-5.242.656a5.5 5.5 0 100-11 5.5 5.5 0 000 11z"/></svg>
+        <div id="folder-chip"></div>
+        <button id="scan-btn" disabled>
+          <svg width="13" height="13" viewBox="0 0 16 16" fill="currentColor"><path d="M11.742 10.344a6.5 6.5 0 10-1.397 1.398h.001l3.85 3.85a1 1 0 001.414-1.414l-3.85-3.85zm-5.242.656a5.5 5.5 0 110-11 5.5 5.5 0 010 11z"/></svg>
           Scan Library
         </button>
-        
       </div>
 
-      <!-- Zone 2: CONFIG — scrollable, hidden until needed -->
-      <div class="s-config" id="s-config">
-
-        <!-- Stats strip (3-col, shown after scan) -->
-        <div class="s-cblk" id="stats" style="display:none">
-          <div class="s-eye">Results</div>
-          <div class="stat-strip">
-            <div class="stat-card g"><div class="stat-n g" id="st2">—</div><div class="stat-l">Reclaim</div></div>
-            <div class="stat-card r"><div class="stat-n r" id="st1">—</div><div class="stat-l">Groups</div></div>
-            <div class="stat-card a"><div class="stat-n a" id="st3">—</div><div class="stat-l">Remove</div></div>
+      <!-- Zone 2: Config (scrollable) -->
+      <div class="s-scroll">
+        <!-- Stats -->
+        <div class="s-block">
+          <div class="s-label">Results</div>
+          <div id="stats-strip">
+            <div class="stat-c g"><div class="stat-n g" id="st-reclaim">—</div><div class="stat-l">Reclaim</div></div>
+            <div class="stat-c r"><div class="stat-n r" id="st-groups">—</div><div class="stat-l">Groups</div></div>
+            <div class="stat-c a"><div class="stat-n a" id="st-remove">—</div><div class="stat-l">Remove</div></div>
           </div>
-          <div style="margin-top:6px;font-family:var(--f-mono);font-size:9px;color:var(--ash)" id="st-files"></div>
+          <div id="stats-strip-empty" style="font-family:var(--fm);font-size:9px;color:var(--fa)">Run a scan to see results.</div>
         </div>
 
-        <!-- Search bar (shown after scan) -->
-        <div class="s-cblk" id="s-search-blk" style="display:none">
+        <!-- Search -->
+        <div class="s-block" id="search-wrap">
           <div class="s-search">
-            <svg class="s-search-ic" width="12" height="12" viewBox="0 0 16 16" fill="none"><circle cx="6.5" cy="6.5" r="5" stroke="currentColor" stroke-width="1.4"/><path d="M10.5 10.5L14 14" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
-            <input id="search-inp" type="text" placeholder="Artist, album, filename…" oninput="onSearch(this.value)">
+            <svg width="12" height="12" viewBox="0 0 16 16" fill="none" style="color:var(--fa);flex-shrink:0"><circle cx="6.5" cy="6.5" r="5" stroke="currentColor" stroke-width="1.4"/><path d="M10.5 10.5L14 14" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+            <input id="search-inp" type="text" placeholder="Artist, album, filename…">
             <span class="s-search-kbd">⌘K</span>
           </div>
         </div>
 
-        <!-- Filter + sort combined (shown after scan) -->
-        <div class="s-cblk" id="filters" style="display:none">
-          <div class="s-eye">Filter</div>
+        <!-- Filter + Sort -->
+        <div class="s-block" id="filter-wrap">
+          <div class="s-label">Filter</div>
           <div class="fstrip" id="fps">
             <div class="fp on" data-t="all">All</div>
-            <div class="fp" data-t="exact_file"     style="color:var(--red)">Exact</div>
-            <div class="fp" data-t="exact_audio"    style="color:var(--orange)">Audio</div>
-            <div class="fp" data-t="metadata_match" style="color:var(--yellow)">Meta</div>
+            <div class="fp r" data-t="exact_file">Exact</div>
+            <div class="fp o" data-t="exact_audio">Audio</div>
+            <div class="fp y" data-t="metadata_match">Meta</div>
           </div>
-          <div class="filter-sort-row">
+          <div class="sort-row">
             <select class="s-sel" id="sort">
               <option value="wasted">Wasted Space ↓</option>
               <option value="type">Type</option>
               <option value="count">File Count ↓</option>
             </select>
-            <button class="f-cp" id="rescan-btn" style="padding:6px 10px;font-size:10px;display:none" onclick="doRescan()">↺ Rescan</button>
+            <button class="rescan-btn" id="rescan-btn" onclick="doRescan()">↺ Rescan</button>
           </div>
         </div>
 
-        <!-- Options (always visible, compact) -->
-        <div class="s-cblk">
-          <div class="s-eye">Options</div>
+        <!-- Options -->
+        <div class="s-block">
+          <div class="s-label">Options</div>
           <div class="opt-row">
-            <div><div class="opt-lbl">Auto-select duplicates</div></div>
-            <label class="tog"><input type="checkbox" id="autosel" checked><span class="tog-bg"></span><span class="tog-dot"></span></label>
+            <div class="opt-lbl">Auto-select duplicates</div>
+            <label class="tog"><input type="checkbox" id="opt-autosel" checked><span class="tog-bg"></span><span class="tog-dot"></span></label>
           </div>
           <div class="opt-row">
-            <div><div class="opt-lbl">Expand groups on load</div></div>
-            <label class="tog"><input type="checkbox" id="expandall"><span class="tog-bg"></span><span class="tog-dot"></span></label>
+            <div class="opt-lbl">Expand groups on load</div>
+            <label class="tog"><input type="checkbox" id="opt-expand"><span class="tog-bg"></span><span class="tog-dot"></span></label>
           </div>
         </div>
-
       </div>
 
-      <!-- Zone 3: FOOTER — privacy note + secondary nav tabs -->
+      <!-- Zone 3: Footer -->
       <div class="s-footer">
-        <div class="priv-inner">
-          <strong>Zero uploads.</strong> All scanning runs locally via the File System Access API.
-        </div>
-        <div class="side-tabs" id="side-tabs">
-          <div class="stab on" data-tab="dup">Dups <span class="stab-b" id="bd">0</span></div>
-          <div class="stab" data-tab="all">Files <span class="stab-b" id="ba">0</span></div>
-          <div class="stab" data-tab="corrupt">Bad <span class="stab-b" id="bc">0</span></div>
-          <div class="stab" data-tab="trash">Trash <span class="stab-b" id="bt">0</span></div>
+        <div class="priv"><strong>Zero uploads.</strong> All scanning, hashing and matching runs locally in your browser via the File System Access API.</div>
+        <div class="side-tabs">
+          <div class="stab on" data-tab="dup">Dups <span class="stab-b" id="tb-dup">0</span></div>
+          <div class="stab" data-tab="all">Files <span class="stab-b" id="tb-all">0</span></div>
+          <div class="stab" data-tab="corrupt">Bad <span class="stab-b" id="tb-bad">0</span></div>
+          <div class="stab" data-tab="trash">Trash <span class="stab-b" id="tb-trash">0</span></div>
         </div>
       </div>
     </aside>
 
-    <main class="main">
-
-      <!-- STATE: IDLE — how-to guide -->
-      <div class="hero-panel" id="state-idle">
+    <main id="main">
+      <!-- IDLE -->
+      <div class="panel-idle" id="panel-idle">
         <div class="guide-wrap">
-
           <div class="guide-header">
-            <div>
-              <div class="guide-title">How to clean up your library</div>
-              <div class="guide-subtitle">6 steps · takes about 2 minutes</div>
-            </div>
-            <div style="display:flex;gap:6px">
-              <div class="hint" style="padding:8px 12px;background:var(--ink2);border:1px solid var(--line);border-radius:6px;text-align:center;min-width:52px">
-                <div class="hint-n" style="font-size:14px">10+</div>
-                <div class="hint-l">Formats</div>
-              </div>
-              <div class="hint" style="padding:8px 12px;background:var(--ink2);border:1px solid var(--line);border-radius:6px;text-align:center;min-width:52px">
-                <div class="hint-n" style="font-size:14px">0</div>
-                <div class="hint-l">Uploads</div>
-              </div>
-            </div>
+            <div class="guide-title">How to clean up your library</div>
+            <div class="guide-sub">6 STEPS · ABOUT 2 MINUTES</div>
           </div>
-
           <div class="guide-steps" id="guide-steps">
-
-            <div class="guide-step active" id="gs-1">
+            <div class="gs active" id="gs-1">
               <div class="gs-num">1</div>
               <div class="gs-body">
-                <div class="gs-head">
-                  <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M1 4.5A1.5 1.5 0 012.5 3h3.672a1.5 1.5 0 011.06.44l.94.94H13.5A1.5 1.5 0 0115 6v6.5a1.5 1.5 0 01-1.5 1.5h-11A1.5 1.5 0 011 12.5v-8z" stroke="currentColor" stroke-width="1.2" fill="none"/></svg>
-                  Select your music folder
-                </div>
-                <div class="gs-desc">Click the drop zone in the sidebar or drag your music folder onto it. Works with any folder — your whole library or just a subfolder.<br><br><strong>Supported:</strong> MP3, FLAC, WAV, M4A, AAC, OGG, OPUS, AIFF, WMA and more.</div>
-                <div class="gs-tip" onclick="document.getElementById('dz').click()">
-                  <svg viewBox="0 0 16 16" fill="none"><path d="M1 4.5A1.5 1.5 0 012.5 3h3.672a1.5 1.5 0 011.06.44l.94.94H13.5A1.5 1.5 0 0115 6v6.5a1.5 1.5 0 01-1.5 1.5h-11A1.5 1.5 0 011 12.5v-8z" stroke="currentColor" stroke-width="1.1" fill="none"/></svg>
-                  Click to open folder picker
-                </div>
+                <div class="gs-head"><svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M3 7.5A1.5 1.5 0 014.5 6h4.086a1.5 1.5 0 011.06.44l.915.914H19.5A1.5 1.5 0 0121 9v9a1.5 1.5 0 01-1.5 1.5h-15A1.5 1.5 0 013 18V7.5z" stroke="currentColor" stroke-width="1.4" fill="none"/></svg>Select your music folder</div>
+                <div class="gs-desc">Click the drop zone in the sidebar or drag your music folder onto it.<br><br>Supported: MP3, FLAC, WAV, M4A, AAC, OGG, OPUS, AIFF, WMA and more.</div>
+                <div class="gs-tip" onclick="document.getElementById('dz').click()"><svg width="10" height="10" viewBox="0 0 16 16" fill="none"><path d="M8 3v8M8 11l-3-3M8 11l3-3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>Open folder picker</div>
               </div>
             </div>
-
-            <div class="guide-step" id="gs-2">
+            <div class="gs" id="gs-2">
               <div class="gs-num">2</div>
               <div class="gs-body">
-                <div class="gs-head">
-                  <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><rect x="2" y="4" width="12" height="8" rx="1.5" stroke="currentColor" stroke-width="1.2"/><path d="M5 8h6" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
-                  Set your options
-                </div>
-                <div class="gs-desc"><em>Auto-select duplicates</em> pre-checks the non-recommended copies for you — the worker picks the best quality file to keep (FLAC over MP3, higher bitrate wins).<br><br>Turn on <em>Expand groups on load</em> if you want all groups open by default.</div>
+                <div class="gs-head"><svg width="12" height="12" viewBox="0 0 24 24" fill="none"><rect x="3" y="5" width="18" height="14" rx="2" stroke="currentColor" stroke-width="1.4"/><path d="M7 12h10" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>Set your options</div>
+                <div class="gs-desc"><em>Auto-select duplicates</em> pre-checks non-recommended copies — the scan picks the best quality file to keep (FLAC over MP3, higher bitrate wins).</div>
               </div>
             </div>
-
-            <div class="guide-step" id="gs-3">
+            <div class="gs" id="gs-3">
               <div class="gs-num">3</div>
               <div class="gs-body">
-                <div class="gs-head">
-                  <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><circle cx="6.5" cy="6.5" r="5" stroke="currentColor" stroke-width="1.2"/><path d="M10.5 10.5L14 14" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
-                  Run the scan
-                </div>
-                <div class="gs-desc">Click <em>Scan Library</em>. The scan runs in 4 stages:<br><br><strong>Index</strong> → finds all audio files<br><strong>Meta</strong> → reads tags (title, artist, album)<br><strong>Hash</strong> → fingerprints every file<br><strong>Dedup</strong> → groups the duplicates<br><br>Large libraries (10,000+ files) take 1–3 minutes.</div>
+                <div class="gs-head"><svg width="12" height="12" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="1.4"/><path d="M16.5 16.5L21 21" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>Run the scan</div>
+                <div class="gs-desc">Click <em>Scan Library</em>. Four stages run automatically:<br><br><strong style="color:var(--tx2)">Index</strong> → finds all audio files<br><strong style="color:var(--tx2)">Meta</strong> → reads tags (title, artist, album)<br><strong style="color:var(--tx2)">Hash</strong> → fingerprints every file<br><strong style="color:var(--tx2)">Dedup</strong> → groups the duplicates<br><br>Large libraries (10,000+ files) take 1–3 minutes.</div>
               </div>
             </div>
-
-            <div class="guide-step" id="gs-4">
+            <div class="gs" id="gs-4">
               <div class="gs-num">4</div>
               <div class="gs-body">
-                <div class="gs-head">
-                  <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><rect x="2" y="2" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.2"/><path d="M5 8l2 2 4-4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                  Review duplicate groups
-                </div>
-                <div class="gs-desc">Groups are color-coded by match type:<br><br><strong style="color:var(--red)">Exact Copy</strong> — byte-for-byte identical files<br><strong style="color:var(--orange)">Same Audio</strong> — same recording, different tags or format<br><strong style="color:var(--yellow)">Metadata Match</strong> — same title + artist<br><br>The <em>green Keep badge</em> marks the recommended file to keep. You can override it with <em>Set Keep</em> on any row.</div>
+                <div class="gs-head"><svg width="12" height="12" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" stroke-width="1.4"/><path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>Review duplicate groups</div>
+                <div class="gs-desc">Groups are color-coded:<br><br><span class="t-red">■</span> <strong>Exact Copy</strong> — byte-for-byte identical<br><span class="t-ora">■</span> <strong>Same Audio</strong> — same recording, different format<br><span class="t-yel">■</span> <strong>Metadata Match</strong> — same title + artist<br><br>The <em>green Keep badge</em> marks the recommended file.</div>
               </div>
             </div>
-
-            <div class="guide-step" id="gs-5">
+            <div class="gs" id="gs-5">
               <div class="gs-num">5</div>
               <div class="gs-body">
-                <div class="gs-head">
-                  <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><rect x="3" y="1" width="10" height="14" rx="1.5" stroke="currentColor" stroke-width="1.2"/><path d="M5 8l2 2 4-4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                  Select files to remove
-                </div>
-                <div class="gs-desc">Check the files you want to delete — or use the group-level checkbox to select all non-kept files in one click. Use <em>Select all Exact</em> in the filter bar for bulk selection.<br><br>Then click <em>Move to Trash Review</em>.</div>
+                <div class="gs-head"><svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M9 11l3 3 3-3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" stroke-width="1.4"/></svg>Select files to remove</div>
+                <div class="gs-desc">Check the files you want to delete. Use the group-level checkbox to select all non-kept files at once. Then click <em>Move to Trash Review</em>.</div>
               </div>
             </div>
-
-            <div class="guide-step" id="gs-6">
+            <div class="gs" id="gs-6">
               <div class="gs-num">6</div>
               <div class="gs-body">
-                <div class="gs-head">
-                  <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M4 8h8M9.5 5.5L12 8l-2.5 2.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/><rect x="2" y="2" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.2"/></svg>
-                  Download and run the delete list
-                </div>
-                <div class="gs-desc">Go to the <em>Trash</em> tab and click <em>Download Delete List</em>. This gives you a text file with ready-to-run shell commands.<br><br><strong>macOS / Linux:</strong> open Terminal, paste the commands<br><strong>Windows:</strong> open PowerShell, paste the commands<br><br>The app cannot delete files directly — browser security requires this extra step.</div>
-                <div class="gs-tip" onclick="document.querySelector('[data-tab=trash]')?.click()">
-                  <svg viewBox="0 0 16 16" fill="none"><rect x="3" y="4" width="10" height="10" rx="1.5" stroke="currentColor" stroke-width="1.1"/><path d="M1 4h14M6 4V3a1 1 0 011-1h2a1 1 0 011 1v1M6 7v4M10 7v4" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/></svg>
-                  Go to Trash Review tab
-                </div>
+                <div class="gs-head"><svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M12 5v10M8 11l4 4 4-4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 19h16" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>Download and run the delete list</div>
+                <div class="gs-desc">In the Trash tab click <em>Download Delete List</em> — a text file with ready-to-run shell commands.<br><br><strong style="color:var(--tx2)">macOS / Linux:</strong> open Terminal, paste commands<br><strong style="color:var(--tx2)">Windows:</strong> open PowerShell, paste commands<br><br>The browser cannot delete files directly — this step is required.</div>
               </div>
             </div>
-
           </div>
-
           <div class="guide-cta">
             <button class="guide-cta-btn" onclick="document.getElementById('dz').click()">Get Started</button>
-            <div class="guide-cta-note">Select a folder to begin.<br>Everything runs in your browser — nothing leaves your device.</div>
+            <div class="guide-cta-note">Select a folder to begin.<br>Nothing leaves your device.</div>
           </div>
-
+        </div>
+        <div class="hints-strip">
+          <div class="hint"><div class="hint-n">3</div><div class="hint-l">Detection stages</div></div>
+          <div class="hint"><div class="hint-n">10+</div><div class="hint-l">Audio formats</div></div>
+          <div class="hint"><div class="hint-n">10K+</div><div class="hint-l">Files supported</div></div>
+          <div class="hint"><div class="hint-n">0</div><div class="hint-l">Data uploaded</div></div>
         </div>
       </div>
 
-      <!-- STATE: SCANNING — progress + live feed, no tabs -->
-      <div class="scan-main" id="state-scan">
+      <!-- SCANNING -->
+      <div class="panel-scan" id="panel-scan" style="display:none">
         <div class="scan-progress">
           <div class="sp-head">
             <div class="sp-title" id="sp-title">Initializing…</div>
             <div class="sp-pct" id="sp-pct">0%</div>
           </div>
-          <div class="pb-wrap" style="margin-bottom:10px"><div class="pb-fill" id="pbf"></div></div>
+          <div class="pb-wrap"><div class="pb-fill ind" id="pbf"></div></div>
           <div class="ps-row">
-            <div class="ps" id="ps0"><div class="ps-icon"><div class="ps-wait"></div></div><div class="ps-lb">Index</div></div>
-            <div class="ps" id="ps1"><div class="ps-icon"><div class="ps-wait"></div></div><div class="ps-lb">Meta</div></div>
-            <div class="ps" id="ps2"><div class="ps-icon"><div class="ps-wait"></div></div><div class="ps-lb">Hash</div></div>
-            <div class="ps" id="ps3"><div class="ps-icon"><div class="ps-wait"></div></div><div class="ps-lb">Dedup</div></div>
+            <div class="ps" id="ps0"><div class="ps-ic"><div class="ps-wt"></div></div><div class="ps-lb">Index</div></div>
+            <div class="ps" id="ps1"><div class="ps-ic"><div class="ps-wt"></div></div><div class="ps-lb">Meta</div></div>
+            <div class="ps" id="ps2"><div class="ps-ic"><div class="ps-wt"></div></div><div class="ps-lb">Hash</div></div>
+            <div class="ps" id="ps3"><div class="ps-ic"><div class="ps-wt"></div></div><div class="ps-lb">Dedup</div></div>
           </div>
-          <div class="pb-msg" id="pbm" style="margin-top:6px">Initializing…</div>
+          <div class="pb-msg" id="pbm">Starting…</div>
         </div>
         <div class="feed-panel">
           <div class="feed-head">
-            <div class="feed-head-lbl">Live file feed</div>
-            <div class="feed-dup-count" id="feed-dup-count"></div>
+            <div class="feed-lbl">Live file feed</div>
+            <div class="feed-dups" id="feed-dups"></div>
           </div>
           <div id="feed-list"></div>
         </div>
       </div>
 
-      <!-- STATE: RESULTS — full-width, tabs in sidebar -->
-      <div class="results-panel" id="state-results">
-
-      <!-- Duplicates -->
-      <div class="content" id="tab-dup">
-        <div class="rh" id="rh">
-          <div class="rh-cell a"><div class="rh-val a" id="rh0">—</div><div class="rh-lbl">Recoverable Space</div></div>
-          <div class="rh-cell r"><div class="rh-val r" id="rh1">—</div><div class="rh-lbl">Duplicate Files</div></div>
-          <div class="rh-cell g"><div class="rh-val g" id="rh2">—</div><div class="rh-lbl">Groups Found</div></div>
-        </div>
-        <div class="act-bar" id="ab">
-          <span class="ab-cnt" id="abc">0 files selected</span>
-          <button class="ab-clr" onclick="clearSel()">Clear</button>
-          <button class="ab-go" onclick="moveToTrash()">Move to Trash Review</button>
-        </div>
-        <div id="gc"></div>
-        <div class="pager" id="pg"></div>
-        <div class="empty" id="de">
-          <div class="e-disc">
-            <svg viewBox="0 0 40 40" fill="none">
-              <circle cx="14" cy="20" r="11" stroke="#2a3e5e" stroke-width="1.5"/>
-              <circle cx="14" cy="20" r="6" stroke="#1e2e48" stroke-width="1"/>
-              <circle cx="14" cy="20" r="2.5" fill="#2a3e5e"/>
-              <circle cx="26" cy="20" r="9" stroke="#304080" stroke-width="1" stroke-dasharray="3 2"/>
-              <circle cx="26" cy="20" r="2" fill="#304080"/>
-            </svg>
+      <!-- RESULTS (tabs controlled by .stab) -->
+      <div class="panel-results" id="panel-results" style="display:none">
+        <!-- Duplicates -->
+        <div class="content" id="tab-dup">
+          <div class="rh" id="rh">
+            <div class="rh-cell a"><div class="rh-val a" id="rh-reclaim">—</div><div class="rh-lbl">Recoverable</div></div>
+            <div class="rh-cell r"><div class="rh-val r" id="rh-files">—</div><div class="rh-lbl">Dup Files</div></div>
+            <div class="rh-cell g"><div class="rh-val g" id="rh-groups">—</div><div class="rh-lbl">Groups</div></div>
           </div>
-          <div class="e-title">Ready to Scan</div>
-          <div class="e-sub">Select your music folder in the sidebar, then click <strong style="color:var(--accent)">Scan Library</strong> to detect duplicate tracks.</div>
+          <div id="act-bar">
+            <span id="act-cnt"></span>
+            <button class="ab-clr" onclick="clearSel()">Clear</button>
+            <button class="ab-go" onclick="moveToTrash()">Move to Trash</button>
+          </div>
+          <div id="gc"></div>
+          <div class="pager" id="pg"></div>
+          <div class="empty" id="de">
+            <div class="e-disc"><svg viewBox="0 0 40 40" fill="none"><circle cx="14" cy="20" r="11" stroke="#2a3e5e" stroke-width="1.5"/><circle cx="14" cy="20" r="6" stroke="#1e2e48" stroke-width="1"/><circle cx="14" cy="20" r="2.5" fill="#2a3e5e"/><circle cx="26" cy="20" r="9" stroke="#304080" stroke-width="1" stroke-dasharray="3 2"/><circle cx="26" cy="20" r="2" fill="#304080"/></svg></div>
+            <div class="e-title" id="de-title">Ready to Scan</div>
+            <div class="e-sub">Select your music folder in the sidebar, then click <em>Scan Library</em>.</div>
+          </div>
+        </div>
+        <!-- All Files -->
+        <div class="content" id="tab-all" style="display:none">
+          <div id="all-list"></div>
+          <div class="empty"><div class="e-disc"><svg viewBox="0 0 40 40" fill="none"><rect x="6" y="16" width="4" height="8" rx="2" fill="#2a3e5e"/><rect x="12" y="11" width="4" height="18" rx="2" fill="#304080"/><rect x="18" y="14" width="4" height="12" rx="2" fill="#2a3e5e"/><rect x="24" y="9" width="4" height="22" rx="2" fill="#304080"/><rect x="30" y="15" width="4" height="10" rx="2" fill="#2a3e5e"/></svg></div><div class="e-title">No Files Yet</div><div class="e-sub">Run a scan to see all discovered audio files.</div></div>
+        </div>
+        <!-- Corrupt -->
+        <div class="content" id="tab-corrupt" style="display:none">
+          <div id="corrupt-list"></div>
+          <div class="empty"><div class="e-disc"><svg viewBox="0 0 40 40" fill="none"><circle cx="20" cy="20" r="16" stroke="#2a3e5e" stroke-width="1.5"/><circle cx="20" cy="20" r="10" stroke="#1e2e48" stroke-width="1"/><circle cx="20" cy="20" r="3" fill="#2a3e5e"/><path d="M12 12L18 19L14 24L22 28" stroke="#304080" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="e-title">No Issues Found</div><div class="e-sub">All scanned files appear to be readable.</div></div>
+        </div>
+        <!-- Trash -->
+        <div class="content" id="tab-trash" style="display:none">
+          <div id="trash-list"></div>
         </div>
       </div>
-
-      <!-- All files -->
-      <div class="content" id="tab-all" style="display:none">
-        <div id="ac"></div>
-        <div class="empty" id="ae"><div class="e-disc">
-    <svg viewBox="0 0 40 40" fill="none">
-      <rect x="6"  y="16" width="4" height="8"  rx="2" fill="#2a3e5e"/>
-      <rect x="12" y="11" width="4" height="18" rx="2" fill="#304080"/>
-      <rect x="18" y="14" width="4" height="12" rx="2" fill="#2a3e5e"/>
-      <rect x="24" y="9"  width="4" height="22" rx="2" fill="#304080"/>
-      <rect x="30" y="15" width="4" height="10" rx="2" fill="#2a3e5e"/>
-    </svg>
-  </div><div class="e-title">No Files Yet</div><div class="e-sub">Run a scan to see all discovered audio files.</div></div>
-      </div>
-
-      <!-- Corrupt -->
-      <div class="content" id="tab-corrupt" style="display:none">
-        <div id="cc"></div>
-        <div class="empty" id="ce"><div class="e-disc">
-    <svg viewBox="0 0 40 40" fill="none">
-      <circle cx="20" cy="20" r="16" stroke="#2a3e5e" stroke-width="1.5"/>
-      <circle cx="20" cy="20" r="10" stroke="#1e2e48" stroke-width="1"/>
-      <circle cx="20" cy="20" r="3"  fill="#2a3e5e"/>
-      <path d="M12 12L18 19L14 24L22 28" stroke="#304080" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-    </svg>
-  </div><div class="e-title">No Issues Found</div><div class="e-sub">All scanned files appear to be readable.</div></div>
-      </div>
-
-      <!-- Trash -->
-      <div class="content" id="tab-trash" style="display:none">
-        <div id="tc">
-          <div class="empty"><div class="e-disc">
-            <svg viewBox="0 0 40 40" fill="none">
-              <rect x="8"  y="15" width="24" height="18" rx="2" stroke="#2a3e5e" stroke-width="1.5"/>
-              <path d="M6 15H34" stroke="#2a3e5e" stroke-width="1.5" stroke-linecap="round"/>
-              <path d="M15 15V12C15 11.4 15.4 11 16 11H24C24.6 11 25 11.4 25 12V15" stroke="#304080" stroke-width="1" stroke-linecap="round"/>
-              <path d="M16 20V28M20 20V28M24 20V28" stroke="#2a3e5e" stroke-width="1" stroke-linecap="round"/>
-            </svg>
-          </div><div class="e-title">Trash is Empty</div><div class="e-sub">Files you mark for removal appear here for review.<br><strong>Nothing is deleted automatically.</strong></div></div>
-        </div>
-      </div>
-      </div><!-- results-panel -->
     </main>
   </div>
 </div>
 
-<!-- What's New modal -->
-<div class="wn-overlay" id="wn-overlay">
-  <div class="wn-modal">
-    <div class="wn-header">
-      <svg class="wn-disc" width="32" height="32" viewBox="0 0 32 32" fill="none">
-        <circle cx="16" cy="16" r="15" fill="#101828" stroke="#4a8ef0" stroke-width="1.5"/>
-        <circle cx="16" cy="16" r="10" fill="none" stroke="#1e2e48" stroke-width="0.75"/>
-        <circle cx="16" cy="16" r="6" fill="none" stroke="#1e2e48" stroke-width="0.75"/>
-        <rect x="4"  y="14" width="2" height="4" rx="1" fill="#4a8ef0" opacity=".55"/>
-        <rect x="7"  y="12" width="2" height="8" rx="1" fill="#4a8ef0" opacity=".75"/>
-        <rect x="10" y="13" width="2" height="6" rx="1" fill="#4a8ef0"/>
-        <circle cx="16" cy="16" r="2.5" fill="#4a8ef0"/>
-        <rect x="20" y="13" width="2" height="6" rx="1" fill="#9060e0"/>
-        <rect x="23" y="12" width="2" height="8" rx="1" fill="#9060e0" opacity=".75"/>
-        <rect x="26" y="14" width="2" height="4" rx="1" fill="#9060e0" opacity=".55"/>
-      </svg>
-      <div class="wn-title">
-        <div class="wn-title-top">What's New in v3.3</div>
-        <div class="wn-title-sub">MusicCleanup · Duplicate Detector PWA</div>
-      </div>
-      <button class="wn-close" onclick="document.getElementById('wn-overlay').classList.remove('on')">×</button>
-    </div>
-    <div class="wn-body">
-      <div class="wn-item">
-      <div class="wn-item">
-        <div class="wn-dot"></div>
-        <div>
-          <div class="wn-item-title">Folder drop fixed</div>
-          <div class="wn-item-desc">Fixed infinite recursion in setDir caused by a hoisted function wrapper. Drop handler now surfaces errors instead of swallowing them. Full-page drag target added so drops on the guide content still register.</div>
-        </div>
-      </div>
-      <div class="wn-item">
-        <div class="wn-dot"></div>
-        <div>
-          <div class="wn-item-title">Step-by-step guide</div>
-          <div class="wn-item-desc">Idle screen replaced with a 6-step interactive how-to guide. Steps auto-advance as you work. "How to use" button in the header reopens the guide from any state.</div>
-        </div>
-      </div>
-      <div class="wn-item">
-        <div class="wn-dot"></div>
-        <div>
-          <div class="wn-item-title">Green scan progress bar</div>
-          <div class="wn-item-desc">Progress bar during scanning is now green — matches the completion/success visual language.</div>
-        </div>
-      </div>
-        <div class="wn-dot"></div>
-        <div>
-          <div class="wn-item-title">Auto-update button</div>
-          <div class="wn-item-desc">App detects new versions automatically. A banner slides in with an Update Now button — one click applies the update and reloads. No manual cache clearing needed.</div>
-        </div>
-      </div>
-      <div class="wn-item">
-        <div class="wn-dot"></div>
-        <div>
-          <div class="wn-item-title">Three-state layout</div>
-          <div class="wn-item-desc">App now has distinct Idle, Scanning, and Results states — each with a purpose-fit layout instead of one static grid</div>
-        </div>
-      </div>
-      <div class="wn-item">
-        <div class="wn-dot"></div>
-        <div>
-          <div class="wn-item-title">Pipeline in main panel</div>
-          <div class="wn-item-desc">Progress bar, stage indicators, and live file feed are unified in the main panel during scanning — no more split across sidebar and main</div>
-        </div>
-      </div>
-      <div class="wn-item">
-        <div class="wn-dot"></div>
-        <div>
-          <div class="wn-item-title">Sidebar zone hierarchy</div>
-          <div class="wn-item-desc">Primary zone (folder + scan) is visually dominant; Config zone (stats, search, filters) is compact; Footer holds tabs and privacy note</div>
-        </div>
-      </div>
-      <div class="wn-item">
-        <div class="wn-dot"></div>
-        <div>
-          <div class="wn-item-title">Tabs moved to sidebar</div>
-          <div class="wn-item-desc">Secondary nav (Dups / Files / Bad / Trash) moved to the sidebar bottom — the full main panel width is now free for results content</div>
-        </div>
-      </div>
-      <div class="wn-item">
-        <div class="wn-dot"></div>
-        <div>
-          <div class="wn-item-title">3-column stats strip</div>
-          <div class="wn-item-desc">Results summary compressed from 2×2 grid to a 3-col strip showing Reclaim, Groups, and Removable with colored accent bars</div>
-        </div>
-      </div>
-      <div class="wn-item">
-        <div class="wn-dot"></div>
-        <div>
-          <div class="wn-item-title">Search bar added</div>
-          <div class="wn-item-desc">Real-time search in sidebar filters all duplicate groups by artist, album, title, or filename as you type</div>
-        </div>
-      </div>
-      <div class="wn-item">
-        <div class="wn-dot"></div>
-        <div>
-          <div class="wn-item-title">Filter and sort merged</div>
-          <div class="wn-item-desc">Filter pills and sort selector combined into one section with a Rescan quick-button on the same row</div>
-        </div>
-      </div>
-      <div class="wn-item">
-        <div class="wn-dot"></div>
-        <div>
-          <div class="wn-item-title">Keyboard shortcuts</div>
-          <div class="wn-item-desc">⌘K to focus search, ⌘A to select all, ⌘E to expand/collapse all groups, ⌘⌫ to trash selection, ⌘R to rescan same folder</div>
-        </div>
-      </div>
-      <div class="wn-item">
-        <div class="wn-dot"></div>
-        <div>
-          <div class="wn-item-title">Hero welcome panel</div>
-          <div class="wn-item-desc">Idle state shows a centered welcome screen with 4 capability hints (stages, formats, file count, uploads = 0)</div>
-        </div>
-      </div>
-      <div class="wn-item">
-        <div class="wn-dot"></div>
-        <div>
-          <div class="wn-item-title">Rescan button</div>
-          <div class="wn-item-desc">Quick rescan of the same folder appears after first scan — no need to re-pick the folder</div>
-        </div>
-      </div>
-      <div class="wn-item">
-        <div class="wn-dot"></div>
-        <div>
-          <div class="wn-item-title">Live feed in scan state</div>
-          <div class="wn-item-desc">Files stream into the main panel in real time during scan with color-coded duplicate detection highlights</div>
-        </div>
-      </div>
-    </div>
-    <div class="wn-footer">
-      <button class="wn-ok" onclick="document.getElementById('wn-overlay').classList.remove('on')">Got it</button>
-    </div>
-  </div>
-</div>
-<div class="toasts" id="toasts"></div>
+<div id="toasts"></div>
 
 <script>
-const APP_VERSION='3.3';
-const S={worker:null,scanning:false,folder:null,files:[],groups:[],corrupt:[],trash:[],
-  sel:new Set(),filter:'all',sort:'wasted',search:'',page:1,pp:12,deferInstall:null,scanStart:0,appState:'idle'};
+'use strict';
 
-/* ── App state machine ────────────────────────────────────────────────────── */
-function setState(st){
-  document.getElementById('state-idle').style.display    = st==='idle'    ? 'flex'  : 'none';
-  document.getElementById('state-idle').style.flexDirection = 'column';
-  document.getElementById('state-scan').classList.toggle('on', st==='scan');
-  document.getElementById('state-results').classList.toggle('on', st==='results');
-  S.appState = st;
-}
+// ── Constants ────────────────────────────────────────────────────────────────
+const APP_VERSION = '4.0';
 
-/* ── Rescan (reuse saved folder handle) ───────────────────────────────────── */
-function doRescan(){if(S.folder)doScan();else toast('No folder selected','err');}
+const WN_ITEMS = [
+  ['Complete rewrite (v4.0)', 'Entire codebase rebuilt from scratch. Clean state machine, null-safe DOM access, typed worker protocol. No more patches on patches.'],
+  ['State machine fixed', 'switchState() uses direct inline style on all three panels simultaneously. No CSS class fights, no timing races.'],
+  ['Worker protocol fixed', 'Stage name map corrected (metadata, hashing, detecting all match worker emissions). Progress bar and stage indicators now always update.'],
+  ['Null-safe DOM access', 'All DOM references cached at startup and checked once. Handler functions wrapped in try/catch so a bad element never silently kills a scan.'],
+  ['Auto-update system', 'Service worker detects new versions in background. Update banner slides in with one-click update + reload.'],
+  ['Live file feed', 'Real-time stream of files being processed during scan with duplicate highlights.'],
+  ['Step-by-step guide', '6-step how-to guide on the idle screen. Steps auto-advance as you work.'],
+  ['Green progress bar', 'Scan progress bar is now green to match completion/success language.'],
+  ['Keyboard shortcuts', '⌘K search, ⌘A select all, ⌘E expand/collapse all, ⌘⌫ move to trash, ⌘R rescan.'],
+];
 
-/* ── Search ──────────────────────────────────────────────────────────────── */
-function setupSearch(){
-  const inp=document.getElementById('search-inp');
-  if(inp)inp.addEventListener('input',e=>onSearch(e.target.value));
-}
-function onSearch(q){S.search=q.trim().toLowerCase();S.page=1;renderGroups();}
+// ── App state ────────────────────────────────────────────────────────────────
+const A = {
+  worker:      null,
+  scanning:    false,
+  folder:      null,
+  groups:      [],
+  files:       [],
+  corrupt:     [],
+  trash:       [],
+  sel:         new Set(),
+  filter:      'all',
+  sort:        'wasted',
+  search:      '',
+  page:        1,
+  PP:          12,
+  scanStart:   0,
+  guideStep:   1,
+  deferInst:   null,
+  waitingSW:   null,
+  reloading:   false,
+  state:       'idle', // 'idle' | 'scanning' | 'results'
+};
 
-/* ── Keyboard shortcuts ──────────────────────────────────────────────────── */
-function setupKbd(){
-  document.addEventListener('keydown',e=>{
-    if(e.target.tagName==='INPUT'||e.target.tagName==='SELECT')return;
-    const m=e.metaKey||e.ctrlKey;
-    if(m&&e.key==='k'){e.preventDefault();const si=document.getElementById('search-inp');if(si){si.focus();si.select();}}
-    if(m&&e.key==='a'){e.preventDefault();if(S.groups.length){autoSel();renderGroups();}}
-    if(m&&e.key==='e'){e.preventDefault();toggleAllCards();}
-    if(m&&(e.key==='Backspace'||e.key==='Delete')){e.preventDefault();if(S.sel.size)moveToTrash();}
-    if(m&&e.key==='r'){e.preventDefault();doRescan();}
+// ── DOM cache — all refs grabbed once at startup ─────────────────────────────
+let D = {};
+
+function cacheDOM() {
+  const ids = [
+    'dz','folder-chip','scan-btn',
+    'panel-idle','panel-scan','panel-results',
+    'sp-title','sp-pct','pbf','pbm',
+    'ps0','ps1','ps2','ps3',
+    'feed-list','feed-dups',
+    'nav-count',
+    'stats-strip','stats-strip-empty','st-reclaim','st-groups','st-remove',
+    'search-wrap','search-inp','filter-wrap','fps','sort','rescan-btn',
+    'rh','rh-reclaim','rh-files','rh-groups',
+    'act-bar','act-cnt',
+    'gc','pg','de','de-title',
+    'all-list','corrupt-list','trash-list',
+    'tb-dup','tb-all','tb-bad','tb-trash',
+    'guide-steps',
+    'gs-1','gs-2','gs-3','gs-4','gs-5','gs-6',
+    'wn','wn-body','upd','upd-txt','ib','ib-btn',
+    'opt-autosel','opt-expand',
+  ];
+  const missing = [];
+  ids.forEach(id => {
+    D[id] = document.getElementById(id);
+    if (!D[id]) missing.push(id);
   });
-}
-function toggleAllCards(){
-  const open=document.querySelectorAll('.gcard.open').length;
-  document.querySelectorAll('.gcard').forEach(c=>c.classList.toggle('open',!open));
+  if (missing.length) console.warn('[MC] Missing DOM elements:', missing);
 }
 
-/* ── Live feed push ───────────────────────────────────────────────────────── */
-function pushFeedRow(name,ext,sizeMB,isDup,isActive){
-  const list=document.getElementById('feed-list');if(!list)return;
-  const lo=new Set(['flac','wav','aiff','aif','wv','ape']);
-  const co=new Set(['m4a','mp4','m4b']);
-  const fmtCls=lo.has(ext)?'fmt-lossless':co.has(ext)?'fmt-container':'fmt-lossy';
-  const row=document.createElement('div');
-  row.className='feed-row'+(isDup?' match':isActive?' active':'');
-  row.innerHTML=`<div class="feed-dot ${isDup?'dup':isActive?'act':'ok'}"></div>`+
-    `<span class="fmt-badge ${fmtCls}" style="font-size:8px;height:16px;padding:0 4px"><svg viewBox="0 0 7 7" fill="none" style="width:6px;height:6px">${lo.has(ext)?'<path d="M1 3.5h6M4 1v5.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>':co.has(ext)?'<rect x=".5" y="1" width="6" height="5" rx="1" stroke="currentColor" stroke-width="1"/>':'<circle cx="3.5" cy="3.5" r="2.5" stroke="currentColor" stroke-width="1"/><circle cx="3.5" cy="3.5" r="1" fill="currentColor"/>'}</svg>${ext.toUpperCase()}</span>`+
-    `<div class="feed-name">${esc(name)}</div><div class="feed-sz">${sizeMB} MB</div>`+
-    (isDup?'<div class="feed-tag">duplicate</div>':'');
-  list.insertBefore(row,list.firstChild);
-  while(list.children.length>9)list.removeChild(list.lastChild);
-  // Fade out old rows
-  [...list.children].forEach((r,i)=>{r.style.opacity=Math.max(.15,1-i*.1);});
+// ── State machine ────────────────────────────────────────────────────────────
+function switchState(s) {
+  A.state = s;
+  D['panel-idle'].style.display    = s === 'idle'     ? 'flex' : 'none';
+  D['panel-scan'].style.display    = s === 'scanning'  ? 'flex' : 'none';
+  D['panel-results'].style.display = s === 'results'   ? 'flex' : 'none';
+  D['panel-idle'].style.flexDirection    = 'column';
+  D['panel-scan'].style.flexDirection    = 'column';
+  D['panel-results'].style.flexDirection = 'column';
 }
 
-
-document.addEventListener('DOMContentLoaded',()=>{
-  if(!('showDirectoryPicker' in window)){document.getElementById('co').classList.add('on');return;}
-  initW();setupDZ();setupDocDrag();setupTabs();setupFPs();setupPWA();setupSearch();setupKbd();
-  document.getElementById('sort').addEventListener('change',e=>{S.sort=e.target.value;S.page=1;renderGroups();});
-  document.getElementById('expandall').addEventListener('change',()=>{if(S.groups.length)renderGroups();});
-  setState('idle');
-});
-
-function initW(){
-  S.worker=new Worker('worker.js');
-  S.worker.onmessage=({data})=>{
-    const{type,payload}=data;
-    if(type==='progress')onProg(payload);
-    else if(type==='stats')onStats(payload);
-    else if(type==='done')onDone(payload);
-    else if(type==='error')onErr(payload);
-  };
+// ── Guide steps ──────────────────────────────────────────────────────────────
+function setGuideStep(n) {
+  A.guideStep = n;
+  for (let i = 1; i <= 6; i++) {
+    const el = D[`gs-${i}`];
+    if (!el) continue;
+    el.classList.remove('active','done');
+    if (i < n) el.classList.add('done');
+    else if (i === n) el.classList.add('active');
+  }
 }
 
-
-/* Document-level drag target — catches drops that miss #dz when guide is visible */
-function setupDocDrag(){
-  // Show the drop zone highlighted when anything is dragged over the main panel
-  const main=document.querySelector('.main');
-  if(!main)return;
-  main.addEventListener('dragover',e=>{
-    e.preventDefault();
-    e.dataTransfer.dropEffect='copy';
-    document.getElementById('dz')?.classList.add('drag');
-  });
-  main.addEventListener('dragleave',e=>{
-    if(!main.contains(e.relatedTarget))
-      document.getElementById('dz')?.classList.remove('drag');
-  });
-  main.addEventListener('drop',async e=>{
-    e.preventDefault();e.stopPropagation();
-    document.getElementById('dz')?.classList.remove('drag');
-    const items=[...e.dataTransfer.items];
-    for(const item of items){
-      if(item.kind==='file'&&typeof item.getAsFileSystemHandle==='function'){
-        try{
-          const h=await item.getAsFileSystemHandle();
-          if(h.kind==='directory'){setDir(h);return;}
-        }catch{}
-      }
+function showHelp() {
+  if (A.state !== 'idle') {
+    // Show as overlay when not in idle
+    let ov = document.getElementById('help-ov');
+    if (!ov) {
+      ov = document.createElement('div');
+      ov.id = 'help-ov';
+      ov.style.cssText = 'position:fixed;inset:0;background:rgba(8,12,20,.9);z-index:9000;display:flex;align-items:center;justify-content:center;padding:20px';
+      const inner = document.createElement('div');
+      inner.style.cssText = 'background:var(--bg1);border:1px solid var(--ln2);border-radius:12px;max-width:520px;width:100%;max-height:85vh;display:flex;flex-direction:column;overflow:hidden';
+      inner.innerHTML = `<div style="display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--ln)"><div style="font-size:13px;font-weight:800;color:var(--tx)">How to use MusicCleanup</div><button onclick="document.getElementById('help-ov').remove()" style="background:none;border:none;color:var(--fa);font-size:18px;cursor:pointer;line-height:1">×</button></div><div style="overflow-y:auto;padding:14px 18px">${(D['guide-steps']||{innerHTML:''}).innerHTML}</div>`;
+      ov.appendChild(inner);
+      ov.addEventListener('click', e => { if (e.target === ov) ov.remove(); });
+      document.body.appendChild(ov);
+    } else {
+      ov.remove();
     }
-    if(items.length)toast('Drop a folder onto the sidebar drop zone','err');
-  });
+  } else {
+    D['gs-1']?.scrollIntoView({ behavior:'smooth', block:'start' });
+  }
 }
-function setupDZ(){
-  const dz=document.getElementById('dz');
-  dz.addEventListener('click',pickDir);
 
-  dz.addEventListener('dragover',e=>{
+// ── What's New modal ─────────────────────────────────────────────────────────
+function openWN() {
+  if (D['wn-body']) {
+    D['wn-body'].innerHTML = WN_ITEMS.map(([t,d]) =>
+      `<div class="wn-item"><div class="wn-dot"></div><div><div class="wn-it">${t}</div><div class="wn-id">${d}</div></div></div>`
+    ).join('');
+  }
+  if (D['wn']) D['wn'].classList.add('on');
+}
+function closeWN() { D['wn']?.classList.remove('on'); }
+
+// ── Drop zone ────────────────────────────────────────────────────────────────
+function initDrop() {
+  const dz = D['dz'];
+  if (!dz) return;
+
+  dz.addEventListener('click', pickDir);
+
+  dz.addEventListener('dragover', e => {
     e.preventDefault();
-    e.dataTransfer.dropEffect='copy';
+    e.dataTransfer.dropEffect = 'copy';
     dz.classList.add('drag');
   });
-  dz.addEventListener('dragleave',e=>{
-    // Only remove if leaving the dz entirely (not entering a child)
-    if(!dz.contains(e.relatedTarget))dz.classList.remove('drag');
+  dz.addEventListener('dragleave', e => {
+    if (!dz.contains(e.relatedTarget)) dz.classList.remove('drag');
   });
-  dz.addEventListener('dragend',()=>dz.classList.remove('drag'));
+  dz.addEventListener('dragend', () => dz.classList.remove('drag'));
+  dz.addEventListener('drop', handleDrop);
 
-  dz.addEventListener('drop',async e=>{
-    e.preventDefault();e.stopPropagation();
-    dz.classList.remove('drag');
+  // Also catch drops anywhere on main panel
+  const mainEl = document.querySelector('main');
+  if (mainEl) {
+    mainEl.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('drag'); });
+    mainEl.addEventListener('dragleave', e => { if (!mainEl.contains(e.relatedTarget)) dz.classList.remove('drag'); });
+    mainEl.addEventListener('drop', handleDrop);
+  }
+}
 
-    const items=[...e.dataTransfer.items];
-    if(!items.length){toast('Nothing dropped — try dragging a folder','err');return;}
-
-    // Try getAsFileSystemHandle (Chrome 86+)
-    if(typeof items[0].getAsFileSystemHandle==='function'){
-      for(const item of items){
-        if(item.kind==='file'){
-          try{
-            const h=await item.getAsFileSystemHandle();
-            if(h.kind==='directory'){setDir(h);return;}
-          }catch(err){
-            // getAsFileSystemHandle failed — common if dragging from some locations
-            console.warn('FSAPI drag failed:',err);
-          }
-        }
+async function handleDrop(e) {
+  e.preventDefault(); e.stopPropagation();
+  D['dz']?.classList.remove('drag');
+  const items = [...(e.dataTransfer?.items || [])];
+  if (!items.length) { toast('Nothing detected — try clicking instead', 'err'); return; }
+  for (const item of items) {
+    if (item.kind === 'file' && typeof item.getAsFileSystemHandle === 'function') {
+      try {
+        const h = await item.getAsFileSystemHandle();
+        if (h.kind === 'directory') { setFolder(h); return; }
+      } catch (err) {
+        console.warn('[MC] drag handle failed:', err);
       }
-      // Items exist but none were directories
-      const kinds=items.map(i=>i.kind).join(',');
-      toast('Drop a folder, not individual files (got: '+kinds+')','err');
-      return;
     }
-
-    // Fallback: FSAPI not supported at all
-    toast('Drag & drop folders requires Chrome 86+. Use the click button instead.','err');
-  });
-}
-async function pickDir(){try{setDir(await window.showDirectoryPicker({mode:'read'}));}catch(e){if(e.name!=='AbortError')toast('Could not open folder: '+e.message,'err');}}
-function setDir(h){
-  S.folder=h;
-  const fc=document.getElementById('fc');
-  fc.innerHTML='<svg width="12" height="12" viewBox="0 0 16 16" fill="none" style="margin-right:5px;vertical-align:middle"><path d="M1 4.5A1.5 1.5 0 012.5 3h3.672a1.5 1.5 0 011.06.44l.94.94H13.5A1.5 1.5 0 0115 6v6.5a1.5 1.5 0 01-1.5 1.5h-11A1.5 1.5 0 011 12.5v-8z" stroke="#4a8ef0" stroke-width="1.2" fill="none"/></svg>'+h.name;fc.classList.add('on');
-  document.getElementById('scan-btn').disabled=false;
-  document.querySelector('.drop-title').textContent=h.name;
-  document.querySelector('.drop-sub').innerHTML=`<strong>${esc(h.name)}</strong> — click Scan Library to begin`;
-  toast('Folder ready: '+h.name,'ok');
-  if(S.appState==='idle')setGuideStep(2);
+  }
+  toast('Drop a folder, not individual files', 'err');
 }
 
-document.getElementById('scan-btn').addEventListener('click',async()=>{
-  if(S.scanning){cancelScan();return;}
-  if(!S.folder){toast('Select a folder first','err');return;}
-  await doScan();
-});
-
-async function doScan(){
-  S.scanning=true;S.scanStart=Date.now();
-  S.sel.clear();S.trash=[];S.groups=[];S.files=[];S.corrupt=[];S.page=1;S.search='';
-  const si=document.getElementById('search-inp');if(si)si.value='';
-  setSBtn(true);setStage(-1);resetUI();setState('scan');
-  document.getElementById('feed-list').innerHTML='';
-  document.getElementById('feed-dup-count').textContent='';
-  try{
-    const handles=await collect(S.folder);
-    const hc=document.getElementById('hc');
-    hc.textContent=handles.length.toLocaleString()+' files found';hc.classList.add('on');
-    S.worker.postMessage({type:'scan',payload:{fileHandles:handles}});
-    setGuideStep(3);
-  }catch(e){onErr({message:e.message});}
+async function pickDir() {
+  try {
+    const h = await window.showDirectoryPicker({ mode: 'read' });
+    setFolder(h);
+  } catch (e) {
+    if (e.name !== 'AbortError') toast('Could not open folder: ' + e.message, 'err');
+  }
 }
-function cancelScan(){S.worker.terminate();initW();S.scanning=false;setSBtn(false);setState('idle');toast('Cancelled','info');}
-async function collect(dir,arr=[],d=0){
-  if(d>10)return arr;
-  for await(const e of dir.values()){
-    if(e.kind==='file')arr.push(e);
-    else if(!e.name.startsWith('.'))await collect(e,arr,d+1);
+
+function setFolder(h) {
+  A.folder = h;
+  const chip = D['folder-chip'];
+  if (chip) {
+    chip.innerHTML = `<svg width="11" height="11" viewBox="0 0 16 16" fill="none" style="margin-right:5px;vertical-align:middle"><path d="M1 4.5A1.5 1.5 0 012.5 3h3.672a1.5 1.5 0 011.06.44l.94.94H13.5A1.5 1.5 0 0115 6v6.5a1.5 1.5 0 01-1.5 1.5h-11A1.5 1.5 0 011 12.5v-8z" stroke="#4a8ef0" stroke-width="1.2" fill="none"/></svg>${esc(h.name)}`;
+    chip.classList.add('on');
+  }
+  const btn = D['scan-btn'];
+  if (btn) btn.disabled = false;
+  const dt = document.querySelector('.drop-t');
+  const ds = document.querySelector('.drop-s');
+  if (dt) dt.textContent = h.name;
+  if (ds) ds.innerHTML = `<em>${esc(h.name)}</em> — click Scan Library to begin`;
+  toast('Folder: ' + h.name, 'ok');
+  setGuideStep(2);
+}
+
+// ── Scan ─────────────────────────────────────────────────────────────────────
+async function doScan() {
+  if (!A.folder) { toast('Select a folder first', 'err'); return; }
+  if (A.scanning) { cancelScan(); return; }
+
+  A.scanning = true;
+  A.scanStart = Date.now();
+  A.groups = []; A.files = []; A.corrupt = []; A.sel.clear();
+  A.page = 1; A.search = ''; A.filter = 'all';
+
+  // Reset search input
+  if (D['search-inp']) D['search-inp'].value = '';
+
+  // Reset filter pills
+  document.querySelectorAll('.fp').forEach(p => p.classList.toggle('on', p.dataset.t === 'all'));
+
+  setScanBtn(true);
+  resetPipeline();
+  switchState('scanning');
+  if (D['feed-list']) D['feed-list'].innerHTML = '';
+  if (D['feed-dups']) D['feed-dups'].textContent = '';
+  setGuideStep(3);
+
+  try {
+    const handles = await collectFiles(A.folder);
+    if (D['nav-count']) { D['nav-count'].textContent = handles.length.toLocaleString() + ' files found'; D['nav-count'].classList.add('on'); }
+    A.worker.postMessage({ type: 'scan', payload: { fileHandles: handles } });
+  } catch (err) {
+    handleScanError(err.message);
+  }
+}
+
+function cancelScan() {
+  A.worker.terminate();
+  initWorker();
+  A.scanning = false;
+  setScanBtn(false);
+  switchState('idle');
+  toast('Scan cancelled', 'info');
+}
+
+function doRescan() {
+  if (A.folder) doScan();
+  else toast('No folder selected', 'err');
+}
+
+async function collectFiles(dir, arr = [], depth = 0) {
+  if (depth > 10) return arr;
+  for await (const entry of dir.values()) {
+    if (entry.kind === 'file') arr.push(entry);
+    else if (!entry.name.startsWith('.')) await collectFiles(entry, arr, depth + 1);
   }
   return arr;
 }
 
-const SM={building:0,metadata_extract:1,hashing:2,audio_hash:2,detecting:3,done:3};
-let _liveCount=0;
+function setScanBtn(scanning) {
+  const btn = D['scan-btn'];
+  if (!btn) return;
+  btn.classList.toggle('cancel', scanning);
+  btn.disabled = false;
+  btn.innerHTML = scanning
+    ? '<span class="spin">↻</span> Cancel Scan'
+    : '<svg width="13" height="13" viewBox="0 0 16 16" fill="currentColor"><path d="M11.742 10.344a6.5 6.5 0 10-1.397 1.398h.001l3.85 3.85a1 1 0 001.414-1.414l-3.85-3.85zm-5.242.656a5.5 5.5 0 110-11 5.5 5.5 0 010 11z"/></svg> Scan Library';
+}
 
-function onProg({stage,current,total,pct,message,fileName,fileExt,fileSizeMB,isDup}){
-  const b=document.getElementById('pbf');b.classList.remove('ind');b.style.width=pct+'%';
-  document.getElementById('pbm').textContent=message;
-  const t=document.getElementById('sp-title');
-  const p=document.getElementById('sp-pct');
-  if(t)t.textContent=message;
-  if(p)p.textContent=pct+'%';
-  if(SM[stage]!==undefined)setStage(SM[stage]);
-  if(S.groups.length){
-    document.getElementById('bd').textContent=S.groups.length;
-    const dc=document.getElementById('feed-dup-count');
-    if(dc)dc.textContent=S.groups.length+' duplicate'+(S.groups.length!==1?'s':'');
+// ── Worker ───────────────────────────────────────────────────────────────────
+const STAGE_MAP = { building:0, indexing:0, metadata:1, metadata_extract:1, hashing:2, audio_hash:2, detecting:3, done:3 };
+const CK_SVG = `<div class="ps-ck"><svg width="8" height="8" viewBox="0 0 8 8" fill="none"><path d="M1.5 4L3 5.5L6.5 2" stroke="#38a878" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>`;
+let _curStage = -1;
+
+function initWorker() {
+  if (A.worker) { try { A.worker.terminate(); } catch {} }
+  A.worker = new Worker('worker.js');
+  A.worker.onmessage = ({ data }) => {
+    try {
+      if (data.type === 'progress') onProgress(data.payload);
+      else if (data.type === 'stats')    onStats(data.payload);
+      else if (data.type === 'done')     onDone(data.payload);
+      else if (data.type === 'error')    handleScanError(data.payload?.message || 'Unknown error');
+    } catch (e) {
+      console.error('[MC] worker message handler error:', e);
+    }
+  };
+  A.worker.onerror = (e) => handleScanError(e.message || 'Worker error');
+}
+
+function onStats({ totalAudio }) {
+  if (D['nav-count']) D['nav-count'].textContent = totalAudio.toLocaleString() + ' audio files';
+}
+
+function onProgress({ stage, current, total, pct, message }) {
+  try {
+    // Progress bar
+    const pb = D['pbf'];
+    if (pb) { pb.classList.remove('ind'); pb.style.width = pct + '%'; }
+
+    // Text labels
+    if (D['sp-title']) D['sp-title'].textContent = message || '';
+    if (D['sp-pct'])   D['sp-pct'].textContent   = pct + '%';
+    if (D['pbm'])      D['pbm'].textContent       = message || '';
+
+    // Stage indicators
+    const si = STAGE_MAP[stage];
+    if (si !== undefined && si !== _curStage) {
+      _curStage = si;
+      for (let i = 0; i < 4; i++) {
+        const el = document.getElementById('ps' + i);
+        if (!el) continue;
+        const ic = el.querySelector('.ps-ic');
+        if (!ic) continue;
+        if (i < si) { el.className = 'ps done'; ic.innerHTML = CK_SVG; }
+        else if (i === si) { el.className = 'ps act'; ic.innerHTML = '<div class="ps-sp"></div>'; }
+        else { el.className = 'ps'; ic.innerHTML = '<div class="ps-wt"></div>'; }
+      }
+    }
+
+    // Feed entry if filename provided
+    if (message && (stage === 'hashing' || stage === 'metadata')) {
+      const parts = message.split(': ');
+      if (parts.length > 1) addFeedRow(parts[parts.length - 1], false, stage === 'hashing');
+    }
+  } catch (e) {
+    console.error('[MC] onProgress error:', e);
   }
-  if(fileName&&fileExt){
-    pushFeedRow(fileName,fileExt,fileSizeMB||'?',isDup||false,true);
+}
+
+function addFeedRow(name, isDup, isCur) {
+  const list = D['feed-list'];
+  if (!list) return;
+  const ext = (name.split('.').pop() || '').toLowerCase();
+  const row = document.createElement('div');
+  row.className = 'feed-row' + (isDup ? ' dup' : isCur ? ' cur' : '');
+  const dotCls = isDup ? 'dup' : isCur ? 'cur' : 'ok';
+  const badge = fmtBadge(ext);
+  row.innerHTML = `<div class="fd-dot ${dotCls}"></div>${badge}<div class="fd-name">${esc(name)}</div>${isDup ? '<div class="fd-tag">duplicate</div>' : ''}`;
+  list.insertBefore(row, list.firstChild);
+  const rows = list.children;
+  while (rows.length > 9) list.removeChild(list.lastChild);
+  [...rows].forEach((r, i) => { r.style.opacity = Math.max(0.15, 1 - i * 0.1); });
+}
+
+function onDone(d) {
+  try {
+    A.scanning = false;
+    A.groups = d.groups || [];
+    A.files  = d.allFiles || [];
+    A.corrupt= d.corrupt || [];
+    const elapsed = Math.round((Date.now() - A.scanStart) / 1000);
+
+    setScanBtn(false);
+
+    // Pipeline all done
+    for (let i = 0; i < 4; i++) {
+      const el = document.getElementById('ps' + i); if (!el) continue;
+      const ic = el.querySelector('.ps-ic'); if (!ic) continue;
+      el.className = 'ps done'; ic.innerHTML = CK_SVG;
+    }
+    _curStage = 4;
+
+    // Progress bar full
+    if (D['pbf']) { D['pbf'].classList.remove('ind'); D['pbf'].style.width = '100%'; }
+    if (D['pbm']) D['pbm'].textContent = `Complete in ${elapsed}s — ${A.groups.length} duplicate groups`;
+    if (D['sp-title']) D['sp-title'].textContent = 'Scan complete';
+    if (D['sp-pct']) D['sp-pct'].textContent = '100%';
+
+    // Nav
+    if (D['nav-count']) { D['nav-count'].textContent = `${(d.totalFiles||0).toLocaleString()} files · ${elapsed}s`; D['nav-count'].classList.add('on'); }
+
+    // Tab badges
+    if (D['tb-dup'])   D['tb-dup'].textContent   = A.groups.length;
+    if (D['tb-all'])   D['tb-all'].textContent   = d.totalFiles || 0;
+    if (D['tb-bad'])   D['tb-bad'].textContent   = A.corrupt.length;
+
+    // Sidebar stats
+    if (D['st-reclaim']) D['st-reclaim'].textContent = fmtMB(parseFloat(d.totalWastedMB || 0));
+    if (D['st-groups'])  D['st-groups'].textContent  = fmt(A.groups.length);
+    if (D['st-remove'])  D['st-remove'].textContent  = fmt(d.removableCount || 0);
+    if (D['stats-strip']) D['stats-strip'].classList.add('on');
+    if (D['stats-strip-empty']) D['stats-strip-empty'].style.display = 'none';
+    if (D['search-wrap']) D['search-wrap'].classList.add('on');
+    if (D['filter-wrap']) D['filter-wrap'].classList.add('on');
+    if (D['rescan-btn'])  D['rescan-btn'].classList.add('on');
+
+    // Results header strip
+    if (D['rh-reclaim']) D['rh-reclaim'].textContent = fmtMB(parseFloat(d.totalWastedMB || 0));
+    if (D['rh-files'])   D['rh-files'].textContent   = fmt(d.removableCount || 0);
+    if (D['rh-groups'])  D['rh-groups'].textContent  = fmt(A.groups.length);
+    if (A.groups.length && D['rh']) D['rh'].classList.add('on');
+
+    // Auto-select
+    if (D['opt-autosel']?.checked) autoSel();
+
+    switchState('results');
+    setGuideStep(4);
+    renderGroups();
+    renderAllFiles();
+    renderCorrupt();
+    toast(`Scan complete — ${A.groups.length} duplicate groups found`, 'ok');
+  } catch (e) {
+    console.error('[MC] onDone error:', e);
+    switchState('results');
+    renderGroups();
+    toast('Results ready (minor display error: ' + e.message + ')', 'info');
   }
 }
 
-function onStats({totalAudio}){
-  document.getElementById('hc').textContent=totalAudio.toLocaleString()+' audio files';
-  setStage(1);
+function handleScanError(msg) {
+  A.scanning = false;
+  setScanBtn(false);
+  switchState('idle');
+  toast('Scan error: ' + (msg || 'Unknown'), 'err');
+  initWorker();
 }
 
-// Live feed entries pushed from worker progress messages
-function pushFeedEntry(entry){
-  const list=document.getElementById('live-feed-list');
-  if(!list)return;
-  const el=document.createElement('div');
-  el.className='feed-row '+(entry.dup?'match':entry.active?'active':'');
-  el.innerHTML=`
-    <div class="feed-dot ${entry.dup?'dup':entry.active?'act':'ok'}"></div>
-    <span class="feed-fmt ${entry.ext==='flac'?'fl':entry.ext==='mp3'?'mp':'m4'}">${entry.ext.toUpperCase()}</span>
-    <div class="feed-name">${esc(entry.name)}</div>
-    <div class="feed-sz">${entry.size}</div>
-    ${entry.dup?'<div class="feed-tag">duplicate</div>':''}
-  `;
-  list.insertBefore(el,list.firstChild);
-  while(list.children.length>8)list.removeChild(list.lastChild);
-}
-
-function onDone(d){
-  S.scanning=false;S.groups=d.groups;S.files=d.allFiles;S.corrupt=d.corrupt;
-  const elapsed=Math.round((Date.now()-S.scanStart)/1000);
-
-  setSBtn(false);
-  document.getElementById('pbf').style.width='100%';
-  allDone();
-  document.getElementById('pbm').textContent=`Complete in ${elapsed}s — ${d.groups.length.toLocaleString()} groups`;
-  document.getElementById('hc').textContent=`${d.totalFiles.toLocaleString()} files · ${elapsed}s`;
-
-  document.getElementById('bd').textContent=d.groups.length;
-  document.getElementById('ba').textContent=d.totalFiles;
-  document.getElementById('bc').textContent=d.corrupt.length;
-
-  document.getElementById('st1').textContent=fmt(d.groups.length);
-  document.getElementById('st2').textContent=fmtMB(parseFloat(d.totalWastedMB));
-  document.getElementById('st3').textContent=fmt(d.removableCount);
-  const sf=document.getElementById('st-files');if(sf)sf.textContent=fmt(d.totalFiles)+' audio files scanned';
-  document.getElementById('stats').style.display='block';
-  document.getElementById('s-search-blk').style.display='block';
-
-  document.getElementById('rh0').textContent=fmtMB(parseFloat(d.totalWastedMB));
-  document.getElementById('rh1').textContent=fmt(d.removableCount);
-  document.getElementById('rh2').textContent=fmt(d.groups.length);
-
-  if(d.groups.length>0){
-    document.getElementById('rh').classList.add('on');
-    document.getElementById('filters').style.display='block';
-    const rb=document.getElementById('rescan-btn');if(rb)rb.style.display='block';
-    if(document.getElementById('autosel').checked)autoSel();
+function resetPipeline() {
+  _curStage = -1;
+  for (let i = 0; i < 4; i++) {
+    const el = document.getElementById('ps' + i); if (!el) continue;
+    const ic = el.querySelector('.ps-ic'); if (!ic) continue;
+    el.className = 'ps'; ic.innerHTML = '<div class="ps-wt"></div>';
   }
-
-  setState('results');
-  setGuideStep(4);
-  renderGroups();renderCorrupt();renderAllFiles();
-  toast(`Scan complete — ${d.groups.length} duplicate groups found`,'ok');
+  if (D['pbf']) { D['pbf'].classList.add('ind'); D['pbf'].style.width = ''; }
+  if (D['pbm']) D['pbm'].textContent = 'Starting…';
+  if (D['sp-title']) D['sp-title'].textContent = 'Initializing…';
+  if (D['sp-pct']) D['sp-pct'].textContent = '0%';
 }
 
-function onErr({message}){S.scanning=false;setSBtn(false);showPL(false);toast('Error: '+message,'err');}
+// ── Render groups ────────────────────────────────────────────────────────────
+const TYPE_COLOR = { exact_file:'var(--red)', exact_audio:'var(--ora)', metadata_match:'var(--yel)' };
 
-/* Pipeline stage UI */
-let _stage=-1;
-const STAGE_ICONS={
-  wait:'<div class="ps-wait"></div>',
-  run:'<div class="ps-spinner"></div>',
-  done:`<div class="ps-check"><svg viewBox="0 0 8 8" fill="none"><path d="M1.5 4L3 5.5L6.5 2" stroke="#4a9e7a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>`
-};
-function setStage(n){
-  if(n===_stage)return;_stage=n;
-  [0,1,2,3].forEach(i=>{
-    const el=document.getElementById('ps'+i);
-    const ic=el.querySelector('.ps-icon');
-    if(i<n){el.className='ps done';ic.innerHTML=STAGE_ICONS.done;}
-    else if(i===n){el.className='ps act';ic.innerHTML=STAGE_ICONS.run;}
-    else{el.className='ps';ic.innerHTML=STAGE_ICONS.wait;}
-  });
-}
-function allDone(){
-  [0,1,2,3].forEach(i=>{
-    const el=document.getElementById('ps'+i);
-    const ic=el.querySelector('.ps-icon');
-    el.className='ps done';ic.innerHTML=STAGE_ICONS.done;
-  });
-}
-function showPL(on){
-  if(!on){const b=document.getElementById('pbf');if(b){b.style.width='0';}_stage=-1;}
-}
-
-function autoSel(){
-  S.sel.clear();
-  for(const g of S.groups)for(const f of g.files)if(f.name!==g.keep)S.sel.add(f.id);
-  updateAB();
-}
-
-/* Render groups */
-function getFS(){
-  let g=S.groups;
-  if(S.filter!=='all')g=g.filter(x=>x.type===S.filter);
-  if(S.search){
-    const q=S.search;
-    g=g.filter(x=>x.files.some(f=>
-      (f.title||'').toLowerCase().includes(q)||
-      (f.artist||'').toLowerCase().includes(q)||
-      (f.album||'').toLowerCase().includes(q)||
+function getFiltered() {
+  let g = A.groups;
+  if (A.filter !== 'all') g = g.filter(x => x.type === A.filter);
+  if (A.search) {
+    const q = A.search.toLowerCase();
+    g = g.filter(x => x.files.some(f =>
+      (f.title||'').toLowerCase().includes(q) ||
+      (f.artist||'').toLowerCase().includes(q) ||
+      (f.album||'').toLowerCase().includes(q) ||
       (f.name||'').toLowerCase().includes(q)
     ));
   }
-  if(S.sort==='wasted')g=[...g].sort((a,b)=>b.wastedBytes-a.wastedBytes);
-  else if(S.sort==='type')g=[...g].sort((a,b)=>a.type.localeCompare(b.type));
-  else g=[...g].sort((a,b)=>b.files.length-a.files.length);
+  if (A.sort === 'wasted')    g = [...g].sort((a,b) => b.wastedBytes - a.wastedBytes);
+  else if (A.sort === 'type') g = [...g].sort((a,b) => a.type.localeCompare(b.type));
+  else                         g = [...g].sort((a,b) => b.files.length - a.files.length);
   return g;
 }
 
-function renderGroups(){
-  const ctr=document.getElementById('gc'),em=document.getElementById('de'),pg=document.getElementById('pg');
-  const gs=getFS(),tp=Math.max(1,Math.ceil(gs.length/S.pp));
-  if(S.page>tp)S.page=tp;
-  const sl=gs.slice((S.page-1)*S.pp,S.page*S.pp);
-  if(!sl.length){ctr.innerHTML='';pg.innerHTML='';em.style.display='flex';em.querySelector('.e-title').textContent=S.groups.length?'No Matches':'No Duplicates Found!';return;}
-  em.style.display='none';
-  const expandAll=document.getElementById('expandall').checked;
-  ctr.innerHTML=sl.map(g=>buildCard(g,expandAll)).join('');
-  renderPager(S.page,tp);
+function renderGroups() {
+  const gc = D['gc']; const de = D['de']; const pg = D['pg'];
+  if (!gc) return;
+
+  const gs = getFiltered();
+  const tp = Math.max(1, Math.ceil(gs.length / A.PP));
+  if (A.page > tp) A.page = tp;
+  const sl = gs.slice((A.page - 1) * A.PP, A.page * A.PP);
+
+  if (!sl.length) {
+    gc.innerHTML = ''; if (pg) pg.innerHTML = '';
+    if (de) {
+      de.style.display = 'flex';
+      if (D['de-title']) D['de-title'].textContent = A.groups.length ? 'No Matches' : 'No Duplicates Found';
+    }
+    return;
+  }
+
+  if (de) de.style.display = 'none';
+  const expandAll = D['opt-expand']?.checked;
+  gc.innerHTML = sl.map(g => buildCard(g, expandAll)).join('');
+  renderPager(A.page, tp);
 }
 
-const TC={exact_file:'var(--red)',exact_audio:'var(--orange)',metadata_match:'var(--yellow)'};
-function buildCard(g,expandAll){
-  const song=g.files[0].title||g.files[0].name;
-  const artist=g.files[0].artist||'';
-  const album=g.files[0].album||'';
-  const year=g.files[0].year||'';
-  const wasted=(g.wastedBytes/1048576).toFixed(1);
-  const col=TC[g.type]||'var(--dust)';
-  const meta=[artist,album,year].filter(Boolean).join(' · ');
-  const rows=g.files.map(f=>buildFRow(f,g.keep)).join('');
-
-  return `<div class="gcard fi ${expandAll?'open':''}" id="gc-${g.id}" data-t="${g.type}">
+function buildCard(g, expandAll) {
+  const col = TYPE_COLOR[g.type] || 'var(--mu)';
+  const song = g.files[0]?.title || g.files[0]?.name || '?';
+  const meta = [g.files[0]?.artist, g.files[0]?.album, g.files[0]?.year].filter(Boolean).join(' · ');
+  const wasted = ((g.wastedBytes || 0) / 1048576).toFixed(1);
+  const rows = g.files.map(f => buildFileRow(f, g.keep)).join('');
+  const checked = g.files.filter(f => f.name !== g.keep && A.sel.has(f.id)).length;
+  const total = g.files.length - 1;
+  return `<div class="gcard${expandAll ? ' open' : ''}" id="gc-${g.id}" data-type="${g.type}">
     <div class="ghdr" onclick="toggleCard('${g.id}')">
-      <span class="g-type-pill" style="color:${col};border-color:${col}">${g.typeLabel}</span>
-      <div class="g-info">
-        <div class="g-song">${esc(song)}</div>
-        ${meta?`<div class="g-artist">${esc(meta)}</div>`:''}
-      </div>
+      <input type="checkbox" class="g-cbx" ${checked > 0 && checked === total ? 'checked' : ''} onclick="event.stopPropagation();groupSel('${g.id}',this.checked)" title="Select all in group">
+      <span class="g-tag" style="color:${col};border-color:${col}">${g.typeLabel}</span>
+      <div class="g-info"><div class="g-song">${esc(song)}</div>${meta ? `<div class="g-meta">${esc(meta)}</div>` : ''}</div>
       <span class="g-cnt">${g.files.length} files</span>
       <div class="g-waste"><strong>${wasted} MB</strong>wasted</div>
-      <svg class="gchev" width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <svg class="g-chev" width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
     </div>
     <div class="gbody">${rows}</div>
   </div>`;
 }
 
-function buildFRow(f,keep){
-  const ik=f.name===keep,im=S.sel.has(f.id);
-  const pills=[
-    ik?`<span class="fpsm kp">Keep</span>`:'',
-    fmtBadge(f.ext),
-    f.bitrate?`<span class="fpsm">${f.bitrate}k</span>`:'',
-    f.durationStr?`<span class="fpsm">${f.durationStr}</span>`:'',
-    f.sampleRate?`<span class="fpsm">${(f.sampleRate/1000).toFixed(1)}kHz</span>`:'',
+function buildFileRow(f, keep) {
+  const isKeep = f.name === keep;
+  const isMarked = A.sel.has(f.id) && !isKeep;
+  const badge = fmtBadge(f.ext);
+  const pills = [
+    isKeep ? '<span class="fp2 keep">Keep</span>' : '',
+    badge,
+    f.bitrate   ? `<span class="fp2">${f.bitrate}k</span>` : '',
+    f.durationStr? `<span class="fp2">${f.durationStr}</span>` : '',
+    f.sampleRate ? `<span class="fp2">${(f.sampleRate/1000).toFixed(1)}kHz</span>` : '',
   ].filter(Boolean).join('');
-  const detail=[f.album?`Album: ${f.album}`:''].filter(Boolean).join(' · ');
-  return `<div class="frow ${ik?'kr':''} ${im&&!ik?'mr':''}" id="fr-${f.id}">
-    <input class="fchk" type="checkbox" ${ik?'disabled':''} ${im&&!ik?'checked':''} onchange="togSel(${f.id},this.checked,${ik})">
+  const detail = f.album ? `Album: ${f.album}` : '';
+  return `<div class="frow${isKeep ? ' keep' : ''}${isMarked ? ' marked' : ''}" id="fr-${f.id}">
+    <input type="checkbox" class="fchk" ${isKeep ? 'disabled' : ''} ${isMarked ? 'checked' : ''} onchange="togSel(${f.id},this.checked,${isKeep})">
     <div class="fd">
       <div class="f-nm" title="${esc(f.name)}">${esc(f.name)}</div>
-      ${detail?`<div class="f-dt">${esc(detail)}</div>`:''}
+      ${detail ? `<div class="f-detail">${esc(detail)}</div>` : ''}
       <div class="f-pills">${pills}</div>
     </div>
-    <div class="f-side">
+    <div class="fside">
       <div class="f-sz">${f.sizeMB} MB</div>
       <button class="f-cp" onclick="cp('${esc(f.name)}')">Copy</button>
     </div>
   </div>`;
 }
 
-function toggleCard(id){document.getElementById('gc-'+id)?.classList.toggle('open');}
+function toggleCard(id) { document.getElementById('gc-' + id)?.classList.toggle('open'); }
 
-/* Selection */
-function togSel(id,checked,isKeep){
-  if(isKeep)return;
-  if(checked)S.sel.add(id);else S.sel.delete(id);
-  document.getElementById('fr-'+id)?.classList.toggle('mr',checked);
-  updateAB();
-}
-function clearSel(){S.sel.clear();updateAB();renderGroups();}
-function updateAB(){
-  const bar=document.getElementById('ab'),cnt=document.getElementById('abc');
-  if(S.sel.size>0){bar.classList.add('on');cnt.textContent=S.sel.size.toLocaleString()+' file'+(S.sel.size>1?'s':'')+' selected for removal';}
-  else bar.classList.remove('on');
+function groupSel(gid, checked) {
+  const g = A.groups.find(x => x.id === gid);
+  if (!g) return;
+  g.files.forEach(f => { if (f.name !== g.keep) { if (checked) A.sel.add(f.id); else A.sel.delete(f.id); } });
+  updateActBar();
+  renderGroups();
 }
 
-/* Trash */
-function moveToTrash(){
-  if(!S.sel.size)return;
-  const ids=new Set(S.sel),add=S.files.filter(f=>ids.has(f.id)&&!S.trash.some(t=>t.id===f.id));
-  S.trash.push(...add);S.sel.clear();updateAB();
-  document.getElementById('bt').textContent=S.trash.length;
-  renderGroups();renderTrash();
-  toast(add.length+' file'+(add.length>1?'s':'')+' moved to Trash Review','ok');
+// ── Selection ────────────────────────────────────────────────────────────────
+function togSel(id, checked, isKeep) {
+  if (isKeep) return;
+  if (checked) A.sel.add(id); else A.sel.delete(id);
+  const row = document.getElementById('fr-' + id);
+  if (row) row.classList.toggle('marked', checked);
+  updateActBar();
 }
-function undoTrash(id){S.trash=S.trash.filter(f=>f.id!==id);document.getElementById('bt').textContent=S.trash.length;renderTrash();}
-function renderTrash(){
-  const el=document.getElementById('tc');
-  if(!S.trash.length){
-    el.innerHTML=`<div class="empty"><div class="e-disc"><svg viewBox="0 0 40 40" fill="none"><rect x="8" y="15" width="24" height="18" rx="2" stroke="#2a3e5e" stroke-width="1.5"/><path d="M6 15H34" stroke="#2a3e5e" stroke-width="1.5" stroke-linecap="round"/><path d="M15 15V12C15 11.4 15.4 11 16 11H24C24.6 11 25 11.4 25 12V15" stroke="#304080" stroke-width="1" stroke-linecap="round"/><path d="M16 20V28M20 20V28M24 20V28" stroke="#2a3e5e" stroke-width="1" stroke-linecap="round"/></svg></div><div class="e-title">Trash is Empty</div><div class="e-sub">Files you mark for removal appear here for final review.<br><strong>Nothing is deleted automatically.</strong></div></div>`;return;
+
+function autoSel() {
+  A.sel.clear();
+  A.groups.forEach(g => g.files.forEach(f => { if (f.name !== g.keep) A.sel.add(f.id); }));
+  updateActBar();
+}
+
+function clearSel() { A.sel.clear(); updateActBar(); renderGroups(); }
+
+function updateActBar() {
+  const bar = D['act-bar']; const cnt = D['act-cnt'];
+  if (!bar || !cnt) return;
+  if (A.sel.size > 0) {
+    bar.classList.add('on');
+    cnt.textContent = `${A.sel.size.toLocaleString()} file${A.sel.size > 1 ? 's' : ''} selected`;
+  } else {
+    bar.classList.remove('on');
   }
-  const total=S.trash.reduce((s,f)=>s+parseFloat(f.sizeMB),0).toFixed(1);
-  el.innerHTML=`
+}
+
+// ── Trash ────────────────────────────────────────────────────────────────────
+function moveToTrash() {
+  if (!A.sel.size) return;
+  const ids = new Set(A.sel);
+  const add = A.files.filter(f => ids.has(f.id) && !A.trash.some(t => t.id === f.id));
+  A.trash.push(...add);
+  A.sel.clear();
+  updateActBar();
+  if (D['tb-trash']) D['tb-trash'].textContent = A.trash.length;
+  renderGroups();
+  renderTrash();
+  toast(add.length + ' file' + (add.length > 1 ? 's' : '') + ' moved to Trash', 'ok');
+}
+
+function undoTrash(id) {
+  A.trash = A.trash.filter(f => f.id !== id);
+  if (D['tb-trash']) D['tb-trash'].textContent = A.trash.length;
+  renderTrash();
+}
+
+function clearTrash() { A.trash = []; if (D['tb-trash']) D['tb-trash'].textContent = 0; renderTrash(); }
+
+function renderTrash() {
+  const el = D['trash-list']; if (!el) return;
+  if (!A.trash.length) {
+    el.innerHTML = `<div class="empty"><div class="e-disc"><svg viewBox="0 0 40 40" fill="none"><rect x="8" y="15" width="24" height="18" rx="2" stroke="#2a3e5e" stroke-width="1.5"/><path d="M6 15H34" stroke="#2a3e5e" stroke-width="1.5" stroke-linecap="round"/><path d="M15 15V12C15 11.4 15.4 11 16 11H24C24.6 11 25 11.4 25 12V15" stroke="#304080" stroke-width="1" stroke-linecap="round"/><path d="M16 20V28M20 20V28M24 20V28" stroke="#2a3e5e" stroke-width="1" stroke-linecap="round"/></svg></div><div class="e-title">Trash is Empty</div><div class="e-sub">Files you mark for removal appear here.<br><em>Nothing is deleted automatically.</em></div></div>`;
+    return;
+  }
+  const totalMB = A.trash.reduce((s, f) => s + parseFloat(f.sizeMB || 0), 0).toFixed(1);
+  el.innerHTML = `
     <div class="th-strip">
-      <div class="th-info"><strong>${S.trash.length} file${S.trash.length>1?'s':''}</strong> · ${fmtMB(parseFloat(total))} marked for removal</div>
+      <div class="th-info"><strong>${A.trash.length} file${A.trash.length > 1 ? 's' : ''}</strong> · ${fmtMB(parseFloat(totalMB))} to remove</div>
+      <button class="th-clr" onclick="clearTrash()">Clear all</button>
       <button class="th-dl" onclick="dlList()">Download Delete List</button>
     </div>
-    <div class="warn-note"><strong>Browser Security Note:</strong> This app cannot delete files directly (read-only access). Click <em>Download Delete List</em> for a shell script, then run it in Terminal or PowerShell.</div>
-    ${S.trash.map(f=>`<div class="lrow"><div class="lrow-ic">${fmtIcon(f.ext)}</div><div class="lrow-inf"><div class="li-nm">${esc(f.name)}</div><div class="li-sub">${f.sizeMB} MB · ${(f.ext||'').toUpperCase()}</div></div><button class="f-cp" onclick="undoTrash(${f.id})" style="color:var(--orange);border-color:var(--orange);margin-top:2px">Undo</button></div>`).join('')}
-  `;
-}
-function dlList(){
-  const lines=['# MusicCleanup — Delete List',`# Generated: ${new Date().toLocaleString()}`,`# Total: ${S.trash.length} files`,'','# macOS / Linux:','',
-    ...S.trash.map(f=>`rm "${f.name}"  # ${f.sizeMB} MB`),'','# Windows PowerShell:','',
-    ...S.trash.map(f=>`Remove-Item "${f.name}"  # ${f.sizeMB} MB`),'','# File list:','',
-    ...S.trash.map(f=>f.name)];
-  const url=URL.createObjectURL(new Blob([lines.join('\n')],{type:'text/plain'}));
-  Object.assign(document.createElement('a'),{href:url,download:`musiccleanup-${Date.now()}.txt`}).click();
-  URL.revokeObjectURL(url);toast('Delete list downloaded','ok');
+    <div class="warn-note"><strong>Browser security note:</strong> This app cannot delete files directly. Download the list and run it in Terminal (macOS/Linux) or PowerShell (Windows).</div>
+    ${A.trash.map(f => `<div class="lrow"><div class="lrow-inf"><div class="li-nm">${esc(f.name)}</div><div class="li-sub">${f.sizeMB} MB · ${(f.ext||'').toUpperCase()}</div></div><button class="f-cp" onclick="undoTrash(${f.id})" style="color:var(--ora);border-color:var(--ora)">Undo</button></div>`).join('')}`;
 }
 
-/* All files */
-function renderAllFiles(){
-  const el=document.getElementById('ac'),em=document.getElementById('ae');
-  if(!S.files.length){em.style.display='flex';return;}
-  em.style.display='none';
-  const sl=S.files.slice(0,200);
-  el.innerHTML=`<div style="font-family:var(--f-mono);font-size:10px;color:var(--ash);padding:0 2px 12px;letter-spacing:.05em">Showing first ${sl.length} of ${S.files.length.toLocaleString()} audio files</div>`+
-    sl.map(f=>`<div class="lrow"><div class="lrow-ic">${fmtIcon(f.ext)}</div><div class="lrow-inf"><div class="li-nm">${esc(f.name)}</div><div class="li-sub">${[f.title&&f.artist?`${f.artist} — ${f.title}`:'',f.durationStr||'',f.bitrate?f.bitrate+'kbps':''].filter(Boolean).join(' · ')}</div></div><div class="lrow-sz">${f.sizeMB} MB</div></div>`).join('');
+function dlList() {
+  const lines = [
+    `# MusicCleanup — Delete List`, `# Generated: ${new Date().toLocaleString()}`,
+    `# Total: ${A.trash.length} files`, ``,
+    `# macOS / Linux:`, ...A.trash.map(f => `rm "${f.name}"  # ${f.sizeMB} MB`), ``,
+    `# Windows PowerShell:`, ...A.trash.map(f => `Remove-Item "${f.name}"  # ${f.sizeMB} MB`), ``,
+    `# File list:`, ...A.trash.map(f => f.name),
+  ];
+  const url = URL.createObjectURL(new Blob([lines.join('\n')], { type:'text/plain' }));
+  Object.assign(document.createElement('a'), { href:url, download:`musiccleanup-${Date.now()}.txt` }).click();
+  URL.revokeObjectURL(url);
+  toast('Delete list downloaded', 'ok');
 }
 
-/* Corrupt */
-function renderCorrupt(){
-  const el=document.getElementById('cc'),em=document.getElementById('ce');
-  if(!S.corrupt.length){em.style.display='flex';return;}
-  em.style.display='none';
-  el.innerHTML=S.corrupt.map(f=>`<div class="lrow"><div class="lrow-ic"><svg class="warn-svg" viewBox="0 0 16 16" fill="none"><path d="M8 2L14.5 14H1.5L8 2Z" stroke="#e04868" stroke-width="1.5" stroke-linejoin="round"/><path d="M8 6.5V9.5" stroke="#e04868" stroke-width="1.5" stroke-linecap="round"/><circle cx="8" cy="11.5" r="0.75" fill="#e04868"/></svg></div><div class="lrow-inf"><div class="li-nm">${esc(f.name)}</div><div class="li-err">${esc(f.errorMsg||'Unreadable')}</div></div><div class="lrow-sz">${f.sizeMB} MB</div></div>`).join('');
+// ── All files ────────────────────────────────────────────────────────────────
+function renderAllFiles() {
+  const el = D['all-list']; if (!el) return;
+  const sl = A.files.slice(0, 200);
+  if (!sl.length) { el.innerHTML = ''; return; }
+  el.innerHTML = `<div style="font-family:var(--fm);font-size:9.5px;color:var(--fa);padding:0 2px 10px">Showing first ${sl.length} of ${A.files.length.toLocaleString()} files</div>` +
+    sl.map(f => `<div class="lrow">${fmtBadge(f.ext)}<div class="lrow-inf"><div class="li-nm">${esc(f.name)}</div><div class="li-sub">${[f.artist&&f.title?`${f.artist} — ${f.title}`:'',f.durationStr,f.bitrate?f.bitrate+'kbps':''].filter(Boolean).join(' · ')}</div></div><div class="lrow-sz">${f.sizeMB} MB</div></div>`).join('');
 }
 
-/* Pager */
-function renderPager(cur,total){
-  const el=document.getElementById('pg');if(total<=1){el.innerHTML='';return;}
-  const lo=Math.max(1,cur-2),hi=Math.min(total,cur+2);
-  let h=`<button class="pbn" onclick="gp(${cur-1})" ${cur<=1?'disabled':''}>‹</button>`;
-  if(lo>1)h+=`<button class="pbn" onclick="gp(1)">1</button>`;
-  if(lo>2)h+=`<span class="pdot">…</span>`;
-  for(let p=lo;p<=hi;p++)h+=`<button class="pbn ${p===cur?'on':''}" onclick="gp(${p})">${p}</button>`;
-  if(hi<total-1)h+=`<span class="pdot">…</span>`;
-  if(hi<total)h+=`<button class="pbn" onclick="gp(${total})">${total}</button>`;
-  h+=`<button class="pbn" onclick="gp(${cur+1})" ${cur>=total?'disabled':''}>›</button>`;
-  el.innerHTML=h;
+// ── Corrupt files ────────────────────────────────────────────────────────────
+function renderCorrupt() {
+  const el = D['corrupt-list']; if (!el) return;
+  if (!A.corrupt.length) { el.innerHTML = ''; return; }
+  el.innerHTML = A.corrupt.map(f => `<div class="lrow"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" style="flex-shrink:0;color:var(--red)"><path d="M8 2L14.5 14H1.5L8 2Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><path d="M8 6.5V9.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><circle cx="8" cy="11.5" r=".7" fill="currentColor"/></svg><div class="lrow-inf"><div class="li-nm">${esc(f.name)}</div><div class="li-err">${esc(f.errorMsg||'Unreadable')}</div></div><div class="lrow-sz">${f.sizeMB} MB</div></div>`).join('');
 }
-function gp(p){const g=getFS(),max=Math.max(1,Math.ceil(g.length/S.pp));if(p<1||p>max)return;S.page=p;renderGroups();document.getElementById('tab-dup').scrollTo({top:0,behavior:'smooth'});}
 
-/* Tabs — now side-tabs in sidebar footer */
-function setupTabs(){
-  document.querySelectorAll('.stab').forEach(t=>t.addEventListener('click',()=>{
-    if(S.appState!=='results')return;
-    const n=t.dataset.tab;
-    document.querySelectorAll('.stab').forEach(x=>x.classList.toggle('on',x.dataset.tab===n));
-    ['dup','all','corrupt','trash'].forEach(x=>{
-      const el=document.getElementById('tab-'+x);
-      if(el)el.style.display=x===n?'block':'none';
+// ── Pager ────────────────────────────────────────────────────────────────────
+function renderPager(cur, total) {
+  const el = D['pg']; if (!el) return;
+  if (total <= 1) { el.innerHTML = ''; return; }
+  const lo = Math.max(1, cur - 2), hi = Math.min(total, cur + 2);
+  let h = `<button class="pbn" onclick="gp(${cur-1})" ${cur<=1?'disabled':''}>‹</button>`;
+  if (lo > 1) h += `<button class="pbn" onclick="gp(1)">1</button>`;
+  if (lo > 2) h += `<span class="pdot">…</span>`;
+  for (let p = lo; p <= hi; p++) h += `<button class="pbn ${p===cur?'on':''}" onclick="gp(${p})">${p}</button>`;
+  if (hi < total - 1) h += `<span class="pdot">…</span>`;
+  if (hi < total) h += `<button class="pbn" onclick="gp(${total})">${total}</button>`;
+  h += `<button class="pbn" onclick="gp(${cur+1})" ${cur>=total?'disabled':''}>›</button>`;
+  el.innerHTML = h;
+}
+function gp(p) {
+  const g = getFiltered(), max = Math.max(1, Math.ceil(g.length / A.PP));
+  if (p < 1 || p > max) return;
+  A.page = p;
+  renderGroups();
+  D['tab-dup']?.scrollTo({ top:0, behavior:'smooth' });
+}
+
+// ── Tabs ─────────────────────────────────────────────────────────────────────
+function initTabs() {
+  document.querySelectorAll('.stab').forEach(t => {
+    t.addEventListener('click', () => {
+      if (A.state !== 'results') return;
+      const n = t.dataset.tab;
+      document.querySelectorAll('.stab').forEach(x => x.classList.toggle('on', x.dataset.tab === n));
+      ['dup','all','corrupt','trash'].forEach(x => {
+        const el = document.getElementById('tab-' + x);
+        if (el) el.style.display = x === n ? 'block' : 'none';
+      });
+      if (n === 'trash') renderTrash();
     });
-    if(n==='trash')renderTrash();
-  }));
-}
-
-/* Filter pills */
-function setupFPs(){
-  document.getElementById('fps').addEventListener('click',e=>{
-    const p=e.target.closest('.fp');if(!p)return;
-    document.querySelectorAll('.fp').forEach(x=>x.classList.remove('on'));
-    p.classList.add('on');S.filter=p.dataset.t;S.page=1;renderGroups();
   });
 }
 
-/* PWA + Update system */
-function setupPWA(){
-  if(!('serviceWorker' in navigator))return;
+// ── Filter / sort ────────────────────────────────────────────────────────────
+function initFilters() {
+  D['fps']?.addEventListener('click', e => {
+    const p = e.target.closest('.fp'); if (!p) return;
+    document.querySelectorAll('.fp').forEach(x => x.classList.remove('on'));
+    p.classList.add('on');
+    A.filter = p.dataset.t; A.page = 1; renderGroups();
+  });
+  D['sort']?.addEventListener('change', e => { A.sort = e.target.value; A.page = 1; renderGroups(); });
+  D['opt-expand']?.addEventListener('change', () => { if (A.groups.length) renderGroups(); });
+}
 
-  navigator.serviceWorker.register('service-worker.js').then(reg=>{
+// ── Search ───────────────────────────────────────────────────────────────────
+function initSearch() {
+  D['search-inp']?.addEventListener('input', e => { A.search = e.target.value.trim().toLowerCase(); A.page = 1; renderGroups(); });
+}
 
-    // New SW waiting = update available
-    if(reg.waiting)showUpdateBanner(reg.waiting);
+// ── Keyboard ─────────────────────────────────────────────────────────────────
+function initKbd() {
+  document.addEventListener('keydown', e => {
+    const inp = document.activeElement;
+    const typing = inp && (inp.tagName === 'INPUT' || inp.tagName === 'SELECT' || inp.tagName === 'TEXTAREA');
+    const mod = e.metaKey || e.ctrlKey;
+    if (mod && e.key === 'k') { e.preventDefault(); D['search-inp']?.focus(); }
+    if (mod && !typing) {
+      if (e.key === 'a') { e.preventDefault(); if (A.groups.length) { autoSel(); renderGroups(); } }
+      if (e.key === 'e') { e.preventDefault(); toggleAllCards(); }
+      if (e.key === 'Backspace' || e.key === 'Delete') { e.preventDefault(); if (A.sel.size) moveToTrash(); }
+      if (e.key === 'r') { e.preventDefault(); doRescan(); }
+    }
+  });
+}
 
-    // SW found during page load
-    reg.addEventListener('updatefound',()=>{
-      const newSW=reg.installing;
-      newSW.addEventListener('statechange',()=>{
-        if(newSW.state==='installed'&&navigator.serviceWorker.controller){
-          showUpdateBanner(newSW);
-        }
+function toggleAllCards() {
+  const open = document.querySelectorAll('.gcard.open').length;
+  document.querySelectorAll('.gcard').forEach(c => c.classList.toggle('open', !open));
+}
+
+// ── Format badges ────────────────────────────────────────────────────────────
+const LOSSLESS  = new Set(['flac','wav','aiff','aif','wv','ape','dsf','dsd']);
+const LOSSY     = new Set(['mp3','aac','ogg','oga','opus','wma','mpc','spx']);
+const CONTAINER = new Set(['m4a','m4b','m4p','mp4']);
+
+function fmtBadge(ext) {
+  const cls = LOSSLESS.has(ext) ? 'fl' : CONTAINER.has(ext) ? 'co' : LOSSY.has(ext) ? 'lo' : '';
+  const icon = LOSSLESS.has(ext)
+    ? '<path d="M1 3.5h6M4 1v5.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>'
+    : CONTAINER.has(ext)
+    ? '<rect x=".5" y="1" width="6" height="5" rx="1" stroke="currentColor" stroke-width="1"/>'
+    : '<circle cx="3.5" cy="3.5" r="2.5" stroke="currentColor" stroke-width="1"/><circle cx="3.5" cy="3.5" r="1" fill="currentColor"/>';
+  return `<span class="fp2 ${cls}" style="display:inline-flex;align-items:center;gap:2px;height:17px;padding:0 5px;vertical-align:middle"><svg viewBox="0 0 7 7" fill="none" width="7" height="7">${icon}</svg>${(ext||'?').toUpperCase()}</span>`;
+}
+
+// ── PWA / Service Worker ─────────────────────────────────────────────────────
+function initPWA() {
+  if (!('serviceWorker' in navigator)) return;
+
+  navigator.serviceWorker.register('service-worker.js').then(reg => {
+    if (reg.waiting) showUpdateBanner(reg.waiting);
+    reg.addEventListener('updatefound', () => {
+      const sw = reg.installing;
+      sw.addEventListener('statechange', () => {
+        if (sw.state === 'installed' && navigator.serviceWorker.controller) showUpdateBanner(sw);
       });
     });
+    setInterval(() => reg.update(), 60000);
+  }).catch(() => {});
 
-    // Periodically check for updates (every 60s)
-    setInterval(()=>reg.update(),60000);
-
-  }).catch(()=>{});
-
-  // After SW activates (post-reload), detect fresh install and toast
-  navigator.serviceWorker.addEventListener('controllerchange',()=>{
-    if(S._reloading)return;
-    S._reloading=true;
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (A.reloading) return;
+    A.reloading = true;
     window.location.reload();
   });
 
-  // SW posted SW_ACTIVATED → show "Updated to vX.X" toast
-  navigator.serviceWorker.addEventListener('message',e=>{
-    if(e.data&&e.data.type==='SW_ACTIVATED'){
-      const prev=sessionStorage.getItem('mc-prev-version');
-      const next=e.data.version||'';
-      if(prev&&prev!==next){
-        toast(`Updated to v${next} — click What's New to see changes`,'ok',6000);
-      }
-      sessionStorage.setItem('mc-prev-version',next);
+  navigator.serviceWorker.addEventListener('message', e => {
+    if (e.data?.type === 'SW_ACTIVATED') {
+      const prev = sessionStorage.getItem('mc-ver');
+      if (prev && prev !== (e.data.version || '')) toast(`Updated to v${e.data.version} — see What's New`, 'ok', 6000);
+      sessionStorage.setItem('mc-ver', e.data.version || APP_VERSION);
     }
   });
 
-  // Record current version for comparison after reload
-  if(!sessionStorage.getItem('mc-prev-version')){
-    sessionStorage.setItem('mc-prev-version',APP_VERSION);
-  }
+  if (!sessionStorage.getItem('mc-ver')) sessionStorage.setItem('mc-ver', APP_VERSION);
 
-  // Install prompt
-  window.addEventListener('beforeinstallprompt',e=>{
-    e.preventDefault();S.deferInstall=e;document.getElementById('ib').classList.add('on');
+  window.addEventListener('beforeinstallprompt', e => {
+    e.preventDefault(); A.deferInst = e;
+    D['ib']?.classList.add('on');
   });
-  document.getElementById('ib-btn').addEventListener('click',async()=>{
-    if(!S.deferInstall)return;
-    S.deferInstall.prompt();
-    const{outcome}=await S.deferInstall.userChoice;
-    if(outcome==='accepted'){document.getElementById('ib').classList.remove('on');toast('App installed!','ok');}
-    S.deferInstall=null;
+  D['ib-btn']?.addEventListener('click', async () => {
+    if (!A.deferInst) return;
+    A.deferInst.prompt();
+    const { outcome } = await A.deferInst.userChoice;
+    if (outcome === 'accepted') { D['ib']?.classList.remove('on'); toast('App installed!', 'ok'); }
+    A.deferInst = null;
   });
 }
 
-/* Update banner */
-let _waitingSW=null;
-function showUpdateBanner(sw){
-  _waitingSW=sw;
-  const banner=document.getElementById('upd-banner');
-  const vEl=document.getElementById('upd-version');
-  banner.classList.add('on');
-  // Try to extract version from cache name if possible
-  if(vEl)vEl.textContent='Update ready';
-}
-function dismissUpdate(){
-  document.getElementById('upd-banner').classList.remove('on');
-}
-function applyUpdate(){
-  if(!_waitingSW)return;
-  const btn=document.getElementById('upd-now');
-  btn.classList.add('loading');
-  btn.innerHTML='<span class="upd-spinner" id="upd-spinner" style="display:block"></span> Updating…';
-  _waitingSW.postMessage({type:'SKIP_WAITING'});
-  // controllerchange event fires → page reloads automatically
-  setTimeout(()=>{
-    // Fallback reload if controllerchange didn't fire
-    window.location.reload();
-  },2500);
+function showUpdateBanner(sw) {
+  A.waitingSW = sw;
+  D['upd']?.classList.add('on');
 }
 
-/* Helpers */
-function setSBtn(scanning){
-  const b=document.getElementById('scan-btn');b.classList.toggle('cancelling',scanning);
-  b.innerHTML=scanning?'<span class="spin">↻</span> Cancel Scan':'<svg width="13" height="13" viewBox="0 0 16 16" fill="currentColor"><path d="M11.742 10.344a6.5 6.5 0 10-1.397 1.398h.001l3.85 3.85a1 1 0 001.414-1.414l-3.85-3.85a6.5 6.5 0 00-1.398-1.397zm-5.242.656a5.5 5.5 0 100-11 5.5 5.5 0 000 11z"/></svg> Scan Library';
-  document.getElementById('pl').classList.toggle('on',false);
-}
-function resetUI(){
-  document.getElementById('rh').classList.remove('on');
-  document.getElementById('stats').style.display='none';
-  document.getElementById('filters').style.display='none';
-  const ssb=document.getElementById('s-search-blk');if(ssb)ssb.style.display='none';
-  const rb=document.getElementById('rescan-btn');if(rb)rb.style.display='none';
-  document.getElementById('gc').innerHTML='';
-  ['bd','ba','bc','bt'].forEach(id=>document.getElementById(id).textContent='0');
-  document.getElementById('de').style.display='flex';
-  document.getElementById('de').querySelector('.e-title').textContent='Scanning…';
-}
-function fmt(n){return Number(n).toLocaleString();}
-function fmtMB(mb){return mb>=1024?(mb/1024).toFixed(2)+' GB':mb.toFixed(0)+' MB';}
-function fmtBadge(e){
-  const lo=new Set(['flac','wav','aiff','aif','wv','ape','dsf','dsd']);
-  const ly=new Set(['mp3','aac','ogg','oga','opus','wma','mpc','spx','tta']);
-  const co=new Set(['m4a','m4b','m4p','mp4']);
-  const cls=lo.has(e)?'fmt-lossless':ly.has(e)?'fmt-lossy':co.has(e)?'fmt-container':'fmt-default';
-  const lo_ic='<path d="M1 3.5h6M4 1v5.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>';
-  const ly_ic='<circle cx="3.5" cy="3.5" r="2.5" stroke="currentColor" stroke-width="1"/><circle cx="3.5" cy="3.5" r="1" fill="currentColor"/>';
-  const co_ic='<rect x=".5" y="1" width="6" height="5" rx="1" stroke="currentColor" stroke-width="1"/>';
-  const ic=lo.has(e)?lo_ic:ly.has(e)||co.has(e)?co.has(e)?co_ic:ly_ic:ly_ic;
-  return `<span class="fmt-badge ${cls}"><svg viewBox="0 0 7 7" fill="none">${ic}</svg>${e.toUpperCase()}</span>`;
-}
-function fmtIcon(e){return fmtBadge(e);}
-function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
-function cp(name){navigator.clipboard.writeText(name).then(()=>toast('Copied','info')).catch(()=>{});}
-function toast(msg,type='info',ms=4000){
-  const el=Object.assign(document.createElement('div'),{className:'toast '+type,textContent:msg});
-  document.getElementById('toasts').appendChild(el);setTimeout(()=>el.remove(),ms);
+document.getElementById('upd-later')?.addEventListener('click', () => D['upd']?.classList.remove('on'));
+document.getElementById('upd-now')?.addEventListener('click', () => {
+  const btn = document.getElementById('upd-now');
+  if (btn) { btn.disabled = true; btn.innerHTML = '<span class="spin">↻</span> Updating…'; }
+  A.waitingSW?.postMessage({ type: 'SKIP_WAITING' });
+  setTimeout(() => window.location.reload(), 2500);
+});
+
+// ── Helpers ──────────────────────────────────────────────────────────────────
+function fmt(n) { return Number(n || 0).toLocaleString(); }
+function fmtMB(mb) { return mb >= 1024 ? (mb / 1024).toFixed(2) + ' GB' : Math.round(mb) + ' MB'; }
+function esc(s) { return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function cp(name) { navigator.clipboard.writeText(name).then(() => toast('Copied', 'info')).catch(() => {}); }
+function toast(msg, type = 'info', ms = 4000) {
+  const el = Object.assign(document.createElement('div'), { className:'toast ' + type, textContent: msg });
+  document.getElementById('toasts')?.appendChild(el);
+  setTimeout(() => el.remove(), ms);
 }
 
-/* ── How-to guide ─────────────────────────────────────────────────────────── */
-function showGuide(){
-  // If in results/scan state, switch back to idle to show guide
-  if(S.appState!=='idle'){
-    // Show a brief guide modal overlay instead of switching state
-    const existing=document.getElementById('guide-overlay');
-    if(existing){existing.classList.toggle('on');return;}
-    const ov=document.createElement('div');
-    ov.id='guide-overlay';
-    ov.style.cssText='position:fixed;inset:0;background:rgba(8,12,20,.88);z-index:9000;display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(2px)';
-    ov.innerHTML=`<div style="background:var(--ink1);border:1px solid var(--line2);border-radius:12px;max-width:520px;width:100%;max-height:85vh;display:flex;flex-direction:column;overflow:hidden">
-      <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--line)">
-        <div>
-          <div style="font-size:14px;font-weight:800;color:var(--paper)">How to use MusicCleanup</div>
-          <div style="font-family:var(--f-mono);font-size:9px;color:var(--ash);margin-top:2px">6 steps · all processing is local</div>
-        </div>
-        <button onclick="document.getElementById('guide-overlay').classList.remove('on')" style="background:none;border:none;color:var(--ash);font-size:18px;cursor:pointer;padding:4px 8px;line-height:1">×</button>
-      </div>
-      <div style="overflow-y:auto;padding:16px 20px" id="guide-overlay-body"></div>
-    </div>`;
-    document.body.appendChild(ov);
-    // Clone guide steps into overlay
-    const src=document.getElementById('guide-steps');
-    const dest=document.getElementById('guide-overlay-body');
-    if(src&&dest){dest.innerHTML=src.innerHTML;}
-    ov.classList.add('on');
-    ov.addEventListener('click',e=>{if(e.target===ov)ov.classList.remove('on');});
-  } else {
-    // Already in idle — scroll guide into view
-    document.getElementById('guide-steps')?.scrollIntoView({behavior:'smooth',block:'start'});
+// ── Scan button ──────────────────────────────────────────────────────────────
+document.getElementById('scan-btn')?.addEventListener('click', () => {
+  if (A.scanning) cancelScan(); else doScan();
+});
+
+// ── Boot ─────────────────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  if (!('showDirectoryPicker' in window)) {
+    document.getElementById('co')?.classList.add('on');
+    return;
   }
-}
+  cacheDOM();
+  initWorker();
+  initDrop();
+  initTabs();
+  initFilters();
+  initSearch();
+  initKbd();
+  initPWA();
 
-/* Mark step N as active (1-indexed) */
-function setGuideStep(n){
-  for(let i=1;i<=6;i++){
-    const el=document.getElementById('gs-'+i);
-    if(!el)continue;
-    el.classList.remove('active','done');
-    if(i<n)el.classList.add('done');
-    else if(i===n)el.classList.add('active');
-  }
-}
+  // Initial state
+  switchState('idle');
 
-/* Auto-progress guide when folder is selected */
-
-// Guide step sync handled inside setDir
+  // What's New body (pre-populate)
+  openWN(); closeWN(); // populate wn-body silently
+});
 </script>
 </body>
 </html>
