@@ -240,18 +240,25 @@ body::before {
 .ps.done .ps-lb { color:var(--green); }
 .pb-msg { font-family:var(--f-mono); font-size:10px; color:var(--ash); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 
-/* Stats */
-.stat-grid { display:grid; grid-template-columns:1fr 1fr; gap:6px; }
+/* Stats strip — 3-col horizontal */
+.stat-strip { display:grid; grid-template-columns:1fr 1fr 1fr; gap:4px; }
 .stat-card {
-  background:var(--ink2); border:1px solid var(--line); border-radius:var(--r); padding:10px 12px;
+  background:var(--ink2); border:1px solid var(--line); border-radius:var(--r);
+  padding:9px 8px; text-align:center; position:relative; overflow:hidden;
   transition:border-color var(--tr);
 }
 .stat-card:hover { border-color:var(--line2); }
-.stat-n { font-size:22px; font-weight:800; line-height:1; letter-spacing:-.01em; color:var(--paper); }
+.stat-card::before { content:''; position:absolute; left:0; top:0; bottom:0; width:2px; border-radius:0; }
+.stat-card.a::before { background:var(--accent); }
+.stat-card.r::before { background:var(--red); }
+.stat-card.g::before { background:var(--green); }
+.stat-n { font-size:17px; font-weight:800; line-height:1; letter-spacing:-.01em; color:var(--paper); }
 .stat-n.a { color:var(--accent); }
 .stat-n.r { color:var(--red); }
 .stat-n.g { color:var(--green); }
-.stat-l { font-family:var(--f-mono); font-size:9px; letter-spacing:.1em; text-transform:uppercase; color:var(--ash); margin-top:4px; }
+.stat-l { font-family:var(--f-mono); font-size:7.5px; letter-spacing:.09em; text-transform:uppercase; color:var(--ash); margin-top:3px; }
+/* Legacy stat-grid alias */
+.stat-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:4px; }
 
 /* Live feed */
 .feed-wrap { margin-top:4px; }
@@ -306,26 +313,10 @@ body::before {
 /* ── Main panel ──────────────────────────────────────────────────────────── */
 .main { display:flex; flex-direction:column; overflow:hidden; background:var(--ink); }
 
-/* Tab bar */
-.tab-bar {
-  display:flex; align-items:stretch; padding:0 22px;
-  background:var(--ink1); border-bottom:1px solid var(--line); flex-shrink:0;
-}
-.tab {
-  padding:0 15px; height:48px; display:flex; align-items:center; gap:7px;
-  font-size:13px; font-weight:600; letter-spacing:.01em; color:var(--ash);
-  cursor:pointer; border-bottom:2px solid transparent; transition:all var(--tr);
-  white-space:nowrap; margin-bottom:-1px;
-}
-.tab:hover { color:var(--paper2); }
-.tab.on    { color:var(--paper); border-bottom-color:var(--accent); }
-.tbadge {
-  font-family:var(--f-mono); font-size:9px; letter-spacing:.06em;
-  padding:2px 6px; border-radius:20px;
-  background:var(--ink3); border:1px solid var(--line2); color:var(--ash);
-  min-width:22px; text-align:center;
-}
-.tab.on .tbadge { background:var(--accent-dim); border-color:var(--accent); color:var(--accent); }
+/* Tab bar — hidden, replaced by side-tabs in sidebar */
+.tab-bar { display:none; }
+.tab { display:none; }
+.tbadge { display:none; }
 
 /* Content */
 .content { flex:1; overflow-y:auto; padding:20px 22px; }
@@ -644,6 +635,109 @@ body::before {
 
 /* ── Warning SVG icon ───────────────────────────────────────────────────── */
 .warn-svg { width:15px; height:15px; flex-shrink:0; }
+
+/* ── Search bar ─────────────────────────────────────────────────────────── */
+.s-search {
+  display:flex; align-items:center; gap:7px; padding:7px 10px;
+  background:var(--ink2); border:1px solid var(--line2); border-radius:var(--r);
+  transition:border-color var(--tr);
+}
+.s-search:focus-within { border-color:var(--accent); }
+.s-search-ic { flex-shrink:0; color:var(--ash); }
+.s-search input {
+  background:none; border:none; outline:none; font-family:var(--f-mono);
+  font-size:11px; color:var(--paper2); width:100%; min-width:0;
+}
+.s-search input::placeholder { color:var(--ash); }
+.s-search-kbd {
+  font-family:var(--f-mono); font-size:8.5px; color:var(--ash);
+  padding:1px 5px; background:var(--ink3); border:1px solid var(--line2);
+  border-radius:2px; flex-shrink:0;
+}
+
+/* ── Sidebar secondary nav tabs (bottom of sidebar) ─────────────────────── */
+.side-tabs {
+  display:flex; border-bottom:none;
+  background:var(--ink2); border-top:1px solid var(--line);
+}
+.stab {
+  flex:1; padding:9px 4px; font-size:11px; font-weight:700;
+  color:var(--ash); text-align:center; cursor:pointer;
+  border-top:2px solid transparent; transition:all var(--tr);
+  white-space:nowrap; display:flex; align-items:center; justify-content:center; gap:4px;
+}
+.stab:hover { color:var(--paper2); }
+.stab.on { color:var(--paper); border-top-color:var(--accent); }
+.stab-b {
+  font-family:var(--f-mono); font-size:8px; padding:1px 5px;
+  border-radius:10px; background:var(--ink3); border:1px solid var(--line2);
+  color:var(--ash); min-width:18px; text-align:center;
+}
+.stab.on .stab-b { background:var(--accent-dim); border-color:var(--accent); color:var(--accent); }
+
+/* ── Privacy footer (inside s-footer, above side-tabs) ──────────────────── */
+.priv-inner {
+  padding:12px 18px; font-family:var(--f-mono); font-size:9.5px;
+  color:var(--ash); line-height:1.65; border-bottom:1px solid var(--line);
+}
+.priv-inner strong { color:var(--paper3); font-weight:500; }
+
+/* ── Scan state main panel ───────────────────────────────────────────────── */
+.scan-main {
+  display:none; flex:1; flex-direction:column; overflow:hidden;
+}
+.scan-main.on { display:flex; }
+.scan-progress {
+  padding:16px 20px; border-bottom:1px solid var(--line);
+  background:var(--ink1); flex-shrink:0;
+}
+.sp-head { display:flex; align-items:baseline; justify-content:space-between; margin-bottom:10px; }
+.sp-title { font-size:14px; font-weight:700; color:var(--paper2); }
+.sp-pct { font-family:var(--f-mono); font-size:15px; color:var(--accent); }
+.feed-panel { flex:1; overflow:hidden; padding:14px 20px; display:flex; flex-direction:column; gap:10px; }
+.feed-head { display:flex; align-items:center; justify-content:space-between; }
+.feed-head-lbl { font-family:var(--f-mono); font-size:9px; letter-spacing:.16em; text-transform:uppercase; color:var(--ash); }
+.feed-dup-count { font-family:var(--f-mono); font-size:10px; color:var(--red); }
+#feed-list { display:flex; flex-direction:column; gap:2px; overflow:hidden; }
+
+/* ── Hero idle panel ─────────────────────────────────────────────────────── */
+.hero-panel { display:flex; flex-direction:column; overflow:hidden; flex:1; }
+.hero-area {
+  flex:1; display:flex; flex-direction:column; align-items:center;
+  justify-content:center; gap:0; padding:30px; position:relative; overflow:hidden;
+}
+.hero-rings {
+  position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+  pointer-events:none; opacity:.035;
+}
+.hero-content { position:relative; z-index:1; text-align:center; }
+.hero-disc {
+  width:72px; height:72px; border-radius:50%; margin:0 auto 18px;
+  border:1.5px solid var(--line2); background:var(--ink1);
+  display:flex; align-items:center; justify-content:center;
+}
+.hero-h { font-size:18px; font-weight:700; color:var(--paper3); letter-spacing:-.01em; margin-bottom:7px; }
+.hero-sub { font-family:var(--f-mono); font-size:10.5px; color:var(--ash); line-height:1.7; max-width:280px; }
+.hero-sub em { color:var(--accent); font-style:normal; }
+.hints-strip {
+  display:flex; gap:0; padding:0; background:var(--ink1);
+  border-top:1px solid var(--line); flex-shrink:0;
+}
+.hint {
+  flex:1; padding:12px 10px; text-align:center;
+  border-right:1px solid var(--line);
+}
+.hint:last-child { border-right:none; }
+.hint-n { font-size:17px; font-weight:800; color:var(--accent); line-height:1; }
+.hint-l { font-family:var(--f-mono); font-size:8px; letter-spacing:.09em; text-transform:uppercase; color:var(--ash); margin-top:4px; }
+
+/* ── Results tab panel (was main, now no top tab-bar) ────────────────────── */
+.results-panel { display:none; flex:1; flex-direction:column; overflow:hidden; }
+.results-panel.on { display:flex; }
+
+/* ── Filter + sort combined in one s-cblk ─────────────────────────────────── */
+.filter-sort-row { display:flex; gap:5px; align-items:center; margin-top:9px; }
+.filter-sort-row .s-sel { flex:1; }
 </style>
 </head>
 <body>
@@ -679,14 +773,14 @@ body::before {
       </div>
       <div class="logo-words">
         <div class="logo-name">Music<em>Cleanup</em></div>
-        <div class="logo-tag">Duplicate Detector · v2.0</div>
+        <div class="logo-tag">Duplicate Detector · v3.0</div>
       </div>
     </div>
     <div class="h-div"></div>
     <div class="h-pill"><div class="h-dot"></div>Client-Only · 100% Private</div>
-    <button class="h-ver" onclick="document.getElementById('wn-overlay').classList.add('on')" title="What's new in v2.0">
+    <button class="h-ver" onclick="document.getElementById('wn-overlay').classList.add('on')" title="What's new in v3.0">
       <div class="h-ver-dot"></div>
-      v2.0 · What's New
+      v3.0 · What's New
     </button>
     <div class="h-sep"></div>
     <div class="h-count" id="hc"></div>
@@ -695,7 +789,8 @@ body::before {
   <div class="body">
     <aside class="sidebar">
 
-      <div class="s-blk">
+      <!-- Zone 1: PRIMARY — folder picker + scan button -->
+      <div class="s-primary">
         <div class="s-eye">Music Folder</div>
         <div class="drop" id="dz" onclick="pickDir()">
           <div class="drop-disc" id="dd"></div>
@@ -703,90 +798,146 @@ body::before {
           <div class="drop-sub">Click to browse, or drag &amp; drop a folder<br><strong>All processing stays on your device</strong></div>
         </div>
         <div class="folder-chip" id="fc"></div>
-      </div>
-
-      <div class="s-blk">
-        <div class="s-eye">Options</div>
-        <div class="opt-row">
-          <div><div class="opt-lbl">Auto-select duplicates</div><div class="opt-dsc">Pre-check non-recommended copies</div></div>
-          <label class="tog"><input type="checkbox" id="autosel" checked><span class="tog-bg"></span><span class="tog-dot"></span></label>
-        </div>
-        <div class="opt-row">
-          <div><div class="opt-lbl">Expand groups on load</div><div class="opt-dsc">Show all files open by default</div></div>
-          <label class="tog"><input type="checkbox" id="expandall"><span class="tog-bg"></span><span class="tog-dot"></span></label>
-        </div>
-      </div>
-
-      <div class="s-blk">
-        <button class="scan-btn" id="scan-btn" disabled>
+        <button class="scan-btn" id="scan-btn" disabled style="margin-top:12px">
           <svg width="13" height="13" viewBox="0 0 16 16" fill="currentColor"><path d="M11.742 10.344a6.5 6.5 0 10-1.397 1.398h.001l3.85 3.85a1 1 0 001.414-1.414l-3.85-3.85a6.5 6.5 0 00-1.398-1.397zm-5.242.656a5.5 5.5 0 100-11 5.5 5.5 0 000 11z"/></svg>
           Scan Library
         </button>
-        <div class="pipeline" id="pl">
-          <div class="pb-wrap"><div class="pb-fill" id="pbf"></div></div>
-          <div class="ps-row">
-            <div class="ps" id="ps0">
-              <div class="ps-icon"><div class="ps-wait"></div></div>
-              <div class="ps-lb">Index</div>
-            </div>
-            <div class="ps" id="ps1">
-              <div class="ps-icon"><div class="ps-wait"></div></div>
-              <div class="ps-lb">Meta</div>
-            </div>
-            <div class="ps" id="ps2">
-              <div class="ps-icon"><div class="ps-wait"></div></div>
-              <div class="ps-lb">Hash</div>
-            </div>
-            <div class="ps" id="ps3">
-              <div class="ps-icon"><div class="ps-wait"></div></div>
-              <div class="ps-lb">Dedup</div>
-            </div>
+        
+      </div>
+
+      <!-- Zone 2: CONFIG — scrollable, hidden until needed -->
+      <div class="s-config" id="s-config">
+
+        <!-- Stats strip (3-col, shown after scan) -->
+        <div class="s-cblk" id="stats" style="display:none">
+          <div class="s-eye">Results</div>
+          <div class="stat-strip">
+            <div class="stat-card g"><div class="stat-n g" id="st2">—</div><div class="stat-l">Reclaim</div></div>
+            <div class="stat-card r"><div class="stat-n r" id="st1">—</div><div class="stat-l">Groups</div></div>
+            <div class="stat-card a"><div class="stat-n a" id="st3">—</div><div class="stat-l">Remove</div></div>
           </div>
-          <div class="pb-msg" id="pbm">Initializing…</div>
+          <div style="margin-top:6px;font-family:var(--f-mono);font-size:9px;color:var(--ash)" id="st-files"></div>
         </div>
+
+        <!-- Search bar (shown after scan) -->
+        <div class="s-cblk" id="s-search-blk" style="display:none">
+          <div class="s-search">
+            <svg class="s-search-ic" width="12" height="12" viewBox="0 0 16 16" fill="none"><circle cx="6.5" cy="6.5" r="5" stroke="currentColor" stroke-width="1.4"/><path d="M10.5 10.5L14 14" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+            <input id="search-inp" type="text" placeholder="Artist, album, filename…" oninput="onSearch(this.value)">
+            <span class="s-search-kbd">⌘K</span>
+          </div>
+        </div>
+
+        <!-- Filter + sort combined (shown after scan) -->
+        <div class="s-cblk" id="filters" style="display:none">
+          <div class="s-eye">Filter</div>
+          <div class="fstrip" id="fps">
+            <div class="fp on" data-t="all">All</div>
+            <div class="fp" data-t="exact_file"     style="color:var(--red)">Exact</div>
+            <div class="fp" data-t="exact_audio"    style="color:var(--orange)">Audio</div>
+            <div class="fp" data-t="metadata_match" style="color:var(--yellow)">Meta</div>
+          </div>
+          <div class="filter-sort-row">
+            <select class="s-sel" id="sort">
+              <option value="wasted">Wasted Space ↓</option>
+              <option value="type">Type</option>
+              <option value="count">File Count ↓</option>
+            </select>
+            <button class="f-cp" id="rescan-btn" style="padding:6px 10px;font-size:10px;display:none" onclick="doRescan()">↺ Rescan</button>
+          </div>
+        </div>
+
+        <!-- Options (always visible, compact) -->
+        <div class="s-cblk">
+          <div class="s-eye">Options</div>
+          <div class="opt-row">
+            <div><div class="opt-lbl">Auto-select duplicates</div></div>
+            <label class="tog"><input type="checkbox" id="autosel" checked><span class="tog-bg"></span><span class="tog-dot"></span></label>
+          </div>
+          <div class="opt-row">
+            <div><div class="opt-lbl">Expand groups on load</div></div>
+            <label class="tog"><input type="checkbox" id="expandall"><span class="tog-bg"></span><span class="tog-dot"></span></label>
+          </div>
+        </div>
+
       </div>
 
-      <div class="s-blk" id="stats" style="display:none">
-        <div class="s-eye">Results</div>
-        <div class="stat-grid">
-          <div class="stat-card"><div class="stat-n" id="st0">—</div><div class="stat-l">Audio Files</div></div>
-          <div class="stat-card"><div class="stat-n r" id="st1">—</div><div class="stat-l">Dup Groups</div></div>
-          <div class="stat-card"><div class="stat-n g" id="st2">—</div><div class="stat-l">Reclaimable</div></div>
-          <div class="stat-card"><div class="stat-n a" id="st3">—</div><div class="stat-l">Removable</div></div>
+      <!-- Zone 3: FOOTER — privacy note + secondary nav tabs -->
+      <div class="s-footer">
+        <div class="priv-inner">
+          <strong>Zero uploads.</strong> All scanning runs locally via the File System Access API.
         </div>
-      </div>
-
-      <div class="s-blk" id="filters" style="display:none">
-        <div class="s-eye">Filter</div>
-        <div class="fstrip" id="fps">
-          <div class="fp on" data-t="all">All</div>
-          <div class="fp" data-t="exact_file"      style="color:var(--red)">Exact Copy</div>
-          <div class="fp" data-t="exact_audio"     style="color:var(--orange)">Same Audio</div>
-          <div class="fp" data-t="metadata_match"  style="color:var(--yellow)">Metadata</div>
+        <div class="side-tabs" id="side-tabs">
+          <div class="stab on" data-tab="dup">Dups <span class="stab-b" id="bd">0</span></div>
+          <div class="stab" data-tab="all">Files <span class="stab-b" id="ba">0</span></div>
+          <div class="stab" data-tab="corrupt">Bad <span class="stab-b" id="bc">0</span></div>
+          <div class="stab" data-tab="trash">Trash <span class="stab-b" id="bt">0</span></div>
         </div>
-        <div style="margin-top:12px">
-          <div class="s-eye">Sort</div>
-          <select class="s-sel" id="sort">
-            <option value="wasted">Wasted Space ↓</option>
-            <option value="type">Type</option>
-            <option value="count">File Count ↓</option>
-          </select>
-        </div>
-      </div>
-
-      <div class="priv-note">
-        <strong>Zero network access.</strong><br>
-        Files never leave your device. All scanning, hashing and matching runs locally in your browser via the File System Access API.
       </div>
     </aside>
 
     <main class="main">
-      <div class="tab-bar">
-        <div class="tab on" data-tab="dup">Duplicates <span class="tbadge" id="bd">0</span></div>
-        <div class="tab" data-tab="all">All Files <span class="tbadge" id="ba">0</span></div>
-        <div class="tab" data-tab="corrupt">Corrupted <span class="tbadge" id="bc">0</span></div>
-        <div class="tab" data-tab="trash">Trash Review <span class="tbadge" id="bt">0</span></div>
+
+      <!-- STATE: IDLE — hero welcome panel -->
+      <div class="hero-panel" id="state-idle">
+        <div class="hero-area">
+          <div class="hero-rings">
+            <svg width="500" height="500" viewBox="0 0 500 500" fill="none">
+              <circle cx="250" cy="250" r="220" stroke="#4a8ef0" stroke-width="1"/>
+              <circle cx="250" cy="250" r="170" stroke="#4a8ef0" stroke-width="1"/>
+              <circle cx="250" cy="250" r="120" stroke="#4a8ef0" stroke-width="1"/>
+              <circle cx="250" cy="250" r="70"  stroke="#9060e0" stroke-width="1"/>
+            </svg>
+          </div>
+          <div class="hero-content">
+            <div class="hero-disc">
+              <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                <rect x="5" y="13" width="3" height="6"  rx="1.5" fill="#304080" opacity=".6"/>
+                <rect x="10" y="10" width="3" height="12" rx="1.5" fill="#304080" opacity=".75"/>
+                <rect x="15" y="12" width="3" height="8"  rx="1.5" fill="#304080"/>
+                <rect x="20" y="10" width="3" height="12" rx="1.5" fill="#304080" opacity=".75"/>
+                <rect x="25" y="13" width="3" height="6"  rx="1.5" fill="#304080" opacity=".6"/>
+              </svg>
+            </div>
+            <div class="hero-h">Select a folder to begin</div>
+            <div class="hero-sub">Drop your music library in the sidebar.<br>MusicCleanup scans, hashes, and finds every<br><em>duplicate track</em> across all formats.</div>
+          </div>
+        </div>
+        <div class="hints-strip">
+          <div class="hint"><div class="hint-n">3</div><div class="hint-l">Detection stages</div></div>
+          <div class="hint"><div class="hint-n">10+</div><div class="hint-l">Audio formats</div></div>
+          <div class="hint"><div class="hint-n">10K+</div><div class="hint-l">Files supported</div></div>
+          <div class="hint"><div class="hint-n">0</div><div class="hint-l">Data uploaded</div></div>
+        </div>
       </div>
+
+      <!-- STATE: SCANNING — progress + live feed, no tabs -->
+      <div class="scan-main" id="state-scan">
+        <div class="scan-progress">
+          <div class="sp-head">
+            <div class="sp-title" id="sp-title">Initializing…</div>
+            <div class="sp-pct" id="sp-pct">0%</div>
+          </div>
+          <div class="pb-wrap" style="margin-bottom:10px"><div class="pb-fill" id="pbf"></div></div>
+          <div class="ps-row">
+            <div class="ps" id="ps0"><div class="ps-icon"><div class="ps-wait"></div></div><div class="ps-lb">Index</div></div>
+            <div class="ps" id="ps1"><div class="ps-icon"><div class="ps-wait"></div></div><div class="ps-lb">Meta</div></div>
+            <div class="ps" id="ps2"><div class="ps-icon"><div class="ps-wait"></div></div><div class="ps-lb">Hash</div></div>
+            <div class="ps" id="ps3"><div class="ps-icon"><div class="ps-wait"></div></div><div class="ps-lb">Dedup</div></div>
+          </div>
+          <div class="pb-msg" id="pbm" style="margin-top:6px">Initializing…</div>
+        </div>
+        <div class="feed-panel">
+          <div class="feed-head">
+            <div class="feed-head-lbl">Live file feed</div>
+            <div class="feed-dup-count" id="feed-dup-count"></div>
+          </div>
+          <div id="feed-list"></div>
+        </div>
+      </div>
+
+      <!-- STATE: RESULTS — full-width, tabs in sidebar -->
+      <div class="results-panel" id="state-results">
 
       <!-- Duplicates -->
       <div class="content" id="tab-dup">
@@ -857,6 +1008,7 @@ body::before {
           </div><div class="e-title">Trash is Empty</div><div class="e-sub">Files you mark for removal appear here for review.<br><strong>Nothing is deleted automatically.</strong></div></div>
         </div>
       </div>
+      </div><!-- results-panel -->
     </main>
   </div>
 </div>
@@ -878,7 +1030,7 @@ body::before {
         <rect x="26" y="14" width="2" height="4" rx="1" fill="#9060e0" opacity=".55"/>
       </svg>
       <div class="wn-title">
-        <div class="wn-title-top">What's New in v2.0</div>
+        <div class="wn-title-top">What's New in v3.0</div>
         <div class="wn-title-sub">MusicCleanup · Duplicate Detector PWA</div>
       </div>
       <button class="wn-close" onclick="document.getElementById('wn-overlay').classList.remove('on')">×</button>
@@ -887,64 +1039,78 @@ body::before {
       <div class="wn-item">
         <div class="wn-dot"></div>
         <div>
-          <div class="wn-item-title">Blue + Purple palette</div>
-          <div class="wn-item-desc">New cobalt blue primary with violet purple secondary throughout</div>
+          <div class="wn-item-title">Three-state layout</div>
+          <div class="wn-item-desc">App now has distinct Idle, Scanning, and Results states — each with a purpose-fit layout instead of one static grid</div>
         </div>
       </div>
       <div class="wn-item">
         <div class="wn-dot"></div>
         <div>
-          <div class="wn-item-title">Icon system redesign</div>
-          <div class="wn-item-desc">SVG format badges, semantic empty states, refined pipeline icons</div>
+          <div class="wn-item-title">Pipeline in main panel</div>
+          <div class="wn-item-desc">Progress bar, stage indicators, and live file feed are unified in the main panel during scanning — no more split across sidebar and main</div>
         </div>
       </div>
       <div class="wn-item">
         <div class="wn-dot"></div>
         <div>
-          <div class="wn-item-title">Waveform logo</div>
-          <div class="wn-item-desc">New app logo with waveform disc design in header and PWA icon</div>
+          <div class="wn-item-title">Sidebar zone hierarchy</div>
+          <div class="wn-item-desc">Primary zone (folder + scan) is visually dominant; Config zone (stats, search, filters) is compact; Footer holds tabs and privacy note</div>
         </div>
       </div>
       <div class="wn-item">
         <div class="wn-dot"></div>
         <div>
-          <div class="wn-item-title">Version badge</div>
-          <div class="wn-item-desc">Version number and What's New accessible from the header</div>
+          <div class="wn-item-title">Tabs moved to sidebar</div>
+          <div class="wn-item-desc">Secondary nav (Dups / Files / Bad / Trash) moved to the sidebar bottom — the full main panel width is now free for results content</div>
         </div>
       </div>
       <div class="wn-item">
         <div class="wn-dot"></div>
         <div>
-          <div class="wn-item-title">Expand groups option</div>
-          <div class="wn-item-desc">Toggle to open all duplicate groups automatically on scan complete</div>
+          <div class="wn-item-title">3-column stats strip</div>
+          <div class="wn-item-desc">Results summary compressed from 2×2 grid to a 3-col strip showing Reclaim, Groups, and Removable with colored accent bars</div>
         </div>
       </div>
       <div class="wn-item">
         <div class="wn-dot"></div>
         <div>
-          <div class="wn-item-title">Live file feed</div>
-          <div class="wn-item-desc">Real-time file stream visible during scan with duplicate highlighting</div>
+          <div class="wn-item-title">Search bar added</div>
+          <div class="wn-item-desc">Real-time search in sidebar filters all duplicate groups by artist, album, title, or filename as you type</div>
         </div>
       </div>
       <div class="wn-item">
         <div class="wn-dot"></div>
         <div>
-          <div class="wn-item-title">Scan timer</div>
-          <div class="wn-item-desc">Scan completion time shown in header after scan finishes</div>
+          <div class="wn-item-title">Filter and sort merged</div>
+          <div class="wn-item-desc">Filter pills and sort selector combined into one section with a Rescan quick-button on the same row</div>
         </div>
       </div>
       <div class="wn-item">
         <div class="wn-dot"></div>
         <div>
-          <div class="wn-item-title">Album in file rows</div>
-          <div class="wn-item-desc">Album name displayed in file detail rows for easier identification</div>
+          <div class="wn-item-title">Keyboard shortcuts</div>
+          <div class="wn-item-desc">⌘K to focus search, ⌘A to select all, ⌘E to expand/collapse all groups, ⌘⌫ to trash selection, ⌘R to rescan same folder</div>
         </div>
       </div>
       <div class="wn-item">
         <div class="wn-dot"></div>
         <div>
-          <div class="wn-item-title">Animated pipeline</div>
-          <div class="wn-item-desc">Checkmarks animate in on stage completion, spinner on active stage</div>
+          <div class="wn-item-title">Hero welcome panel</div>
+          <div class="wn-item-desc">Idle state shows a centered welcome screen with 4 capability hints (stages, formats, file count, uploads = 0)</div>
+        </div>
+      </div>
+      <div class="wn-item">
+        <div class="wn-dot"></div>
+        <div>
+          <div class="wn-item-title">Rescan button</div>
+          <div class="wn-item-desc">Quick rescan of the same folder appears after first scan — no need to re-pick the folder</div>
+        </div>
+      </div>
+      <div class="wn-item">
+        <div class="wn-dot"></div>
+        <div>
+          <div class="wn-item-title">Live feed in scan state</div>
+          <div class="wn-item-desc">Files stream into the main panel in real time during scan with color-coded duplicate detection highlights</div>
         </div>
       </div>
     </div>
@@ -956,14 +1122,71 @@ body::before {
 <div class="toasts" id="toasts"></div>
 
 <script>
+const APP_VERSION='3.0';
 const S={worker:null,scanning:false,folder:null,files:[],groups:[],corrupt:[],trash:[],
-  sel:new Set(),filter:'all',sort:'wasted',page:1,pp:12,deferInstall:null,scanStart:0};
+  sel:new Set(),filter:'all',sort:'wasted',search:'',page:1,pp:12,deferInstall:null,scanStart:0,appState:'idle'};
+
+/* ── App state machine ────────────────────────────────────────────────────── */
+function setState(st){
+  document.getElementById('state-idle').style.display    = st==='idle'    ? 'flex'  : 'none';
+  document.getElementById('state-idle').style.flexDirection = 'column';
+  document.getElementById('state-scan').classList.toggle('on', st==='scan');
+  document.getElementById('state-results').classList.toggle('on', st==='results');
+  S.appState = st;
+}
+
+/* ── Rescan (reuse saved folder handle) ───────────────────────────────────── */
+function doRescan(){if(S.folder)doScan();else toast('No folder selected','err');}
+
+/* ── Search ──────────────────────────────────────────────────────────────── */
+function setupSearch(){
+  const inp=document.getElementById('search-inp');
+  if(inp)inp.addEventListener('input',e=>onSearch(e.target.value));
+}
+function onSearch(q){S.search=q.trim().toLowerCase();S.page=1;renderGroups();}
+
+/* ── Keyboard shortcuts ──────────────────────────────────────────────────── */
+function setupKbd(){
+  document.addEventListener('keydown',e=>{
+    if(e.target.tagName==='INPUT'||e.target.tagName==='SELECT')return;
+    const m=e.metaKey||e.ctrlKey;
+    if(m&&e.key==='k'){e.preventDefault();const si=document.getElementById('search-inp');if(si){si.focus();si.select();}}
+    if(m&&e.key==='a'){e.preventDefault();if(S.groups.length){autoSel();renderGroups();}}
+    if(m&&e.key==='e'){e.preventDefault();toggleAllCards();}
+    if(m&&(e.key==='Backspace'||e.key==='Delete')){e.preventDefault();if(S.sel.size)moveToTrash();}
+    if(m&&e.key==='r'){e.preventDefault();doRescan();}
+  });
+}
+function toggleAllCards(){
+  const open=document.querySelectorAll('.gcard.open').length;
+  document.querySelectorAll('.gcard').forEach(c=>c.classList.toggle('open',!open));
+}
+
+/* ── Live feed push ───────────────────────────────────────────────────────── */
+function pushFeedRow(name,ext,sizeMB,isDup,isActive){
+  const list=document.getElementById('feed-list');if(!list)return;
+  const lo=new Set(['flac','wav','aiff','aif','wv','ape']);
+  const co=new Set(['m4a','mp4','m4b']);
+  const fmtCls=lo.has(ext)?'fmt-lossless':co.has(ext)?'fmt-container':'fmt-lossy';
+  const row=document.createElement('div');
+  row.className='feed-row'+(isDup?' match':isActive?' active':'');
+  row.innerHTML=`<div class="feed-dot ${isDup?'dup':isActive?'act':'ok'}"></div>`+
+    `<span class="fmt-badge ${fmtCls}" style="font-size:8px;height:16px;padding:0 4px"><svg viewBox="0 0 7 7" fill="none" style="width:6px;height:6px">${lo.has(ext)?'<path d="M1 3.5h6M4 1v5.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>':co.has(ext)?'<rect x=".5" y="1" width="6" height="5" rx="1" stroke="currentColor" stroke-width="1"/>':'<circle cx="3.5" cy="3.5" r="2.5" stroke="currentColor" stroke-width="1"/><circle cx="3.5" cy="3.5" r="1" fill="currentColor"/>'}</svg>${ext.toUpperCase()}</span>`+
+    `<div class="feed-name">${esc(name)}</div><div class="feed-sz">${sizeMB} MB</div>`+
+    (isDup?'<div class="feed-tag">duplicate</div>':'');
+  list.insertBefore(row,list.firstChild);
+  while(list.children.length>9)list.removeChild(list.lastChild);
+  // Fade out old rows
+  [...list.children].forEach((r,i)=>{r.style.opacity=Math.max(.15,1-i*.1);});
+}
+
 
 document.addEventListener('DOMContentLoaded',()=>{
   if(!('showDirectoryPicker' in window)){document.getElementById('co').classList.add('on');return;}
-  initW();setupDZ();setupTabs();setupFPs();setupPWA();
+  initW();setupDZ();setupTabs();setupFPs();setupPWA();setupSearch();setupKbd();
   document.getElementById('sort').addEventListener('change',e=>{S.sort=e.target.value;S.page=1;renderGroups();});
   document.getElementById('expandall').addEventListener('change',()=>{if(S.groups.length)renderGroups();});
+  setState('idle');
 });
 
 function initW(){
@@ -1009,8 +1232,11 @@ document.getElementById('scan-btn').addEventListener('click',async()=>{
 
 async function doScan(){
   S.scanning=true;S.scanStart=Date.now();
-  S.sel.clear();S.trash=[];S.groups=[];S.files=[];S.corrupt=[];S.page=1;
-  setSBtn(true);showPL(true);setStage(-1);resetUI();
+  S.sel.clear();S.trash=[];S.groups=[];S.files=[];S.corrupt=[];S.page=1;S.search='';
+  const si=document.getElementById('search-inp');if(si)si.value='';
+  setSBtn(true);setStage(-1);resetUI();setState('scan');
+  document.getElementById('feed-list').innerHTML='';
+  document.getElementById('feed-dup-count').textContent='';
   try{
     const handles=await collect(S.folder);
     const hc=document.getElementById('hc');
@@ -1018,7 +1244,7 @@ async function doScan(){
     S.worker.postMessage({type:'scan',payload:{fileHandles:handles}});
   }catch(e){onErr({message:e.message});}
 }
-function cancelScan(){S.worker.terminate();initW();S.scanning=false;setSBtn(false);showPL(false);toast('Cancelled','info');}
+function cancelScan(){S.worker.terminate();initW();S.scanning=false;setSBtn(false);setState('idle');toast('Cancelled','info');}
 async function collect(dir,arr=[],d=0){
   if(d>10)return arr;
   for await(const e of dir.values()){
@@ -1031,13 +1257,22 @@ async function collect(dir,arr=[],d=0){
 const SM={building:0,metadata_extract:1,hashing:2,audio_hash:2,detecting:3,done:3};
 let _liveCount=0;
 
-function onProg({stage,current,total,pct,message}){
+function onProg({stage,current,total,pct,message,fileName,fileExt,fileSizeMB,isDup}){
   const b=document.getElementById('pbf');b.classList.remove('ind');b.style.width=pct+'%';
   document.getElementById('pbm').textContent=message;
+  const t=document.getElementById('sp-title');
+  const p=document.getElementById('sp-pct');
+  if(t)t.textContent=message;
+  if(p)p.textContent=pct+'%';
   if(SM[stage]!==undefined)setStage(SM[stage]);
-
-  // Update live dup count in tab badge during scan
-  if(S.groups.length){document.getElementById('bd').textContent=S.groups.length;}
+  if(S.groups.length){
+    document.getElementById('bd').textContent=S.groups.length;
+    const dc=document.getElementById('feed-dup-count');
+    if(dc)dc.textContent=S.groups.length+' duplicate'+(S.groups.length!==1?'s':'');
+  }
+  if(fileName&&fileExt){
+    pushFeedRow(fileName,fileExt,fileSizeMB||'?',isDup||false,true);
+  }
 }
 
 function onStats({totalAudio}){
@@ -1069,20 +1304,20 @@ function onDone(d){
   setSBtn(false);
   document.getElementById('pbf').style.width='100%';
   allDone();
-  document.getElementById('pbm').textContent=`Complete in ${elapsed}s — ${d.groups.length.toLocaleString()} duplicate groups`;
-  document.getElementById('hc').textContent=`${d.totalFiles.toLocaleString()} files · scan complete in ${elapsed}s`;
+  document.getElementById('pbm').textContent=`Complete in ${elapsed}s — ${d.groups.length.toLocaleString()} groups`;
+  document.getElementById('hc').textContent=`${d.totalFiles.toLocaleString()} files · ${elapsed}s`;
 
   document.getElementById('bd').textContent=d.groups.length;
   document.getElementById('ba').textContent=d.totalFiles;
   document.getElementById('bc').textContent=d.corrupt.length;
 
-  document.getElementById('st0').textContent=fmt(d.totalFiles);
   document.getElementById('st1').textContent=fmt(d.groups.length);
   document.getElementById('st2').textContent=fmtMB(parseFloat(d.totalWastedMB));
   document.getElementById('st3').textContent=fmt(d.removableCount);
+  const sf=document.getElementById('st-files');if(sf)sf.textContent=fmt(d.totalFiles)+' audio files scanned';
   document.getElementById('stats').style.display='block';
+  document.getElementById('s-search-blk').style.display='block';
 
-  // Animated count-up on result header
   document.getElementById('rh0').textContent=fmtMB(parseFloat(d.totalWastedMB));
   document.getElementById('rh1').textContent=fmt(d.removableCount);
   document.getElementById('rh2').textContent=fmt(d.groups.length);
@@ -1090,9 +1325,11 @@ function onDone(d){
   if(d.groups.length>0){
     document.getElementById('rh').classList.add('on');
     document.getElementById('filters').style.display='block';
+    const rb=document.getElementById('rescan-btn');if(rb)rb.style.display='block';
     if(document.getElementById('autosel').checked)autoSel();
   }
 
+  setState('results');
   renderGroups();renderCorrupt();renderAllFiles();
   toast(`Scan complete — ${d.groups.length} duplicate groups found`,'ok');
 }
@@ -1124,9 +1361,7 @@ function allDone(){
   });
 }
 function showPL(on){
-  const p=document.getElementById('pl');p.classList.toggle('on',on);
-  if(!on){document.getElementById('pbf').style.width='0';_stage=-1;}
-  else{document.getElementById('pbf').classList.add('ind');}
+  if(!on){const b=document.getElementById('pbf');if(b){b.style.width='0';}_stage=-1;}
 }
 
 function autoSel(){
@@ -1139,6 +1374,15 @@ function autoSel(){
 function getFS(){
   let g=S.groups;
   if(S.filter!=='all')g=g.filter(x=>x.type===S.filter);
+  if(S.search){
+    const q=S.search;
+    g=g.filter(x=>x.files.some(f=>
+      (f.title||'').toLowerCase().includes(q)||
+      (f.artist||'').toLowerCase().includes(q)||
+      (f.album||'').toLowerCase().includes(q)||
+      (f.name||'').toLowerCase().includes(q)
+    ));
+  }
   if(S.sort==='wasted')g=[...g].sort((a,b)=>b.wastedBytes-a.wastedBytes);
   else if(S.sort==='type')g=[...g].sort((a,b)=>a.type.localeCompare(b.type));
   else g=[...g].sort((a,b)=>b.files.length-a.files.length);
@@ -1291,12 +1535,16 @@ function renderPager(cur,total){
 }
 function gp(p){const g=getFS(),max=Math.max(1,Math.ceil(g.length/S.pp));if(p<1||p>max)return;S.page=p;renderGroups();document.getElementById('tab-dup').scrollTo({top:0,behavior:'smooth'});}
 
-/* Tabs */
+/* Tabs — now side-tabs in sidebar footer */
 function setupTabs(){
-  document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>{
+  document.querySelectorAll('.stab').forEach(t=>t.addEventListener('click',()=>{
+    if(S.appState!=='results')return;
     const n=t.dataset.tab;
-    document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('on',x.dataset.tab===n));
-    ['dup','all','corrupt','trash'].forEach(x=>document.getElementById('tab-'+x).style.display=x===n?'block':'none');
+    document.querySelectorAll('.stab').forEach(x=>x.classList.toggle('on',x.dataset.tab===n));
+    ['dup','all','corrupt','trash'].forEach(x=>{
+      const el=document.getElementById('tab-'+x);
+      if(el)el.style.display=x===n?'block':'none';
+    });
     if(n==='trash')renderTrash();
   }));
 }
@@ -1327,13 +1575,16 @@ function setupPWA(){
 function setSBtn(scanning){
   const b=document.getElementById('scan-btn');b.classList.toggle('cancelling',scanning);
   b.innerHTML=scanning?'<span class="spin">↻</span> Cancel Scan':'<svg width="13" height="13" viewBox="0 0 16 16" fill="currentColor"><path d="M11.742 10.344a6.5 6.5 0 10-1.397 1.398h.001l3.85 3.85a1 1 0 001.414-1.414l-3.85-3.85a6.5 6.5 0 00-1.398-1.397zm-5.242.656a5.5 5.5 0 100-11 5.5 5.5 0 000 11z"/></svg> Scan Library';
+  document.getElementById('pl').classList.toggle('on',false);
 }
 function resetUI(){
   document.getElementById('rh').classList.remove('on');
   document.getElementById('stats').style.display='none';
   document.getElementById('filters').style.display='none';
+  const ssb=document.getElementById('s-search-blk');if(ssb)ssb.style.display='none';
+  const rb=document.getElementById('rescan-btn');if(rb)rb.style.display='none';
   document.getElementById('gc').innerHTML='';
-  ['bd','ba','bc'].forEach(id=>document.getElementById(id).textContent='0');
+  ['bd','ba','bc','bt'].forEach(id=>document.getElementById(id).textContent='0');
   document.getElementById('de').style.display='flex';
   document.getElementById('de').querySelector('.e-title').textContent='Scanning…';
 }
