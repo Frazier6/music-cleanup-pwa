@@ -582,6 +582,28 @@ main{display:flex;flex-direction:column;overflow:hidden;min-height:0;background:
 .toast.err{border-left:3px solid var(--red)}
 .toast.info{border-left:3px solid var(--amber)}
 @keyframes toastIn{from{transform:translateX(12px) scale(.97);opacity:0}to{transform:none;opacity:1}}
+
+/* ── Bulk action strip ───────────────────────────────────────────────────── */
+.bulk-strip {
+  display:none; gap:4px; flex-wrap:wrap; margin-top:8px;
+}
+.bulk-strip.on { display:flex; }
+.bulk-btn {
+  font-family:var(--fm); font-size:9px; letter-spacing:.04em;
+  padding:3px 9px; border-radius:3px; cursor:pointer;
+  border:1px solid var(--wire2); background:var(--ink2);
+  color:var(--muted); transition:all .15s; white-space:nowrap;
+}
+.bulk-btn:hover { border-color:var(--amber); color:var(--amber); }
+.bulk-btn.active { background:var(--amber-lo); border-color:var(--amber); color:var(--amber); }
+
+/* ── Scan timer ──────────────────────────────────────────────────────────── */
+.scan-timer {
+  font-family:var(--fm); font-size:9.5px; color:var(--muted);
+  margin-top:6px; display:flex; align-items:center; gap:8px;
+}
+.scan-timer-val { color:var(--amber); font-weight:500; }
+.scan-file-count { color:var(--dim); }
 </style>
 </head>
 <body>
@@ -614,7 +636,7 @@ main{display:flex;flex-direction:column;overflow:hidden;min-height:0;background:
         <rect x="24.5" y="12" width="2.5" height="6" rx="1.25" fill="#a78bfa" opacity=".5"/>
       </svg>
       <div class="wn-hdr-text">
-        <div class="wn-hdr-title">What's New in v5.0</div>
+        <div class="wn-hdr-title">What's New in v5.1</div>
         <div class="wn-hdr-sub">MusicCleanup · Duplicate Detector</div>
       </div>
       <button class="wn-x" onclick="closeWN()">×</button>
@@ -647,12 +669,12 @@ main{display:flex;flex-direction:column;overflow:hidden;min-height:0;background:
       </div>
       <div>
         <div class="logo-name">Music<em>Cleanup</em></div>
-        <div class="logo-tag">Duplicate Detector · v5.0</div>
+        <div class="logo-tag">Duplicate Detector · v5.1</div>
       </div>
     </div>
     <div class="tsep"></div>
     <div class="t-pill"><div class="t-dot"></div>Private · On-Device</div>
-    <button class="t-ver" onclick="openWN()"><div class="t-ver-dot"></div>v5.0 · What's New</button>
+    <button class="t-ver" onclick="openWN()"><div class="t-ver-dot"></div>v5.1 · What's New</button>
     <button class="t-help" onclick="showHelp()">
       <svg width="11" height="11" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.2"/><path d="M6.5 6C6.5 5.17 7.17 4.5 8 4.5s1.5.67 1.5 1.5c0 .97-.75 1.4-1.2 1.8-.38.34-.55.72-.55 1.2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><circle cx="8" cy="11" r=".65" fill="currentColor"/></svg>
       How to use
@@ -716,6 +738,11 @@ main{display:flex;flex-direction:column;overflow:hidden;min-height:0;background:
               <option value="count">File Count ↓</option>
             </select>
             <button class="rescan-btn" id="rescan-btn" onclick="doRescan()">↺ Rescan</button>
+          </div>
+          <div class="bulk-strip" id="bulk-strip">
+            <button class="bulk-btn" onclick="bulkSelType('exact_file')" id="bulk-exact" title="Select all non-kept files in Exact Copy groups">Select Exact Copies</button>
+            <button class="bulk-btn" onclick="bulkSelType('exact_audio')" id="bulk-audio" title="Select all non-kept files in Same Audio groups">Select Same Audio</button>
+            <button class="bulk-btn" onclick="clearSel()" title="Deselect everything">Clear All</button>
           </div>
         </div>
 
@@ -860,6 +887,10 @@ main{display:flex;flex-direction:column;overflow:hidden;min-height:0;background:
             <div class="ps" id="ps3"><div class="ps-ic"><div class="ps-wt"></div></div><div class="ps-lb">Dedup</div></div>
           </div>
           <div class="scan-msg" id="pbm">Starting…</div>
+          <div class="scan-timer" id="scan-timer" style="display:none">
+            <span>Elapsed: <span class="scan-timer-val" id="scan-elapsed">0s</span></span>
+            <span class="scan-file-count" id="scan-file-count"></span>
+          </div>
         </div>
         <div class="feed-area">
           <div class="feed-hdr">
@@ -914,15 +945,16 @@ main{display:flex;flex-direction:column;overflow:hidden;min-height:0;background:
 'use strict';
 
 // ── Constants ──────────────────────────────────────────────────────────────────
-const APP_VERSION = '5.0';
+const APP_VERSION = '5.1';
 
 const WN_ITEMS = [
-  ['Complete visual redesign (v5.0)', 'Space Grotesk + Fira Code type system. Amber/green industrial dark palette. Waveform hero on idle screen. Dramatically better visual hierarchy.'],
-  ['Cinematic scan view', 'Large animated percentage, shimmer progress bar, stage pills with live indicators, real-time file feed.'],
-  ['Stronger Keep/Remove hierarchy', 'Green left-border on Keep rows, red on Remove. Format badges redesigned — blue=lossless, purple=lossy, cyan=container.'],
-  ['Clean architecture (v4.0 foundation)', 'Single state machine, DOM cache, typed worker protocol. All major bugs fixed in prior versions.'],
-  ['Stage map fixed', 'Progress bar + pipeline indicators update correctly for all 4 scan phases (building, metadata, hashing, detecting).'],
-  ['Null-safe handlers', 'onProgress and onDone wrapped in try/catch. switchState always fires even if a display call fails.'],
+  ['v5.1 — Bulk selection by type', 'Select Exact Copies and Select Same Audio buttons in the filter bar. One click selects all removable files in that category — click again to deselect.'],
+  ['v5.1 — Live scan timer', 'Elapsed time and live file count shown during scanning.'],
+  ['v5.1 — Keyboard shortcut cheatsheet', 'How to use overlay now includes a full keyboard shortcut reference table.'],
+  ['v5.1 — Better worker error', 'Sandboxed/preview context detected cleanly with a helpful message.'],
+  ['v5.1 — Clean library confirmation', 'Zero duplicates shows a clear confirmation with scanned file count.'],
+  ['Complete visual redesign (v5.0)', 'Space Grotesk + Fira Code. Amber/green industrial palette. Waveform hero, cinematic scan view.'],
+  ['Clean architecture (v4.0)', 'Single state machine, DOM cache, typed worker protocol, null-safe handlers.'],
   ['Auto-update system', 'Background SW detection. Update banner with one-click apply + reload.'],
   ['Keyboard shortcuts', '⌘K search · ⌘A select all · ⌘E expand/collapse · ⌘⌫ trash · ⌘R rescan'],
 ];
@@ -951,6 +983,8 @@ function cacheDOM() {
     'nav-count',
     'stats-strip','stats-strip-empty','st-reclaim','st-groups','st-remove',
     'search-wrap','search-inp','filter-wrap','fps','sort','rescan-btn',
+    'bulk-strip','bulk-exact','bulk-audio',
+    'scan-timer','scan-elapsed','scan-file-count',
     'rh','rh-reclaim','rh-files','rh-groups',
     'act-bar','act-cnt',
     'gc','pg','de','de-title',
@@ -1000,8 +1034,36 @@ function showHelp() {
   ov.id = 'help-ov';
   ov.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:9000;display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(8px)';
   const inner = document.createElement('div');
-  inner.style.cssText = 'background:#141414;border:1px solid #2a2a2a;border-radius:12px;max-width:500px;width:100%;max-height:85vh;display:flex;flex-direction:column;overflow:hidden';
-  inner.innerHTML = `<div style="display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid #1f1f1f"><div style="font-size:13px;font-weight:700;color:#f0f0f0;letter-spacing:-.02em">How to use MusicCleanup</div><button onclick="document.getElementById('help-ov').remove()" style="background:none;border:none;color:#4a4a4a;font-size:18px;cursor:pointer;line-height:1;padding:4px 8px;border-radius:4px">×</button></div><div style="overflow-y:auto;padding:14px 18px">${(D['guide-steps']||{innerHTML:''}).innerHTML}</div>`;
+  inner.style.cssText = 'background:#141414;border:1px solid #2a2a2a;border-radius:12px;max-width:520px;width:100%;max-height:88vh;display:flex;flex-direction:column;overflow:hidden';
+
+  const KBD = [
+    ['⌘K', 'Focus search bar'],
+    ['⌘A', 'Auto-select all duplicates'],
+    ['⌘E', 'Expand / collapse all groups'],
+    ['⌘⌫', 'Move selected files to Trash'],
+    ['⌘R', 'Rescan same folder'],
+  ];
+  const kbdHtml = KBD.map(([k,d]) =>
+    `<div style="display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid #1f1f1f">
+      <span style="font-size:11.5px;color:#8a8a8a">${d}</span>
+      <kbd style="font-family:var(--fm);font-size:10px;padding:3px 8px;background:#1a1a1a;border:1px solid #2a2a2a;border-radius:4px;color:#f59e0b">${k}</kbd>
+    </div>`
+  ).join('');
+
+  inner.innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid #1f1f1f">
+      <div style="font-size:13px;font-weight:700;color:#f0f0f0;letter-spacing:-.02em">How to use MusicCleanup</div>
+      <button onclick="document.getElementById('help-ov').remove()" style="background:none;border:none;color:#4a4a4a;font-size:18px;cursor:pointer;line-height:1;padding:4px 8px;border-radius:4px">×</button>
+    </div>
+    <div style="overflow-y:auto;flex:1">
+      <div style="padding:14px 18px">
+        ${(D['guide-steps']||{innerHTML:''}).innerHTML}
+      </div>
+      <div style="padding:14px 18px;border-top:1px solid #1f1f1f">
+        <div style="font-family:var(--fm);font-size:8.5px;letter-spacing:.14em;text-transform:uppercase;color:#4a4a4a;margin-bottom:10px">Keyboard Shortcuts</div>
+        ${kbdHtml}
+      </div>
+    </div>`;
   ov.appendChild(inner);
   ov.addEventListener('click', e => { if (e.target === ov) ov.remove(); });
   document.body.appendChild(ov);
@@ -1072,6 +1134,7 @@ function setFolder(h) {
   if (dt) dt.textContent = h.name;
   if (ds) ds.innerHTML = `<em>${esc(h.name)}</em> — click Scan Library to begin`;
   toast('Folder ready: '+h.name,'ok');
+  sessionStorage.setItem('mc-last-folder', h.name);
   setGuideStep(2);
 }
 
@@ -1092,6 +1155,7 @@ async function doScan() {
   if (D['feed-list']) D['feed-list'].innerHTML='';
   if (D['feed-dups']) D['feed-dups'].textContent='';
   setGuideStep(3);
+  startScanTimer();
   try {
     const handles = await collectFiles(A.folder);
     if (D['nav-count']) { D['nav-count'].textContent=handles.length.toLocaleString()+' files found'; D['nav-count'].classList.add('on'); }
@@ -1101,6 +1165,7 @@ async function doScan() {
 
 function cancelScan() {
   A.worker.terminate(); initWorker();
+  stopScanTimer();
   A.scanning=false; setScanBtn(false);
   switchState('idle');
   toast('Scan cancelled','info');
@@ -1133,6 +1198,25 @@ const STAGE_MAP={building:0,indexing:0,metadata:1,metadata_extract:1,hashing:2,a
 const CK_SVG=`<div class="ps-ck"><svg width="9" height="9" viewBox="0 0 9 9" fill="none"><path d="M1.5 4.5L3.5 6.5L7.5 2.5" stroke="#10b981" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>`;
 let _curStage=-1;
 
+
+/* ── Scan timer ──────────────────────────────────────────────────────────── */
+let _timerInterval = null;
+function startScanTimer() {
+  stopScanTimer();
+  if (D['scan-timer']) D['scan-timer'].style.display = 'flex';
+  if (D['scan-elapsed']) D['scan-elapsed'].textContent = '0s';
+  _timerInterval = setInterval(() => {
+    const elapsed = Math.round((Date.now() - A.scanStart) / 1000);
+    if (D['scan-elapsed']) D['scan-elapsed'].textContent = elapsed + 's';
+    if (D['scan-file-count'] && A.files.length)
+      D['scan-file-count'].textContent = A.files.length.toLocaleString() + ' files found';
+  }, 1000);
+}
+function stopScanTimer() {
+  if (_timerInterval) { clearInterval(_timerInterval); _timerInterval = null; }
+  if (D['scan-timer']) D['scan-timer'].style.display = 'none';
+}
+
 function initWorker() {
   if (A.worker) { try{A.worker.terminate();}catch{} }
   try {
@@ -1164,6 +1248,7 @@ function initWorker() {
 
 function onStats({totalAudio}) {
   if (D['nav-count']) D['nav-count'].textContent=totalAudio.toLocaleString()+' audio files';
+  if (D['scan-file-count']) D['scan-file-count'].textContent=totalAudio.toLocaleString()+' audio files';
 }
 
 function onProgress({stage,current,total,pct,message}) {
@@ -1195,6 +1280,10 @@ function onProgress({stage,current,total,pct,message}) {
       const parts=message.split(': ');
       if (parts.length>1) addFeedRow(parts[parts.length-1],false,stage==='hashing');
     }
+    // Update live file count in scan header
+    if (total > 0 && D['scan-file-count']) {
+      D['scan-file-count'].textContent = current.toLocaleString() + ' / ' + total.toLocaleString() + ' files';
+    }
   } catch(e) { console.error('[MC] onProgress:',e); }
 }
 
@@ -1212,6 +1301,7 @@ function addFeedRow(name,isDup,isCur) {
 
 function onDone(d) {
   try {
+    stopScanTimer();
     A.scanning=false; A.groups=d.groups||[]; A.files=d.allFiles||[]; A.corrupt=d.corrupt||[];
     const elapsed=Math.round((Date.now()-A.scanStart)/1000);
     setScanBtn(false);
@@ -1237,6 +1327,7 @@ function onDone(d) {
     if (D['search-wrap']) D['search-wrap'].classList.add('on');
     if (D['filter-wrap']) D['filter-wrap'].classList.add('on');
     if (D['rescan-btn'])  D['rescan-btn'].classList.add('on');
+    if (A.groups.length && D['bulk-strip']) D['bulk-strip'].classList.add('on');
     if (D['rh-reclaim']) D['rh-reclaim'].textContent=fmtMB(parseFloat(d.totalWastedMB||0));
     if (D['rh-files'])   D['rh-files'].textContent=fmt(d.removableCount||0);
     if (D['rh-groups'])  D['rh-groups'].textContent=fmt(A.groups.length);
@@ -1254,6 +1345,7 @@ function onDone(d) {
 }
 
 function handleScanError(msg) {
+  stopScanTimer();
   A.scanning=false; setScanBtn(false); switchState('idle');
   toast('Scan error: '+(msg||'Unknown'),'err');
   initWorker();
@@ -1300,7 +1392,17 @@ function renderGroups() {
   const sl=gs.slice((A.page-1)*A.PP,A.page*A.PP);
   if (!sl.length) {
     gc.innerHTML=''; if(pg)pg.innerHTML='';
-    if(de){de.style.display='flex';if(D['de-title'])D['de-title'].textContent=A.groups.length?'No Matches':'No Duplicates Found';}
+    if(de){
+      de.style.display='flex';
+      if(D['de-title']){
+        if(A.groups.length){ D['de-title'].textContent='No Matches'; }
+        else if(A.files.length){
+          D['de-title'].textContent='Library is clean ✓';
+          const sub=de.querySelector('.e-sub');
+          if(sub) sub.innerHTML='No duplicates in <em>'+A.files.length.toLocaleString()+' files</em> scanned.';
+        }
+      }
+    }
     return;
   }
   if(de)de.style.display='none';
@@ -1367,6 +1469,28 @@ function togSel(id,checked,isKeep) {
   document.getElementById('fr-'+id)?.classList.toggle('marked',checked);
   updateActBar();
 }
+
+/* ── Bulk selection by type ──────────────────────────────────────────────── */
+function bulkSelType(type) {
+  const grps = A.groups.filter(g => g.type === type);
+  if (!grps.length) { toast('No ' + type.replace('_',' ') + ' groups found', 'info'); return; }
+  // If all are already selected, deselect them (toggle)
+  const allSel = grps.every(g => g.files.filter(f => f.name !== g.keep).every(f => A.sel.has(f.id)));
+  grps.forEach(g => g.files.forEach(f => {
+    if (f.name !== g.keep) { if (allSel) A.sel.delete(f.id); else A.sel.add(f.id); }
+  }));
+  // Update active state on buttons
+  document.querySelectorAll('.bulk-btn').forEach(b => b.classList.remove('active'));
+  if (!allSel) {
+    const btnId = type === 'exact_file' ? 'bulk-exact' : type === 'exact_audio' ? 'bulk-audio' : null;
+    if (btnId) D[btnId]?.classList.add('active');
+  }
+  updateActBar();
+  renderGroups();
+  const n = grps.reduce((s, g) => s + g.files.filter(f => f.name !== g.keep).length, 0);
+  toast((allSel ? 'Deselected' : 'Selected') + ' ' + n + ' files from ' + grps.length + ' groups', 'ok');
+}
+
 function autoSel() {
   A.sel.clear();
   A.groups.forEach(g=>g.files.forEach(f=>{if(f.name!==g.keep)A.sel.add(f.id);}));
@@ -1594,6 +1718,14 @@ document.addEventListener('DOMContentLoaded',()=>{
   initPWA();
   switchState('idle');
   openWN(); closeWN(); // pre-populate wn-body
+  // Restore last folder hint
+  const lf = sessionStorage.getItem('mc-last-folder');
+  if (lf) {
+    const dt = document.querySelector('.drop-t');
+    const ds = document.querySelector('.drop-s');
+    if (dt) dt.textContent = 'Last: ' + lf;
+    if (ds) ds.innerHTML = 'Click to re-open, or select a different folder';
+  }
 });
 </script>
 </body>
